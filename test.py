@@ -50,8 +50,6 @@ def test(args, options):
     
     command = getCommand(problemName, programFile)
 
-    print(command)
-
     if(command == -1):
         return
 
@@ -67,7 +65,6 @@ def test(args, options):
             print(answer)
             print("actual:")
             print(result)
-        print()
     
     if passed and "-a" in options:
         archive(args, options)
