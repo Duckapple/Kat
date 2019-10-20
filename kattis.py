@@ -68,7 +68,7 @@ def get(args, forced):
     z = zipfile.ZipFile(io.BytesIO(r.content))
     os.makedirs(args[0])
     z.extractall(args[0] + "/test")
-    shutil.copy2("boilerplate.py", args[0] + "/" + args[0] + ".py")
+    shutil.copy2(os.path.dirname(os.path.realpath(__file__)) + "/boilerplate.py", args[0] + "/" + args[0] + ".py")
     print("Successfully initialized exercise", args[0] + "!")
     print("You can test your script with 'kattis test " + args[0] + "'")
 
