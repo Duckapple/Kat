@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys, os, requests, zipfile, io, shutil, subprocess
 
 def printUsage():
