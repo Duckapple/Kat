@@ -44,11 +44,11 @@ def test(args, options):
     ansFiles = [testPath + "/" + f for f in files if f.endswith(".ans")]
     passed = True
     
-    programFile = getSourceFile(problemName)
+    programFile = args[1] if args[1:] else getSourceFile(problemName)
     if(programFile == -1):
         return
     
-    command = getCommand(problemName, programFile)
+    command = getCommand(programFile)
 
     if(command == -1):
         return
@@ -74,8 +74,8 @@ def runSingleTest(command, inFile):
     return subprocess.run(command, stdout=subprocess.PIPE, input=inp).stdout.decode("utf-8").replace("\r\n", "\n")
 
 def getSourceFile(problemName):
-    files = [f for f in os.listdir(problemName) if isValidSourceFile(problemName, f)]
-
+    files = [os.path.join(problemName, f) for f in os.listdir(problemName) if isValidSourceFile(problemName, f)]
+    
     if(len(files) == 0):
         print("No source file fould for problem '" + problemName + "'.\nCreate a file inside the folder matching the problem (for example '"+problemName+"/answer.py')")
         return -1
@@ -99,15 +99,13 @@ def isValidSourceFile(dir, file):
     extension = os.path.splitext(file)[1]
     return os.path.isfile(p) and extension in _LANGUAGE_COMMANDS
 
-def getCommand(dir, file):
+def getCommand(file):
     [basename, extension] = os.path.splitext(file)
     if(extension not in _LANGUAGE_COMMANDS):
         print("Unsupported programming language")
         return -1
-    
     cmd = _LANGUAGE_COMMANDS[extension]
-    path = os.path.join(dir, file)
-    return [p.replace("@f", path) for p in cmd]
+    return [p.replace("@f", file) for p in cmd]
     
 def getBytesFromFile(file):
     inFile = open(file, "rb")
