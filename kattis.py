@@ -41,8 +41,14 @@ def test(args):
             print(result)
         print()
 
+def help(args):
+    print("Available Commands:")
+    print("get: Downloads the sample input-output files for the problem and creates a directory for the problem.")
+    print("submit: Submits your work to kattis for judgement.")
+    print("test: Runs your program locally using the downloaded .in files and compares them with the .ans files.")
+
 def main():
-    command = sys.argv[1]
+    command = sys.argv[1] if sys.argv[1:] else ''
     args = sys.argv[2:]
     if command == "get":
         get(args)
@@ -50,8 +56,11 @@ def main():
         submit(args)
     elif command == "test":
         test(args)
+    elif command == "help":
+        help(args)
     else: 
         print("Whoops, did not recognize command", command)
+        help(args)
         return
     
 
