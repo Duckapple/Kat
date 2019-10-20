@@ -1,12 +1,12 @@
 import os, subprocess
-
+import re
 from get import promptToGet
 
 _LANGUAGE_COMMANDS = {
     '.py': ['python3', '@f'],
     '.php': ['php', '@f'],
     # TODO: Figure out how to pass class name to java and possibly compile the class beforehand
-    # '.java': ['java', '@c'],
+    '.java': ['java', '@c'],
     # TODO: Support rest of the languages that kattis supports
 }
 
@@ -31,6 +31,10 @@ _LANGUAGE_GUESS = {
     '.rb': 'Ruby'
 }
 
+_REQUIRES_CLASS = [
+    '.java'
+]
+
 def test(args, options):
     problemName = args[0]
 
@@ -48,14 +52,14 @@ def test(args, options):
     if(programFile == -1):
         return
     
-    command = getCommand(programFile)
+    command = getCommand(problemName, programFile)
 
     if(command == -1):
         return
 
     for inF, ansF in zip(inFiles, ansFiles):
         answer = getBytesFromFile(ansF).decode("utf-8")
-        result = runSingleTest(command, inF)
+        result = runSingleTest(command, inF, problemName)
         if (answer == result):
             print("\U0001F49A", inF, "succeeded")
         else:
@@ -69,12 +73,13 @@ def test(args, options):
     if passed and "-a" in options:
         archive(args, options)
 
-def runSingleTest(command, inFile):
+def runSingleTest(command, inFile, problemName):
     inp = getBytesFromFile(inFile)
-    return subprocess.run(command, stdout=subprocess.PIPE, input=inp).stdout.decode("utf-8").replace("\r\n", "\n")
+    directory = os.path.join(os.getcwd(), problemName)
+    return subprocess.run(command, stdout=subprocess.PIPE, input=inp, cwd=directory).stdout.decode("utf-8").replace("\r\n", "\n")
 
 def getSourceFile(problemName):
-    files = [os.path.join(problemName, f) for f in os.listdir(problemName) if isValidSourceFile(problemName, f)]
+    files = [f for f in os.listdir(problemName) if isValidSourceFile(problemName, f)]
     
     if(len(files) == 0):
         print("No source file fould for problem '" + problemName + "'.\nCreate a file inside the folder matching the problem (for example '"+problemName+"/answer.py')")
@@ -99,14 +104,27 @@ def isValidSourceFile(dir, file):
     extension = os.path.splitext(file)[1]
     return os.path.isfile(p) and extension in _LANGUAGE_COMMANDS
 
-def getCommand(file):
+def getCommand(dir, file):
     [basename, extension] = os.path.splitext(file)
     if(extension not in _LANGUAGE_COMMANDS):
         print("Unsupported programming language")
         return -1
     cmd = _LANGUAGE_COMMANDS[extension]
-    return [p.replace("@f", file) for p in cmd]
+    className = "" if extension not in _REQUIRES_CLASS else detectClassName(dir, file)
+    if(className == -1):
+        return -1
+    return [p.replace("@f", file).replace("@c", className) for p in cmd]
     
+def detectClassName(dir, file):
+    content = getBytesFromFile(os.path.join(dir, file)).decode("utf-8")
+    extension = os.path.splitext(file)[1]
+    match = re.search("class (\w+\\n)", content)
+    if match is None:
+        print("Could not detect class in file '"+file+"'")
+        return -1
+    
+    return match.group(1).strip()
+
 def getBytesFromFile(file):
     inFile = open(file, "rb")
     result = inFile.read()
