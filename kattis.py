@@ -43,6 +43,7 @@ def test(args):
 
 def help(args):
     print("Available Commands:")
+    print("help: Prints this message.")
     print("get: Downloads the sample input-output files for the problem and creates a directory for the problem.")
     print("submit: Submits your work to kattis for judgement.")
     print("test: Runs your program locally using the downloaded .in files and compares them with the .ans files.")
