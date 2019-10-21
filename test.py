@@ -2,14 +2,6 @@ import os, subprocess
 import re
 from get import promptToGet
 
-_LANGUAGE_COMMANDS = {
-    '.py': ['python3', '@f'],
-    '.php': ['php', '@f'],
-    # TODO: Figure out how to pass class name to java and possibly compile the class beforehand
-    '.java': ['java', '@c'],
-    # TODO: Support rest of the languages that kattis supports
-}
-
 _LANGUAGE_GUESS = {
     '.c': 'C',
     '.c#': 'C#',
@@ -31,55 +23,50 @@ _LANGUAGE_GUESS = {
     '.rb': 'Ruby'
 }
 
+_LANGUAGE_COMMANDS = {
+    '.py': ['python3', '@f'],
+    '.php': ['php', '@f'],
+    # TODO: Figure out how to pass class name to java and possibly compile the class beforehand
+    '.java': ['java', '@c'],
+    # TODO: Support rest of the languages that kattis supports
+}
+
 _REQUIRES_CLASS = [
     '.java'
 ]
 
 def test(args, options):
     problemName = args[0]
-
+    
     if not os.path.exists(problemName):
         promptToGet(args, options)
         return
-    
-    testPath = problemName + "/test"
-    files = [f for f in os.listdir(testPath) if os.path.isfile(os.path.join(testPath, f))]
-    inFiles = [testPath + "/" + f for f in files if f.endswith(".in")]
-    ansFiles = [testPath + "/" + f for f in files if f.endswith(".ans")]
-    passed = True
-    
-    programFile = args[1] if args[1:] else getSourceFile(problemName)
+
+    # if programFile is not given, we will attempt to guess it
+    programFile = args[1] if args[1:] else selectProgramFile(problemName)
     if(programFile == -1):
         return
     
+    inFiles, ansFiles = getTestFiles(problemName)
+    passed = True
+    
     command = getCommand(problemName, programFile)
+    directory = os.path.join(os.getcwd(), problemName)
 
     if(command == -1):
         return
 
     for inF, ansF in zip(inFiles, ansFiles):
-        answer = getBytesFromFile(ansF).decode("utf-8")
-        result = runSingleTest(command, inF, problemName)
-        if (answer == result):
-            print("\U0001F49A", inF, "succeeded")
-        else:
+        result = runSingleTest(command, directory, inF, ansF)
+        if(not result):
             passed = False
-            print("\U0000274C", inF, "failed")
-            print("expected:")
-            print(answer)
-            print("actual:")
-            print(result)
-    
+        
     if passed and "-a" in options:
         archive(args, options)
 
-def runSingleTest(command, inFile, problemName):
-    inp = getBytesFromFile(inFile)
-    directory = os.path.join(os.getcwd(), problemName)
-    return subprocess.run(command, stdout=subprocess.PIPE, input=inp, cwd=directory).stdout.decode("utf-8").replace("\r\n", "\n")
-
-def getSourceFile(problemName):
-    files = [f for f in os.listdir(problemName) if isValidSourceFile(problemName, f)]
+def selectProgramFile(problemName):
+    files = [formatProgramFile(problemName, f) for f in os.listdir(problemName)]
+    files = list(filter(isValidProgramFile, files))
     
     if(len(files) == 0):
         print("No source file fould for problem '" + problemName + "'.\nCreate a file inside the folder matching the problem (for example '"+problemName+"/answer.py')")
@@ -89,35 +76,63 @@ def getSourceFile(problemName):
         print("Multiple source files found. Choose one:")
         i = 0
         for f in files:
-            extension = os.path.splitext(f)[1]
-            language = _LANGUAGE_GUESS[extension]
-            print(str(i+1)+") " + f + " ("+language+")")
+            language = _LANGUAGE_GUESS[f['extension']]
+            print(str(i+1)+") " + f['name'] + " ("+language+")")
             i+=1
-        chosen = files[int(input()) - 1]
-        print("Running tests on " + chosen)
+        chosen = files[int(input("Enter number corresponding to a file: ")) - 1]
+        print("Running tests on " + chosen['name'])
         return chosen
     
     return files[0]
 
-def isValidSourceFile(dir, file):
-    p = os.path.join(dir, file)
-    extension = os.path.splitext(file)[1]
-    return os.path.isfile(p) and extension in _LANGUAGE_COMMANDS
+def isValidProgramFile(file):
+    return os.path.isfile(file["relativePath"]) and file["extension"] in _LANGUAGE_COMMANDS
 
-def getCommand(dir, file):
-    [basename, extension] = os.path.splitext(file)
-    if(extension not in _LANGUAGE_COMMANDS):
+def formatProgramFile(dir, file):
+    return {
+        "relativePath": os.path.join(dir, file),
+        "extension": os.path.splitext(file)[1],
+        "name": file,
+    }
+
+def getTestFiles(problemName):
+    testPath = problemName + "/test"
+    files = [f for f in os.listdir(testPath) if os.path.isfile(os.path.join(testPath, f))]
+    inFiles = [testPath + "/" + f for f in files if f.endswith(".in")]
+    ansFiles = [testPath + "/" + f for f in files if f.endswith(".ans")]
+
+    return inFiles, ansFiles
+
+def runSingleTest(command, directory, inFile, answerFile):
+    inp = getBytesFromFile(inFile)
+    answer = getBytesFromFile(answerFile).decode("utf-8")
+    result = subprocess.run(command, stdout=subprocess.PIPE, input=inp, cwd=directory).stdout.decode("utf-8").replace("\r\n", "\n")
+
+    if (answer == result):
+        print("\U0001F49A", inFile, "succeeded")
+        return True
+    else:
+        print("\U0000274C", inFile, "failed")
+        print("expected:")
+        print(answer)
+        print("actual:")
+        print(result)
+        return False
+
+def getCommand(problemName, programFile):
+    if(programFile['extension'] not in _LANGUAGE_COMMANDS):
         print("Unsupported programming language")
         return -1
-    cmd = _LANGUAGE_COMMANDS[extension]
-    className = "" if extension not in _REQUIRES_CLASS else detectClassName(dir, file)
+
+    cmd = _LANGUAGE_COMMANDS[programFile['extension']]
+
+    className = "" if programFile['extension'] not in _REQUIRES_CLASS else detectClassName(problemName, programFile)
     if(className == -1):
         return -1
-    return [p.replace("@f", file).replace("@c", className) for p in cmd]
+    return [p.replace("@f", programFile['name']).replace("@c", className) for p in cmd]
     
 def detectClassName(dir, file):
-    content = getBytesFromFile(os.path.join(dir, file)).decode("utf-8")
-    extension = os.path.splitext(file)[1]
+    content = getBytesFromFile(file['relativePath']).decode("utf-8")
     match = re.search("class (\w+\\n)", content)
     if match is None:
         print("Could not detect class in file '"+file+"'")
