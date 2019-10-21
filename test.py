@@ -34,7 +34,7 @@ _LANGUAGE_COMPILE_COMMANDS = {
     '.java': ['javac', '@f']
 }
 
-_REQUIRES_CLASS = [
+_LANGUAGE_REQUIRES_CLASS = [
     '.java'
 ]
 
@@ -140,17 +140,9 @@ def getRunCommand(programFile):
     cmd = _LANGUAGE_RUN_COMMANDS[programFile['extension']]
 
     return [formatCommand(p, programFile) for p in cmd]
-
-def compile(file, directory):
-    if(file['extension'] not in _LANGUAGE_COMPILE_COMMANDS):
-        print("Files of this type should not be compiled")
-        return -1
-    print("Compiling " + file['name'])
-    cmd = [formatCommand(p, file) for p in _LANGUAGE_COMPILE_COMMANDS[file['extension']]]
-    subprocess.run(cmd, cwd=directory)
     
 def formatCommand(cmd, file):
-    className = "" if file['extension'] not in _REQUIRES_CLASS else detectClassName(file)
+    className = "" if file['extension'] not in _LANGUAGE_REQUIRES_CLASS else detectClassName(file)
     if(className == -1):
         return -1
 
@@ -164,6 +156,14 @@ def detectClassName(file):
         return -1
     
     return match.group(1).strip()
+
+def compile(file, directory):
+    if(file['extension'] not in _LANGUAGE_COMPILE_COMMANDS):
+        print("Files of this type should not be compiled")
+        return -1
+    print("Compiling " + file['name'])
+    cmd = [formatCommand(p, file) for p in _LANGUAGE_COMPILE_COMMANDS[file['extension']]]
+    subprocess.run(cmd, cwd=directory)
 
 def shouldCompile(file):
     return file['extension'] in _LANGUAGE_COMPILE_COMMANDS
