@@ -47,11 +47,11 @@ def test(args, options):
         return
 
     # if programFile is not given, we will attempt to guess it
-    programFile = args[1] if args[1:] else selectProgramFile(problemName)
+    programFile = formatProgramFile(args[1]) if args[1:] else selectProgramFile(problemName)
     if(programFile == -1):
         return
     
-    if(programFile['extension'] in _LANGUAGE_COMPILE_COMMANDS):
+    if(shouldCompile(programFile)):
         if(compile(programFile, directory) == -1):
             return
     
@@ -72,34 +72,36 @@ def test(args, options):
         archive(args, options)
 
 def selectProgramFile(problemName):
-    files = [formatProgramFile(problemName, f) for f in os.listdir(problemName)]
+    # Get all files, and format them
+    files = [formatProgramFile(os.path.join(problemName, f)) for f in os.listdir(problemName)]
+    # ..but only select those which we support
     files = list(filter(isValidProgramFile, files))
     
     if(len(files) == 0):
         print("No source file fould for problem '" + problemName + "'.\nCreate a file inside the folder matching the problem (for example '"+problemName+"/answer.py')")
         return -1
     
-    if(len(files) > 1):
-        print("Multiple source files found. Choose one:")
-        i = 0
-        for f in files:
-            language = _LANGUAGE_GUESS[f['extension']]
-            print(str(i+1)+") " + f['name'] + " ("+language+")")
-            i+=1
-        chosen = files[int(input("Enter number corresponding to a file: ")) - 1]
-        print("Running tests on " + chosen['name'])
-        return chosen
+    if(len(files) == 1):
+        return files[0]
     
-    return files[0]
+    print("Multiple source files found. Choose one:")
+    i = 0
+    for f in files:
+        language = _LANGUAGE_GUESS[f['extension']]
+        print(str(i+1)+") " + f['name'] + " ("+language+")")
+        i+=1
+    chosen = files[int(input("Enter number corresponding to a file: ")) - 1]
+    print("Running tests on " + chosen['name'])
+    return chosen
 
 def isValidProgramFile(file):
     return os.path.isfile(file["relativePath"]) and file["extension"] in _LANGUAGE_RUN_COMMANDS
 
-def formatProgramFile(dir, file):
+def formatProgramFile(file):
     return {
-        "relativePath": os.path.join(dir, file),
+        "relativePath": file,
         "extension": os.path.splitext(file)[1],
-        "name": file,
+        "name": os.path.basename(file),
     }
 
 def getTestFiles(problemName):
@@ -107,6 +109,10 @@ def getTestFiles(problemName):
     files = [f for f in os.listdir(testPath) if os.path.isfile(os.path.join(testPath, f))]
     inFiles = [testPath + "/" + f for f in files if f.endswith(".in")]
     ansFiles = [testPath + "/" + f for f in files if f.endswith(".ans")]
+
+    # For some reason the files are loaded in descending order, so we need to reverse the lists
+    inFiles.reverse()
+    ansFiles.reverse()
 
     return inFiles, ansFiles
 
@@ -158,6 +164,9 @@ def detectClassName(file):
         return -1
     
     return match.group(1).strip()
+
+def shouldCompile(file):
+    return file['extension'] in _LANGUAGE_COMPILE_COMMANDS
 
 def getBytesFromFile(file):
     inFile = open(file, "rb")
