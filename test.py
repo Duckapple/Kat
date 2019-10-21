@@ -110,9 +110,9 @@ def getTestFiles(problemName):
     inFiles = [testPath + "/" + f for f in files if f.endswith(".in")]
     ansFiles = [testPath + "/" + f for f in files if f.endswith(".ans")]
 
-    # For some reason the files are loaded in descending order, so we need to reverse the lists
-    inFiles.reverse()
-    ansFiles.reverse()
+    # For some reason files aren't alwats given in the correct order, so we must sort the lists first
+    inFiles.sort()
+    ansFiles.sort()
 
     return inFiles, ansFiles
 
