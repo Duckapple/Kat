@@ -24,7 +24,7 @@ _LANGUAGE_GUESS = {
 }
 
 _LANGUAGE_RUN_COMMANDS = {
-    '.py': ['python3', '@f'],
+    '.py': ['python', '@f'],
     '.php': ['php', '@f'],
     '.java': ['java', '@c'],
     # TODO: Support rest of the languages that kattis supports
