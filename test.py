@@ -27,6 +27,8 @@ def test(args, options):
     if programFile == -1:
         return
 
+    print("Running tests on " + programFile['name'])
+
     if shouldCompile(programFile):
         if compile(programFile, directory) == -1:
             return

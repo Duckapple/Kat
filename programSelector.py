@@ -65,7 +65,6 @@ def selectProgramFile(problemName):
         print(str(i + 1) + ") " + f["name"] + " (" + language + ")")
         i += 1
     chosen = files[int(input("Enter number corresponding to a file: ")) - 1]
-    print("Running tests on " + chosen["name"])
     return chosen
 
 

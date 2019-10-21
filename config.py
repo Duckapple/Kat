@@ -34,3 +34,12 @@ def getConfig():
         return -1
 
     return cfg
+
+def getUrl(cfg, option, default):
+    if cfg.has_option("kattis", option):
+        return cfg.get("kattis", option)
+    else:
+        return formatUrl(cfg.get("kattis", "hostname"), default)
+
+def formatUrl(hostname, path):
+    return "https://%s/%s" % (hostname, path)
