@@ -29,32 +29,16 @@ def submit(args, options):
 
     login(config, session)
 
-    print("Submitting...")
+    print("📨 Submitting "+problemName+"...")
 
     id = postSubmission(config, session, problemName, programFile)
 
-    print("Submission successfull (id "+id+")")
+    print("📬 Submission Successfull (url https://open.kattis.com/submissions/"+id+")")
 
     if id == -1:
         return
 
-    results = []
-    isRunning = True
-    testTotal = 0
-    while isRunning:
-        login(config, session)
-        newResults, testTotal = watchUntilCompleted(id, session, config)
-        for i in range(0, abs(len(newResults) - len(results))):
-            sys.stdout.write("\U0001F49A")
-        sys.stdout.flush()
-        if(testTotal != 0 and len(newResults) == int(testTotal)):
-            isRunning = False
-            break
-        results = newResults
-        time.sleep(1)
-    print()
-    print("🎉 Congratulations! You completed all " + testTotal + " tests for " + problemName)
-
+    printUntilDone(id, config, session)
 
 def login(config, session):
     username = config.get("user", "username")
@@ -105,6 +89,30 @@ def postSubmission(config, session, problemName, programFile):
     return match.group(1).strip()
 
 
+def printUntilDone(id, config, session):
+    lastTotal = 0
+    lastCount = 0
+    
+    print("⚖️  Submission Status:")
+
+    while True:
+        login(config, session)
+        testCount, testTotal = watchUntilCompleted(id, session, config)
+
+        for i in range(0, abs(lastCount - testCount)):
+            sys.stdout.write("💚")
+        sys.stdout.flush()
+
+        if(testTotal != 0 and testCount == testTotal):
+            break
+        
+        lastTotal = testTotal
+        lastCount = testCount
+        time.sleep(1)
+
+    print()
+    print("🎉 Congratulations! You completed all " + testTotal + " tests for " + problemName)
+
 def formatLanguage(language):
     if(language == "Python"):
         return formatPythonLanguage(language)
@@ -129,8 +137,7 @@ def watchUntilCompleted(id, session, cfg):
     soup = BeautifulSoup(body, 'html.parser')
     [info, testcases] = soup.select("#judge_table tbody tr")
     
-    results = []
-
+    successCount = 0
     testTotal = 0
 
     for testcase in testcases.select(".testcases > span"):
@@ -139,12 +146,18 @@ def watchUntilCompleted(id, session, cfg):
         testNumber = match.group(1)
         testTotal = match.group(2)
         testStatus = match.group(3)
+
         if(testStatus == "Wrong Answer"):
-            print("\U0000274C\nWrong answer on " + testNumber + " of " + testTotal)
+            print("\U0000274C\n💔 Wrong answer on " + testNumber + " of " + testTotal)
             sys.exit(1)
         elif testStatus == "not checked":
             break
+        elif testStatus == "Accepted":
+            successCount += 1
+        else:
+            print("⚠️\n😕 Unknown error '"+testStatus+"'. Please report this on our github so we can fix it in future versions")
+            sys.exit(1)
 
-        results.append(testStatus)
 
-    return results, testTotal
+
+    return successCount, int(testTotal)
