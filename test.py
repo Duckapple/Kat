@@ -23,12 +23,15 @@ _LANGUAGE_GUESS = {
     '.rb': 'Ruby'
 }
 
-_LANGUAGE_COMMANDS = {
+_LANGUAGE_RUN_COMMANDS = {
     '.py': ['python3', '@f'],
     '.php': ['php', '@f'],
-    # TODO: Figure out how to possibly compile the class beforehand
     '.java': ['java', '@c'],
     # TODO: Support rest of the languages that kattis supports
+}
+
+_LANGUAGE_COMPILE_COMMANDS = {
+    '.java': ['javac', '@f']
 }
 
 _REQUIRES_CLASS = [
@@ -37,6 +40,7 @@ _REQUIRES_CLASS = [
 
 def test(args, options):
     problemName = args[0]
+    directory = os.path.join(os.getcwd(), problemName)
     
     if not os.path.exists(problemName):
         promptToGet(args, options)
@@ -47,11 +51,14 @@ def test(args, options):
     if(programFile == -1):
         return
     
+    if(programFile['extension'] in _LANGUAGE_COMPILE_COMMANDS):
+        if(compile(programFile, directory) == -1):
+            return
+    
     inFiles, ansFiles = getTestFiles(problemName)
     passed = True
     
-    command = getCommand(problemName, programFile)
-    directory = os.path.join(os.getcwd(), problemName)
+    command = getRunCommand(programFile)
 
     if(command == -1):
         return
@@ -86,7 +93,7 @@ def selectProgramFile(problemName):
     return files[0]
 
 def isValidProgramFile(file):
-    return os.path.isfile(file["relativePath"]) and file["extension"] in _LANGUAGE_COMMANDS
+    return os.path.isfile(file["relativePath"]) and file["extension"] in _LANGUAGE_RUN_COMMANDS
 
 def formatProgramFile(dir, file):
     return {
@@ -119,19 +126,31 @@ def runSingleTest(command, directory, inFile, answerFile):
         print(result)
         return False
 
-def getCommand(problemName, programFile):
-    if(programFile['extension'] not in _LANGUAGE_COMMANDS):
+def getRunCommand(programFile):
+    if(programFile['extension'] not in _LANGUAGE_RUN_COMMANDS):
         print("Unsupported programming language")
         return -1
 
-    cmd = _LANGUAGE_COMMANDS[programFile['extension']]
+    cmd = _LANGUAGE_RUN_COMMANDS[programFile['extension']]
 
-    className = "" if programFile['extension'] not in _REQUIRES_CLASS else detectClassName(problemName, programFile)
+    return [formatCommand(p, programFile) for p in cmd]
+
+def compile(file, directory):
+    if(file['extension'] not in _LANGUAGE_COMPILE_COMMANDS):
+        print("Files of this type should not be compiled")
+        return -1
+    print("Compiling " + file['name'])
+    cmd = [formatCommand(p, file) for p in _LANGUAGE_COMPILE_COMMANDS[file['extension']]]
+    subprocess.run(cmd, cwd=directory)
+    
+def formatCommand(cmd, file):
+    className = "" if file['extension'] not in _REQUIRES_CLASS else detectClassName(file)
     if(className == -1):
         return -1
-    return [p.replace("@f", programFile['name']).replace("@c", className) for p in cmd]
-    
-def detectClassName(dir, file):
+
+    return cmd.replace("@f", file['name']).replace("@c", className)
+
+def detectClassName(file):
     content = getBytesFromFile(file['relativePath']).decode("utf-8")
     match = re.search("class (\w+\\n)", content)
     if match is None:
