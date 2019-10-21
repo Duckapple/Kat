@@ -150,9 +150,9 @@ def formatCommand(cmd, file):
 
 def detectClassName(file):
     content = getBytesFromFile(file['relativePath']).decode("utf-8")
-    match = re.search("class (\w+\\n)", content)
+    match = re.search("class (\w+)", content)
     if match is None:
-        print("Could not detect class in file '"+file+"'")
+        print("Could not detect class in file '"+file['name']+"'")
         return -1
     
     return match.group(1).strip()
@@ -162,7 +162,12 @@ def compile(file, directory):
         print("Files of this type should not be compiled")
         return -1
     print("Compiling " + file['name'])
+    
     cmd = [formatCommand(p, file) for p in _LANGUAGE_COMPILE_COMMANDS[file['extension']]]
+    if(-1 in cmd):
+        print("Error duing compilation")
+        return -1
+    
     subprocess.run(cmd, cwd=directory)
 
 def shouldCompile(file):
