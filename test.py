@@ -26,7 +26,7 @@ _LANGUAGE_GUESS = {
 _LANGUAGE_COMMANDS = {
     '.py': ['python3', '@f'],
     '.php': ['php', '@f'],
-    # TODO: Figure out how to pass class name to java and possibly compile the class beforehand
+    # TODO: Figure out how to possibly compile the class beforehand
     '.java': ['java', '@c'],
     # TODO: Support rest of the languages that kattis supports
 }
