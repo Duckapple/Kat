@@ -8,6 +8,7 @@ from programSelector import (
     detectClassName,
 )
 from config import getConfig, getUrl, formatUrl
+from archive import archive
 from bs4 import BeautifulSoup
 
 _HEADERS = {"User-Agent": "Kat"}
@@ -55,6 +56,9 @@ def submit(args, options):
         return
 
     printUntilDone(id, problemName, config, session)
+
+    if "-a" in options:
+        archive(args, options)
 
 
 def login(config, session):
