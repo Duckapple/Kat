@@ -148,7 +148,6 @@ def fetchNewSubmissionStatus(id, session, cfg):
     if status.text == "Compile Error":
         print("⛔ Your submission had a 'Compile Error' while being tested.")
         sys.exit(1)
-    # TODO: Catch other errors, such as timeout (see kattis docs perhabs)
 
     successCount = 0
     testTotal = 0
@@ -170,7 +169,39 @@ def fetchNewSubmissionStatus(id, session, cfg):
         elif testStatus == "not checked":
             break
         elif testStatus == "Wrong Answer":
-            print("\U0000274C\n💔 Wrong answer on " + testNumber + " of " + testTotal)
+            print("\U0000274C\n💔 Wrong Answer on " + testNumber + " of " + testTotal)
+            sys.exit(1)
+        elif testStatus == "Run Time Error":
+            print("\U0000274C\n💥 Run Time Error on " + testNumber + " of " + testTotal)
+            sys.exit(1)
+        elif testStatus == "Time Limit Exceeded":
+            print(
+                "\U0000274C\n⌛ Time Limit Exceeded on "
+                + testNumber
+                + " of "
+                + testTotal
+            )
+            sys.exit(1)
+        elif testStatus == "Memory Limit Exceeded":
+            print(
+                "\U0000274C\n🙀 Memory Limit Exceeded on "
+                + testNumber
+                + " of "
+                + testTotal
+            )
+            sys.exit(1)
+        elif testStatus == "Output Limit Exceeded":
+            print(
+                "\U0000274C\n🙀 Output Limit Exceeded on "
+                + testNumber
+                + " of "
+                + testTotal
+            )
+            sys.exit(1)
+        elif testStatus == "Judge Error":
+            print(
+                "\U0000274C\n❗ The near-impossible has happened! Kattis reported a 'Judge Error' while processing your submission. You should probably contact them."
+            )
             sys.exit(1)
         else:
             print(
