@@ -104,11 +104,7 @@ def getRunCommand(programFile):
 
 
 def formatCommand(cmd, file):
-    className = (
-        ""
-        if file["extension"] not in _LANGUAGE_REQUIRES_CLASS
-        else detectClassName(file)
-    )
+    className = "" if not requiresClass(file) else detectClassName(file)
     if className == -1:
         return -1
 
@@ -141,3 +137,7 @@ def guessLanguage(file):
         if file["extension"] in _LANGUAGE_GUESS
         else -1
     )
+
+
+def requiresClass(file):
+    return file["extension"] in _LANGUAGE_REQUIRES_CLASS

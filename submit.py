@@ -1,6 +1,12 @@
 import os, requests, sys, re, json, time
 from get import promptToGet
-from programSelector import formatProgramFile, selectProgramFile, guessLanguage
+from programSelector import (
+    formatProgramFile,
+    selectProgramFile,
+    guessLanguage,
+    requiresClass,
+    detectClassName,
+)
 from config import getConfig, getUrl, formatUrl
 from bs4 import BeautifulSoup
 
@@ -66,10 +72,12 @@ def postSubmission(config, session, problemName, programFile):
         "submit": "true",
         "submit_ctr": 2,
         "language": formatLanguage(language),
-        # "mainclass": mainclass,
         "problem": problemName,
         "script": "true",
     }
+
+    if requiresClass(programFile):
+        data["mainclass"] = detectClassName(programFile)
 
     sub_files = []
     with open(programFile["relativePath"]) as sub_file:
@@ -103,7 +111,7 @@ def printUntilDone(id, problemName, config, session):
 
     while True:
         login(config, session)
-        testCount, testTotal = watchUntilCompleted(id, session, config)
+        testCount, testTotal = fetchNewSubmissionStatus(id, session, config)
 
         for i in range(0, abs(lastCount - testCount)):
             sys.stdout.write("💚")
@@ -142,7 +150,7 @@ def formatPythonLanguage(language):
     return "Python " + python_version
 
 
-def watchUntilCompleted(id, session, cfg):
+def fetchNewSubmissionStatus(id, session, cfg):
     response = session.get(
         "https://open.kattis.com/submissions/" + id, headers=_HEADERS
     )
@@ -151,8 +159,14 @@ def watchUntilCompleted(id, session, cfg):
     soup = BeautifulSoup(body, "html.parser")
     [info, testcases] = soup.select("#judge_table tbody tr")
 
+    status = info.select_one("td.status")
+
     successCount = 0
     testTotal = 0
+
+    if status.text == "Compile Error":
+        print("⛔ Your submission had a 'Compile Error' while being tested.")
+        sys.exit(1)
 
     for testcase in testcases.select(".testcases > span"):
         testResult = testcase.get("title")
@@ -161,18 +175,18 @@ def watchUntilCompleted(id, session, cfg):
         testTotal = match.group(2)
         testStatus = match.group(3)
 
-        if testStatus == "Wrong Answer":
-            print("\U0000274C\n💔 Wrong answer on " + testNumber + " of " + testTotal)
-            sys.exit(1)
-        elif testStatus == "not checked":
+        if testStatus == "not checked":
             break
         elif testStatus == "Accepted":
             successCount += 1
+        elif testStatus == "Wrong Answer":
+            print("\U0000274C\n💔 Wrong answer on " + testNumber + " of " + testTotal)
+            sys.exit(1)
         else:
             print(
-                "⚠️\n😕 Unknown error '"
+                "⚠️\n😕 Unknown error  '"
                 + testStatus
-                + "'. Please report this on our github so we can fix it in future versions"
+                + "' for test case. Please report this on our github so we can fix it in future versions"
             )
             sys.exit(1)
 
