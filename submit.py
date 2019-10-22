@@ -33,8 +33,6 @@ def submit(args, options):
 
     session = requests.Session()
 
-    login(config, session)
-
     print("📨 Submitting " + problemName + "...")
 
     id = postSubmission(config, session, problemName, programFile)
@@ -62,8 +60,11 @@ def login(config, session):
 
 
 def postSubmission(config, session, problemName, programFile):
+    login(config, session)
+
     url = getUrl(config, "submissionurl", "submit")
     language = guessLanguage(programFile)
+
     if language == -1:
         print("Could not guess language for " + programFile)
         return -1
@@ -133,6 +134,55 @@ def printUntilDone(id, problemName, config, session):
     )
 
 
+def fetchNewSubmissionStatus(id, session, cfg):
+    response = session.get(
+        "https://open.kattis.com/submissions/" + id, headers=_HEADERS
+    )
+
+    body = response.content.decode("utf-8")
+    soup = BeautifulSoup(body, "html.parser")
+    [info, testcases] = soup.select("#judge_table tbody tr")
+
+    status = info.select_one("td.status")
+
+    if status.text == "Compile Error":
+        print("⛔ Your submission had a 'Compile Error' while being tested.")
+        sys.exit(1)
+    # TODO: Catch other errors, such as timeout (see kattis docs perhabs)
+
+    successCount = 0
+    testTotal = 0
+
+    for testcase in testcases.select(".testcases > span"):
+        testResult = testcase.get("title")
+        match = re.search(r"Test case (\d+)\/(\d+): (.+)", testResult)
+        if match is None:
+            print(
+                "⚠️ Error while parsing test cases. Please report this on our github so we can fix it in future versions."
+            )
+            sys.exit(1)
+        testNumber = match.group(1)
+        testTotal = match.group(2)
+        testStatus = match.group(3)
+
+        if testStatus == "Accepted":
+            successCount += 1
+        elif testStatus == "not checked":
+            break
+        elif testStatus == "Wrong Answer":
+            print("\U0000274C\n💔 Wrong answer on " + testNumber + " of " + testTotal)
+            sys.exit(1)
+        else:
+            print(
+                "⚠️\n😕 Unknown error  '"
+                + testStatus
+                + "' for test case. Please report this on our github so we can fix it in future versions"
+            )
+            sys.exit(1)
+
+    return successCount, int(testTotal)
+
+
 def formatLanguage(language):
     if language == "Python":
         return formatPythonLanguage(language)
@@ -148,47 +198,3 @@ def formatPythonLanguage(language):
         sys.exit(1)
 
     return "Python " + python_version
-
-
-def fetchNewSubmissionStatus(id, session, cfg):
-    response = session.get(
-        "https://open.kattis.com/submissions/" + id, headers=_HEADERS
-    )
-
-    body = response.content.decode("utf-8")
-    soup = BeautifulSoup(body, "html.parser")
-    [info, testcases] = soup.select("#judge_table tbody tr")
-
-    status = info.select_one("td.status")
-
-    successCount = 0
-    testTotal = 0
-
-    if status.text == "Compile Error":
-        print("⛔ Your submission had a 'Compile Error' while being tested.")
-        sys.exit(1)
-
-    for testcase in testcases.select(".testcases > span"):
-        testResult = testcase.get("title")
-        match = re.search(r"Test case (\d+)\/(\d+): (.+)", testResult)
-        testNumber = match.group(1)
-        testTotal = match.group(2)
-        testStatus = match.group(3)
-
-        if testStatus == "not checked":
-            break
-        elif testStatus == "Accepted":
-            successCount += 1
-        elif testStatus == "Wrong Answer":
-            print("\U0000274C\n💔 Wrong answer on " + testNumber + " of " + testTotal)
-            sys.exit(1)
-        else:
-            print(
-                "⚠️\n😕 Unknown error  '"
-                + testStatus
-                + "' for test case. Please report this on our github so we can fix it in future versions"
-            )
-            sys.exit(1)
-
-    return successCount, int(testTotal)
-
