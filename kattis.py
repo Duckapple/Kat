@@ -7,32 +7,33 @@ from submit import submit
 from test import test
 from help import printHelp, helpIfNotCommand
 
+
 def divideArgs(args):
     arg = []
     options = []
     for word in args:
-        if ("-" in word):
+        if "-" in word:
             options.append(word)
         else:
             arg.append(word)
     return arg, options
 
-execCommand = {
-    "archive": archive,
-    "get": get,
-    "submit": submit,
-    "test": test
-}
+
+execCommand = {"archive": archive, "get": get, "submit": submit, "test": test}
+
 
 def main():
     args, options = divideArgs(sys.argv)
-    helpy = "-h" in options
-    command = args[1]
-    args = args[2:]
 
-    if (helpy):
+    command = args[1] if args[1:] else ""
+    args = args[2:] if args[2:] else []
+
+    if command == "" or "-h" in options:
         printHelp(command)
-    else: 
-        execCommand.get(command, helpIfNotCommand(command))(args, options)
-    
+    elif command in execCommand:
+        execCommand[command](args, options)
+    else:
+        helpIfNotCommand(command)
+
+
 main()
