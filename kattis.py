@@ -5,6 +5,7 @@ from archive import archive
 from get import get
 from submit import submit
 from test import test
+from list import listCommand
 from help import printHelp, helpIfNotCommand
 
 
@@ -19,7 +20,7 @@ def divideArgs(args):
     return arg, options
 
 
-execCommand = {"archive": archive, "get": get, "submit": submit, "test": test}
+execCommand = {"archive": archive, "get": get, "submit": submit, "test": test, "list": listCommand}
 
 
 def main():
