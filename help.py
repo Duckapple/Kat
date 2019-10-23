@@ -11,7 +11,6 @@ def printFullUsage():
     print("  submit   Submits the argument problem to the Kattis servers")
     print('  archive  Archives the problem in the ".archive"-folder')
     print("OPTIONS:")
-    print("  -f       Force the action directly (applies to <submit>)")
     print("  -h       Prints the help message for the typed command")
     print(
         "  -a       Archives the problem after executing the command (applies to <submit> and <test>)"
@@ -36,17 +35,22 @@ Usage: kattis [<options>] get <problem>
 
     Gets the argument problem test cases and prepares boilerplate""",
     "submit": """
-Usage: kattis [<options>] submit <problem>
+Usage: kattis [<options>] submit <problem> [filePath]
 
-    Submits the argument problem to the Kattis servers
+    Submits the argument problem to the Kattis servers.
+    If multiple supported source files are present within the problem 
+    directory, you will be prompted to choose one. Alternativly you 
+    can supply the path to your chosen script as a second argument.
 
 Options:
-    -a    Archives the problem after executing the command
-    -f    Force the action directly""",
+    -a    Archives the problem after executing the command""",
     "test": """
-Usage: kattis [<options>] test <problem>
+Usage: kattis [<options>] test <problem> [filePath]
 
-    Tests the argument problem against all test files
+    Tests the argument problem against all test files.
+    If multiple supported source files are present within the problem 
+    directory, you will be prompted to choose one. Alternativly you 
+    can supply the path to your chosen script as a second argument.
 
 Options:
     -a    Archives the problem after executing the command""",
