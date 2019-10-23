@@ -55,4 +55,4 @@ Options:
 
 def helpIfNotCommand(command):
     print("Whoops, did not recognize command " + command + ".")
-    printHelp()
+    printHelp(command)

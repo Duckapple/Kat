@@ -30,11 +30,10 @@ def main():
 
     if command == "" or "-h" in options:
         printHelp(command)
+    elif command in execCommand:
+        execCommand[command](args, options)
     else:
-        if command in execCommand:
-            execCommand[command](args, options)
-        else:
-            helpIfNotCommand(command)
+        helpIfNotCommand(command)
 
 
 main()
