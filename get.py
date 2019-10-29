@@ -2,10 +2,15 @@ import os, requests, zipfile, io, shutil
 
 
 def get(args, forced):
-    if os.path.exists(args[0]) or os.path.exists(".archive/" + args[0]):
-        print("⚠️ You have already gotten this problem!")
+    for arg in args:
+        getProblem(arg)
+
+
+def getProblem(problemName):
+    if os.path.exists(problemName) or os.path.exists(".archive/" + problemName):
+        print("⚠️ You have already gotten problem " + problemName + "!")
         return
-    problem = "https://open.kattis.com/problems/" + args[0]
+    problem = "https://open.kattis.com/problems/" + problemName
     existenceTest = requests.get(problem)
     if existenceTest.status_code != 200:
         print("⚠️ Problem does not exist!")
@@ -13,14 +18,14 @@ def get(args, forced):
     print("⬇️  Attempting to download exercise from kattis...")
     r = requests.get(problem + "/file/statement/samples.zip", stream=True)
     z = zipfile.ZipFile(io.BytesIO(r.content))
-    os.makedirs(args[0])
-    z.extractall(args[0] + "/test")
+    os.makedirs(problemName)
+    z.extractall(problemName + "/test")
     shutil.copy2(
         os.path.dirname(os.path.realpath(__file__)) + "/boilerplate.py",
-        args[0] + "/" + args[0] + ".py",
+        problemName + "/" + problemName + ".py",
     )
-    print("👍 Successfully initialized exercise", args[0] + "!")
-    print("   You can test your script with 'kattis test " + args[0] + "'")
+    print("👍 Successfully initialized exercise", problemName + "!")
+    print("   You can test your script with 'kattis test " + problemName + "'")
 
 
 def promptToGet(args, options):
