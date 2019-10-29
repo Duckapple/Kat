@@ -9,17 +9,7 @@ from watch import watch
 from list import listCommand
 from help import printHelp, helpIfNotCommand
 from read import readCommand
-
-
-def divideArgs(args):
-    arg = []
-    options = []
-    for word in args:
-        if "-" in word:
-            options.append(word)
-        else:
-            arg.append(word)
-    return arg, options
+from flags import divideArgs
 
 
 execCommand = {

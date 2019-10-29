@@ -223,3 +223,8 @@ def formatPythonLanguage(language):
         sys.exit(1)
 
     return "Python " + python_version
+
+submitFlags = [
+    ("archive", False),
+    ("force", False),
+]
