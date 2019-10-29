@@ -1,4 +1,7 @@
 import os, requests, sys, re, json, time
+from bs4 import BeautifulSoup
+from cli import yes
+from open import openSubmission
 from get import promptToGet
 from programSelector import (
     formatProgramFile,
@@ -10,7 +13,6 @@ from programSelector import (
 from auth import login
 from config import getConfig, getUrl, formatUrl
 from archive import archive
-from bs4 import BeautifulSoup
 
 _HEADERS = {"User-Agent": "Kat"}
 
@@ -41,6 +43,9 @@ def submit(args, options):
     if programFile == -1:
         return
 
+    if "-f" not in options:
+        confirmOrDie(problemName, programFile)
+
     config = getConfig()
 
     session = requests.Session()
@@ -56,10 +61,23 @@ def submit(args, options):
     if id == -1:
         return
 
-    printUntilDone(id, problemName, config, session)
+    if "-o" in options:
+        openSubmission(id)
+    else:
+        printUntilDone(id, problemName, config, session)
 
-    if "-a" in options:
-        archive(args, options)
+        if "-a" in options:
+            archive(args, options)
+
+
+def confirmOrDie(problemName, programFile):
+    print("Are you sure you want to submit?")
+    print("Problem: " + problemName)
+    print("File: " + programFile["relativePath"])
+    print("Language: " + guessLanguage(programFile))
+
+    if not yes():
+        sys.exit(1)
 
 
 def postSubmission(config, session, problemName, programFile):
