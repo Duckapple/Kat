@@ -1,12 +1,14 @@
 import os, requests, zipfile, io, shutil
 
+from open import openCommand
 
-def get(args, forced):
+
+def get(args, options):
     for arg in args:
-        getProblem(arg)
+        getProblem(arg, options)
 
 
-def getProblem(problemName):
+def getProblem(problemName, options):
     if os.path.exists(problemName) or os.path.exists(".archive/" + problemName):
         print("⚠️ You have already gotten problem " + problemName + "!")
         return
@@ -26,6 +28,8 @@ def getProblem(problemName):
     )
     print("👍 Successfully initialized exercise", problemName + "!")
     print("   You can test your script with 'kattis test " + problemName + "'")
+    if "-o" in options:
+        openCommand(problemName)
 
 
 def promptToGet(args, options):

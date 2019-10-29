@@ -14,6 +14,7 @@ def printFullUsage():
 
     print("OPTIONS:")
     print("  -h       Prints the help message for the typed command")
+    print("  -o       Opens the problem in your browser (applies only to <get> and <read>")
     print(
         "  -a       Archives the problem after executing the command if successful (applies to <submit> and <test>)"
     )
