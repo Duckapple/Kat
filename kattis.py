@@ -9,17 +9,7 @@ from watch import watch
 from list import listCommand
 from help import printHelp, helpIfNotCommand
 from read import readCommand
-
-
-def divideArgs(args):
-    arg = []
-    options = []
-    for word in args:
-        if "-" in word:
-            options.append(word)
-        else:
-            arg.append(word)
-    return arg, options
+from flags import divideArgs
 
 
 execCommand = {
@@ -39,7 +29,7 @@ def main():
     command = args[1] if args[1:] else ""
     args = args[2:] if args[2:] else []
 
-    if command == "" or "-h" in options:
+    if command == "" or "help" in options:
         printHelp(command)
     elif command in execCommand:
         execCommand[command](args, options)

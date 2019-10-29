@@ -93,3 +93,8 @@ def selectOne(needles, haystack, default=None):
 
 def intersect(list1, list2):
     return set(list1).intersection(set(list2))
+
+listFlags = [
+    ("page", True, "1"),
+    ("limit", True, "50"),
+]
