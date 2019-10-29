@@ -9,7 +9,9 @@ from watch import watch
 from list import listCommand
 from help import printHelp, helpIfNotCommand
 from read import readCommand
-from flags import divideArgs
+
+# from flags import divideArgs
+from ArgsParser import ArgsParser
 
 
 execCommand = {
@@ -24,15 +26,18 @@ execCommand = {
 
 
 def main():
-    args, options = divideArgs(sys.argv)
 
-    command = args[1] if args[1:] else ""
-    args = args[2:] if args[2:] else []
+    command = sys.argv[1] if sys.argv[1:] else ""
+    args = sys.argv[2:] if sys.argv[2:] else []
 
-    if command == "" or "help" in options:
+    parser = ArgsParser(args)
+
+    parser.parse(listFlags)
+
+    if command == "" or "help" in parser.options:
         printHelp(command)
     elif command in execCommand:
-        execCommand[command](args, options)
+        execCommand[command](parser)
     else:
         helpIfNotCommand(command)
 
