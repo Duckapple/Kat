@@ -66,10 +66,9 @@ def submit(args, options):
     else:
         printUntilDone(id, problemName, config, session)
 
-        if "-a" in options:
+        if "archive" in options:
             archive(args, options)
 
-<<<<<<< HEAD
 
 def confirmOrDie(problemName, programFile):
     print("Are you sure you want to submit?")
@@ -79,10 +78,6 @@ def confirmOrDie(problemName, programFile):
 
     if not yes():
         sys.exit(1)
-=======
-    if "archive" in options:
-        archive(args, options)
->>>>>>> Made the flags do anything at all
 
 
 def postSubmission(config, session, problemName, programFile):
