@@ -1,15 +1,17 @@
 from submit import submitFlags
 from test import testFlags
+from list import listFlags
 
 def defineFlags():
     flags = {}
     flagNames = set()
-    for flag in submitFlags + testFlags:
+    # Important! Add the flag definition to this statement!
+    for flag in submitFlags + testFlags + listFlags: 
         if flag[0] not in flagNames:
             flagNames.add(flag[0])
-            flags.update({flag[0]: flag[1]})
+            flags.update({flag[0]: flag[1:]})
         elif flag[1] and flag not in flags:
-            flags.update({flag[0]: flag[1]})
+            flags.update({flag[0]: flag[1:]})
     
     shorthands = {}
     for flag in flags:
@@ -53,7 +55,11 @@ def makeOption(word, nextWord):
         return splits
     flag = word.replace("-", "")
     if flag in flags:
-        if flags[flag] and not value:
+        flagDef = flags[flag]
+        if flagDef[0] and not value:
             value = nextWord
+            if not value:
+                value = flagDef[1]
         return {flag: value}
-        
+
+print(divideArgs(["get","-sa","-p=7","--limit"]))

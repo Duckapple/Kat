@@ -86,6 +86,6 @@ def runSingleTest(command, directory, inFile, answerFile):
         return False
 
 testFlags = [
-    ("archive", True),
+    ("archive", False),
     ("submit", False),
 ]
