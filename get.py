@@ -40,11 +40,6 @@ def promptToGet(args, options):
         get(args, options)
 
 
-def yes():
-    answer = input("(y/N): ").lower()
-    return answer == "y" or answer == "yes"
-
-
 def downloadSampleFiles(problemName, problemUrl):
     r = requests.get(problemUrl + "/file/statement/samples.zip", stream=True)
     if r.status_code != 200:
