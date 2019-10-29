@@ -9,11 +9,13 @@ def printFullUsage():
     print("  get      Gets the argument problem test cases and prepares boilerplate")
     print("  test     Tests the argument problem against all test files")
     print("  submit   Submits the argument problem to the Kattis servers")
-    print('  archive  Archives the problem in the ".archive"-folder')
+    print("  archive  Archives the problem in the '.archive'-folder")
+    print("  list     Lists some problems directly from Kattis")
+
     print("OPTIONS:")
     print("  -h       Prints the help message for the typed command")
     print(
-        "  -a       Archives the problem after executing the command (applies to <submit> and <test>)"
+        "  -a       Archives the problem after executing the command if successful (applies to <submit> and <test>)"
     )
 
 
@@ -54,6 +56,22 @@ Usage: kattis [<options>] test <problem> [filePath]
 
 Options:
     -a    Archives the problem after executing the command""",
+    "list": """
+Usage: kattis list [<sorting>] [<filter>]
+    
+    Lists problems directly from Kattis according to some criteria. 
+    Sorting and filtering can be applied in any order, and multiple 
+    filters can be applied.
+    
+Sortings:
+    easiest  Sorts the problems by ascending difficulty
+    hardest  Sorts the problems by descending difficulty
+    
+Filters:
+    unsolved
+    solved
+    untried
+    tried""",
 }
 
 
