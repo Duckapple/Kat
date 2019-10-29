@@ -8,7 +8,7 @@ Credits to Kattis and their own python script for submitting files [(found here)
 1. First of all download this repository (either by zip or git) and make sure to extract it to a known location.
 2. Install dependencies by running `pip3 install -r requirements.txt` inside the directory.
 3. Add the directory to %PATH or `ln -s /path/to/kat/kattis.py /usr/bin/kat` (latter only works on unix systems)
-
+4. To use most functionalities, add your personal configuration to this repository. Go to open.kattis.com > Help > How to submit > Download your personal configuaration file and download the resulting file to this folder.
 ## Usage:
 
 ### Get
