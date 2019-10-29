@@ -4,9 +4,13 @@ from open import openCommand
 
 
 def get(args, options):
-    problemName = args[0]
+    for arg in args:
+        getProblem(arg, options)
+
+
+def getProblem(problemName, options):
     if os.path.exists(problemName) or os.path.exists(".archive/" + problemName):
-        print("⚠️ You have already gotten this problem!")
+        print("⚠️ You have already gotten problem " + problemName + "!")
         return
     problem = "https://open.kattis.com/problems/" + problemName
     existenceTest = requests.get(problem)

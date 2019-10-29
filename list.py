@@ -15,8 +15,11 @@ def listCommand(args, options):
 
     problems = fetchProblems(url, parameters, session)
 
-    tableHeaders = ["Id", "Name", "Difficulty"]
-    print(tabulate(problems, tableHeaders, tablefmt="psql"))
+    if "-c" in options:
+        print(" ".join([x[0] for x in problems]))
+    else:
+        tableHeaders = ["Id", "Name", "Difficulty"]
+        print(tabulate(problems, tableHeaders, tablefmt="psql"))
 
 
 def buildParameters(args, options):

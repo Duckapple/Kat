@@ -1,2 +1,2 @@
 @echo off
-py kattis.py %*
+python %~dp0kattis.py %*
