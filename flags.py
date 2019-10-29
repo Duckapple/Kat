@@ -2,11 +2,11 @@ from submit import submitFlags
 from test import testFlags
 from list import listFlags
 
-def defineFlags():
+def defineFlags(args):
     flags = {}
     flagNames = set()
     # Important! Add the flag definition to this statement!
-    for flag in submitFlags + testFlags + listFlags: 
+    for flag in args: 
         if flag[0] not in flagNames:
             flagNames.add(flag[0])
             flags.update({flag[0]: flag[1:]})
@@ -25,7 +25,7 @@ def defineFlags():
 
     return flags
 
-flags = defineFlags()
+flags = defineFlags(submitFlags + testFlags + listFlags + [("help", False)])
 
 def divideArgs(args):
     arg = []
@@ -61,5 +61,3 @@ def makeOption(word, nextWord):
             if not value:
                 value = flagDef[1]
         return {flag: value}
-
-print(divideArgs(["get","-sa","-p=7","--limit"]))

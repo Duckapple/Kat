@@ -46,7 +46,7 @@ def test(args, options):
         if not result:
             passed = False
 
-    if passed and "-a" in options:
+    if passed and "archive" in options:
         archive(args, options)
 
 

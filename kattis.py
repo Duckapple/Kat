@@ -29,7 +29,7 @@ def main():
     command = args[1] if args[1:] else ""
     args = args[2:] if args[2:] else []
 
-    if command == "" or "-h" in options:
+    if command == "" or "help" in options:
         printHelp(command)
     elif command in execCommand:
         execCommand[command](args, options)
