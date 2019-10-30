@@ -9,7 +9,6 @@ def workCommand(args, options):
     problems = [x[0] for x in collectProblems(args, [])]
     currentI = 0
     currentProblem = getProblem(currentI, options, problems)
-    print(options)
     while True:
         command = input()
         if command == "exit":
