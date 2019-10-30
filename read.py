@@ -43,3 +43,7 @@ def fetchProblemText(url, options, session):
     textLines = addNewlines(textLines)
 
     return textLines
+
+readFlags = [
+    ("open", False),
+]

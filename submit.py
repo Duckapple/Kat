@@ -59,7 +59,7 @@ def submit(args, options):
     )
 
     if id == -1:
-        return
+        return False
 
     if "-o" in options:
         openSubmission(id)
@@ -68,6 +68,7 @@ def submit(args, options):
 
         if "archive" in options:
             archive(args, options)
+    return True
 
 
 def confirmOrDie(problemName, programFile):

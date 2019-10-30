@@ -1,6 +1,8 @@
 from submit import submitFlags
 from test import testFlags
 from list import listFlags
+from get import getFlags
+from read import readFlags
 
 def defineFlags(args):
     flags = {}
@@ -25,7 +27,8 @@ def defineFlags(args):
 
     return flags
 
-flags = defineFlags(submitFlags + testFlags + listFlags + [("help", False)])
+flags = defineFlags(submitFlags + testFlags + listFlags + getFlags + readFlags + [("help", False)])
+
 
 def divideArgs(args):
     arg = []
