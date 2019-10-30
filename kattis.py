@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys, os, shutil, subprocess
 
+from work import workCommand
 from archive import archive
 from get import get
 from submit import submit
@@ -20,6 +21,7 @@ execCommand = {
     "list": listCommand,
     "read": readCommand,
     "watch": watch,
+    "work": workCommand,
 }
 
 

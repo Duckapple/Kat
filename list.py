@@ -6,20 +6,23 @@ from tabulate import tabulate
 
 
 def listCommand(args, options):
-    session = requests.Session()
-    config = getConfig()
-    url = "https://open.kattis.com/problems/"
-    parameters = buildParameters(args, options)
-
-    login(config, session)
-
-    problems = fetchProblems(url, parameters, session)
+    problems = collectProblems(args, options)
 
     if "-c" in options:
         print(" ".join([x[0] for x in problems]))
     else:
         tableHeaders = ["Id", "Name", "Difficulty"]
         print(tabulate(problems, tableHeaders, tablefmt="psql"))
+
+
+def collectProblems(args, options):
+    session = requests.Session()
+    config = getConfig()
+    url = "https://open.kattis.com/problems/"
+    parameters = buildParameters(args, options)
+    login(config, session)
+    problems = fetchProblems(url, parameters, session)
+    return problems
 
 
 def buildParameters(args, options):

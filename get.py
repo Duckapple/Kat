@@ -28,7 +28,7 @@ def getProblem(problemName, options):
 
     print("👍 Successfully initialized exercise", problemName + "!")
     print("   You can test your script with 'kattis test " + problemName + "'")
-    if "-o" in options:
+    if "open" in options:
         openCommand(problemName)
 
 
@@ -55,3 +55,7 @@ def createBoilerplate(problemName):
         os.path.dirname(os.path.realpath(__file__)) + "/boilerplate.py",
         problemName + "/" + problemName + ".py",
     )
+
+getFlags = [
+    ("open", False),
+]
