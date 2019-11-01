@@ -1,1 +1,3 @@
 .kattisrc
+*.pyc
+__pycache__/
