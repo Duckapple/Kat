@@ -13,7 +13,7 @@ def readCommand(args, options):
 
     login(config, session)
 
-    if "-o" in options:
+    if "open" in options:
         openCommand(problemName)
     else:
         problemText = fetchProblemText(url, options, session)
