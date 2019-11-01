@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-import sys, os, shutil, subprocess
+import sys
 
-from work import workCommand
-from archive import archive
-from get import get
-from submit import submit
-from test import test
-from watch import watch
-from list import listCommand
-from help import printHelp, helpIfNotCommand
-from read import readCommand
-from flags import divideArgs
+from commands.work import workCommand
+from commands.archive import archive
+from commands.get import get
+from commands.submit import submit
+from commands.test import test
+from commands.watch import watch
+from commands.list import listCommand
+from commands.help import printHelp, helpIfNotCommand
+from commands.read import readCommand
+from helpers.flags import divideArgs
 
 
 execCommand = {
