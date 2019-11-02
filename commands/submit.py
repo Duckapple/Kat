@@ -13,6 +13,7 @@ from helpers.programSelector import (
 from helpers.auth import login
 from helpers.config import getConfig, getUrl
 from commands.archive import archive
+from helpers.sound import losesound, winsound
 
 _HEADERS = {"User-Agent": "Kat"}
 
@@ -43,7 +44,7 @@ def submit(args, options):
     if programFile == -1:
         return
 
-    if "-f" not in options:
+    if "force" not in options:
         confirmOrDie(problemName, programFile)
 
     config = getConfig()
@@ -64,10 +65,12 @@ def submit(args, options):
     if "-o" in options:
         openSubmission(id)
     else:
-        printUntilDone(id, problemName, config, session)
+        printUntilDone(id, problemName, config, session, options)
 
         if "archive" in options:
             archive(args, options)
+    if "sound" in options:
+        winsound()
     return True
 
 
@@ -126,7 +129,7 @@ def postSubmission(config, session, problemName, programFile):
     return match.group(1).strip()
 
 
-def printUntilDone(id, problemName, config, session):
+def printUntilDone(id, problemName, config, session, options):
     lastTotal = 0
     lastCount = 0
 
@@ -134,7 +137,7 @@ def printUntilDone(id, problemName, config, session):
 
     while True:
         login(config, session)
-        testCount, testTotal = fetchNewSubmissionStatus(id, session, config)
+        testCount, testTotal = fetchNewSubmissionStatus(id, session, config, options)
 
         for i in range(0, abs(lastCount - testCount)):
             sys.stdout.write("💚")
@@ -156,7 +159,7 @@ def printUntilDone(id, problemName, config, session):
     )
 
 
-def fetchNewSubmissionStatus(id, session, cfg):
+def fetchNewSubmissionStatus(id, session, cfg, options):
     response = session.get(
         "https://open.kattis.com/submissions/" + id, headers=_HEADERS
     )
@@ -197,6 +200,9 @@ def fetchNewSubmissionStatus(id, session, cfg):
                 .replace("@total", testTotal)
             )
             print("\U0000274C\n" + msg)
+
+            if "sound" in options:
+                losesound()
             sys.exit(1)
         else:
             print(
@@ -225,7 +231,9 @@ def formatPythonLanguage(language):
 
     return "Python " + python_version
 
+
 submitFlags = [
     ("archive", False),
     ("force", False),
+    ("sound", False),
 ]

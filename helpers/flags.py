@@ -27,6 +27,7 @@ def defineFlags(args):
 
     return flags
 
+
 flags = defineFlags(submitFlags + testFlags + listFlags + getFlags + readFlags + [("help", False)])
 
 
@@ -44,6 +45,7 @@ def divideArgs(args):
             arg.append(word)
     return arg, options
 
+
 def makeOption(word, nextWord):
     flag = None
     value = None
@@ -54,7 +56,7 @@ def makeOption(word, nextWord):
         for sh in word.replace("-", ""):
             if sh in flags["shorthands"]:
                 flag = flags["shorthands"][sh]
-                splits.update(makeOption("--"+flag, value if value else nextWord))
+                splits.update(makeOption("--" + flag, value if value else nextWord))
         return splits
     flag = word.replace("-", "")
     if flag in flags:
