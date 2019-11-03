@@ -12,7 +12,7 @@ class GetResponse(Enum):
     Redundant = auto()
 
 
-def get(args, options):
+def getCommand(args, options):
     for arg in args:
         getProblem(arg, options)
 
@@ -47,7 +47,7 @@ def promptToGet(args, options):
     print("Do you want to get it?")
     if yes():
         print("Getting problem...")
-        get(args, options)
+        getCommand(args, options)
 
 
 def downloadSampleFiles(problemName, problemUrl):

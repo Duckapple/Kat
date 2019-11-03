@@ -2,7 +2,7 @@ import os, shutil
 from commands.get import promptToGet
 
 
-def archive(args, options):
+def archiveCommand(args, options):
     if os.path.exists(".archive/" + args[0]):
         print("️️⚠️  You have already archived this problem.")
         return

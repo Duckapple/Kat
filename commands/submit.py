@@ -14,7 +14,7 @@ from helpers.programSelector import (
 )
 from helpers.auth import login
 from helpers.config import getConfig, getUrl
-from commands.archive import archive
+from commands.archive import archiveCommand
 from helpers.sound import losesound, winsound
 
 
@@ -38,7 +38,7 @@ _ERROR_MESSAGES = {
 }
 
 
-def submit(args, options):
+def submitCommand(args, options):
     problemName = args[0]
     directory = os.path.join(os.getcwd(), problemName)
 
@@ -82,7 +82,7 @@ def submit(args, options):
             return response
 
     if "archive" in options:
-        archive(args, options)
+        archiveCommand(args, options)
     return Response.Success
 
 

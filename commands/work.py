@@ -1,8 +1,8 @@
-from commands.archive import archive
-from commands.get import get, GetResponse
+from commands.archive import archiveCommand
+from commands.get import getCommand, GetResponse
 from commands.list import collectProblems
-from commands.submit import submit
-from commands.test import test
+from commands.submit import submitCommand
+from commands.test import testCommand
 from commands.unarchive import unarchiveCommand
 
 allowedSubmitOptions = ["archive", "force", "sound"]
@@ -18,15 +18,15 @@ def workCommand(args, options):
         if command == "exit":
             break
         elif command == "test":
-            test([currentProblem], [])
+            testCommand([currentProblem], [])
         elif command == "submit":
             submitOptions = [x for x in allowedSubmitOptions if x in options]
-            successful = submit([currentProblem], submitOptions)
+            successful = submitCommand([currentProblem], submitOptions)
             if successful:
                 currentI += 1
                 currentProblem = getProblem(currentI, options, problems)
         elif command == "skip":
-            archive([currentProblem], [])
+            archiveCommand([currentProblem], [])
             currentI += 1
             currentProblem = getProblem(currentI, options, problems)
 
@@ -35,7 +35,7 @@ def getProblem(currentI, options, problems):
     currentProblem = problems[currentI]
     getOptions = [x for x in allowedGetOptions if x in options]
     try:
-        get([currentProblem], getOptions)
+        getCommand([currentProblem], getOptions)
     except Exception as error:
         unarchiveCommand([currentProblem], [])
 

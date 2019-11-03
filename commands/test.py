@@ -9,10 +9,10 @@ from helpers.programSelector import (
 )
 from helpers.fileutils import getBytesFromFile
 from commands.get import promptToGet
-from commands.archive import archive
+from commands.archive import archiveCommand
 
 
-def test(args, options):
+def testCommand(args, options):
     problemName = args[0]
     directory = os.path.join(os.getcwd(), problemName)
 
@@ -47,7 +47,7 @@ def test(args, options):
             passed = False
 
     if passed and "archive" in options:
-        archive(args, options)
+        archiveCommand(args, options)
 
 
 def getTestFiles(problemName):

@@ -4,11 +4,11 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, FileModifiedEvent
 
 from commands.get import promptToGet
-from commands.test import test
+from commands.test import testCommand
 from helpers.programSelector import selectProgramFile, formatProgramFile
 
 
-def watch(args, options):
+def watchCommand(args, options):
     problemName = args[0]
     directory = os.path.join(os.getcwd(), problemName)
 
@@ -51,4 +51,4 @@ class KatWatchEventHandler(FileSystemEventHandler):
 
     @debounce(1)
     def runTests(self):
-        test([self.problemName, self.programFile["relativePath"]], [])
+        testCommand([self.problemName, self.programFile["relativePath"]], [])

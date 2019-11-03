@@ -2,11 +2,11 @@
 import sys
 
 from commands.work import workCommand
-from commands.archive import archive
-from commands.get import get
-from commands.submit import submit
-from commands.test import test
-from commands.watch import watch
+from commands.archive import archiveCommand
+from commands.get import getCommand
+from commands.submit import submitCommand
+from commands.test import testCommand
+from commands.watch import watchCommand
 from commands.list import listCommand
 from commands.help import printHelp, helpIfNotCommand
 from commands.read import readCommand
@@ -15,13 +15,13 @@ from commands.unarchive import unarchiveCommand
 
 
 execCommand = {
-    "archive": archive,
-    "get": get,
-    "submit": submit,
-    "test": test,
+    "archive": archiveCommand,
+    "get": getCommand,
+    "submit": submitCommand,
+    "test": testCommand,
     "list": listCommand,
     "read": readCommand,
-    "watch": watch,
+    "watch": watchCommand,
     "work": workCommand,
     "unarchive": unarchiveCommand,
 }
