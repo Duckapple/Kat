@@ -1,6 +1,15 @@
 import os, requests, zipfile, io, shutil
 
 from commands.open import openCommand
+from enum import Enum, auto
+
+from helpers.cli import yes
+
+
+class GetResponse(Enum):
+    Success = auto()
+    Failure = auto()
+    Redundant = auto()
 
 
 def get(args, options):
@@ -11,14 +20,14 @@ def get(args, options):
 def getProblem(problemName, options):
     if os.path.exists(problemName) or os.path.exists(".archive/" + problemName):
         print("⚠️ You have already gotten problem " + problemName + "!")
-        return
+        raise Exception("⚠️ You have already gotten problem " + problemName + "!")
 
     problemUrl = "https://open.kattis.com/problems/" + problemName
 
     existenceTest = requests.get(problemUrl)
     if existenceTest.status_code != 200:
         print("⚠️ Problem does not exist!")
-        return
+        raise Exception("⚠️ Problem does not exist!")
 
     print("🧰  Initializing problem " + problemName)
 
@@ -30,6 +39,7 @@ def getProblem(problemName, options):
     print("   You can test your script with 'kattis test " + problemName + "'")
     if "open" in options:
         openCommand(problemName)
+    return GetResponse.Success
 
 
 def promptToGet(args, options):

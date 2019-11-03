@@ -11,6 +11,7 @@ from commands.list import listCommand
 from commands.help import printHelp, helpIfNotCommand
 from commands.read import readCommand
 from helpers.flags import divideArgs
+from commands.unarchive import unarchiveCommand
 
 
 execCommand = {
@@ -22,6 +23,7 @@ execCommand = {
     "read": readCommand,
     "watch": watch,
     "work": workCommand,
+    "unarchive": unarchiveCommand,
 }
 
 

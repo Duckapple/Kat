@@ -1,10 +1,13 @@
 from commands.archive import archive
-from commands.get import get
+from commands.get import get, GetResponse
 from commands.list import collectProblems
 from commands.submit import submit
 from commands.test import test
+from commands.unarchive import unarchiveCommand
+
 allowedSubmitOptions = ["archive", "force", "sound"]
 allowedGetOptions = ["open"]
+
 
 def workCommand(args, options):
     problems = [x[0] for x in collectProblems(args, [])]
@@ -31,5 +34,9 @@ def workCommand(args, options):
 def getProblem(currentI, options, problems):
     currentProblem = problems[currentI]
     getOptions = [x for x in allowedGetOptions if x in options]
-    get([currentProblem], getOptions)
+    try:
+        get([currentProblem], getOptions)
+    except Exception as error:
+        unarchiveCommand([currentProblem], [])
+
     return currentProblem
