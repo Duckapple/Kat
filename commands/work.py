@@ -21,7 +21,12 @@ def workCommand(args, options):
             testCommand([currentProblem], [])
         elif command == "submit":
             submitOptions = [x for x in allowedSubmitOptions if x in options]
-            successful = submitCommand([currentProblem], submitOptions)
+            successful = False
+            try:
+                successful = submitCommand([currentProblem], submitOptions)
+            except:
+                pass
+
             if successful:
                 currentI += 1
                 currentProblem = getProblem(currentI, options, problems)
