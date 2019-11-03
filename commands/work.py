@@ -41,7 +41,7 @@ def getProblem(currentI, options, problems):
     getOptions = [x for x in allowedGetOptions if x in options]
     try:
         getCommand([currentProblem], getOptions)
-    except Exception as error:
+    except:
         unarchiveCommand([currentProblem], [])
 
     return currentProblem
