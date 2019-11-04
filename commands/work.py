@@ -3,7 +3,8 @@ from commands.get import get
 from commands.list import collectProblems
 from commands.submit import submit
 from commands.test import test
-
+allowedSubmitOptions = ["archive", "force", "sound"]
+allowedGetOptions = ["open"]
 
 def workCommand(args, options):
     problems = [x[0] for x in collectProblems(args, [])]
@@ -16,7 +17,7 @@ def workCommand(args, options):
         elif command == "test":
             test([currentProblem], [])
         elif command == "submit":
-            submitOptions = [x for x in ["archive"] if x in options]
+            submitOptions = [x for x in allowedSubmitOptions if x in options]
             successful = submit([currentProblem], submitOptions)
             if successful:
                 currentI += 1
@@ -29,6 +30,6 @@ def workCommand(args, options):
 
 def getProblem(currentI, options, problems):
     currentProblem = problems[currentI]
-    getOptions = [x for x in ["open"] if x in options]
+    getOptions = [x for x in allowedGetOptions if x in options]
     get([currentProblem], getOptions)
     return currentProblem
