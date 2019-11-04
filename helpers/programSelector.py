@@ -29,6 +29,7 @@ _LANGUAGE_RUN_COMMANDS = {
     ".py": ["python", "@f"],
     ".php": ["php", "@f"],
     ".java": ["java", "@c"],
+    ".cs": ["dotnet", "run", "@f"]
     # TODO: Support rest of the languages that kattis supports
 }
 
