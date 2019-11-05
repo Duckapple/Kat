@@ -13,17 +13,7 @@ class GetResponse(Enum):
     Redundant = auto()
 
 
-def getCommand(args, options):
-    for arg in args:
-        try:
-            getProblem(arg, options)
-        except (RedundantCommandException, InvalidProblemException) as error:
-            print()
-            print(error)
-            print()
-
-
-def getProblem(problemName, options):
+def getCommand(problemName, options):
     if os.path.exists(problemName) or os.path.exists(".archive/" + problemName) or os.path.exists(".solved/" + problemName):
         raise RedundantCommandException("⚠️ You have already gotten problem " + problemName + "!")
 

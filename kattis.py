@@ -10,12 +10,14 @@ from commands.watch import watchCommand
 from commands.list import listCommand
 from commands.help import printHelp, helpIfNotCommand
 from commands.read import readCommand
+from helpers.exceptions import RedundantCommandException, InvalidProblemException
 from helpers.flags import divideArgs
 from commands.unarchive import unarchiveCommand
 
 
 execCommand = {
     "archive": archiveCommand,
+    "unarchive": unarchiveCommand,
     "get": getCommand,
     "submit": submitCommand,
     "test": testCommand,
@@ -23,9 +25,17 @@ execCommand = {
     "read": readCommand,
     "watch": watchCommand,
     "work": workCommand,
-    "unarchive": unarchiveCommand,
 }
 
+problemCommands = [
+    "archive",
+    "unarchive",
+    "get",
+    "submit",
+    "test",
+    "read",
+    "watch",
+]
 
 def main():
     args, options = divideArgs(sys.argv)
@@ -36,7 +46,16 @@ def main():
     if command == "" or "help" in options:
         printHelp(command)
     elif command in execCommand:
-        execCommand[command](args, options)
+        if command in problemCommands:
+            for arg in args:
+                try:
+                    execCommand[command](args, options)
+                except (RedundantCommandException, InvalidProblemException) as error:
+                    print()
+                    print(error)
+                    print()
+        else:
+            execCommand[command](args, options)
     else:
         helpIfNotCommand(command)
 
