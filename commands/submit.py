@@ -82,7 +82,7 @@ def submitCommand(args, options):
             return response
 
     if "archive" in options:
-        archiveCommand(args, options)
+        archiveCommand(args, options, ".solved/")
     return Response.Success
 
 

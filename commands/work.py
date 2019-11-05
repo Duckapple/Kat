@@ -1,6 +1,7 @@
 from commands.archive import archiveCommand
 from commands.get import getCommand, GetResponse
 from commands.list import collectProblems
+from commands.read import readCommand
 from commands.submit import submitCommand
 from commands.test import testCommand
 from commands.unarchive import unarchiveCommand
@@ -17,6 +18,8 @@ def workCommand(args, options):
         command = input()
         if command == "exit":
             break
+        if command == "read":
+            readCommand([currentProblem], ["-o"])
         elif command == "test":
             testCommand([currentProblem], [])
         elif command == "submit":

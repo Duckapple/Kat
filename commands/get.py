@@ -4,6 +4,7 @@ from commands.open import openCommand
 from enum import Enum, auto
 
 from helpers.cli import yes
+from helpers.exceptions import RedundantCommandException, InvalidProblemException
 
 
 class GetResponse(Enum):
@@ -14,20 +15,23 @@ class GetResponse(Enum):
 
 def getCommand(args, options):
     for arg in args:
-        getProblem(arg, options)
+        try:
+            getProblem(arg, options)
+        except (RedundantCommandException, InvalidProblemException) as error:
+            print()
+            print(error)
+            print()
 
 
 def getProblem(problemName, options):
-    if os.path.exists(problemName) or os.path.exists(".archive/" + problemName):
-        print("⚠️ You have already gotten problem " + problemName + "!")
-        raise Exception("⚠️ You have already gotten problem " + problemName + "!")
+    if os.path.exists(problemName) or os.path.exists(".archive/" + problemName) or os.path.exists(".solved/" + problemName):
+        raise RedundantCommandException("⚠️ You have already gotten problem " + problemName + "!")
 
     problemUrl = "https://open.kattis.com/problems/" + problemName
 
     existenceTest = requests.get(problemUrl)
     if existenceTest.status_code != 200:
-        print("⚠️ Problem does not exist!")
-        raise Exception("⚠️ Problem does not exist!")
+        raise InvalidProblemException("⚠️ Problem '" + problemName + "' does not exist!")
 
     print("🧰  Initializing problem " + problemName)
 
