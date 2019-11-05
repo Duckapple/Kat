@@ -5,10 +5,10 @@ from bs4 import BeautifulSoup
 from commands.open import openCommand
 
 
-def readCommand(args, options):
+def readCommand(arg, options):
     session = requests.Session()
     config = getConfig()
-    problemName = args[0]
+    problemName = arg
     url = "https://open.kattis.com/problems/" + problemName
 
     login(config, session)

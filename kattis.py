@@ -14,7 +14,6 @@ from helpers.exceptions import RedundantCommandException, InvalidProblemExceptio
 from helpers.flags import divideArgs
 from commands.unarchive import unarchiveCommand
 
-
 execCommand = {
     "archive": archiveCommand,
     "unarchive": unarchiveCommand,
@@ -27,15 +26,13 @@ execCommand = {
     "work": workCommand,
 }
 
-problemCommands = [
+problemCommands = [  # problem commands are commands that take a problem as their only argument
     "archive",
     "unarchive",
     "get",
-    "submit",
-    "test",
     "read",
-    "watch",
 ]
+
 
 def main():
     args, options = divideArgs(sys.argv)
@@ -49,13 +46,18 @@ def main():
         if command in problemCommands:
             for arg in args:
                 try:
-                    execCommand[command](args, options)
+                    execCommand[command](arg, options)
                 except (RedundantCommandException, InvalidProblemException) as error:
                     print()
                     print(error)
                     print()
         else:
-            execCommand[command](args, options)
+            try:
+                execCommand[command](args, options)
+            except (RedundantCommandException, InvalidProblemException) as error:
+                print()
+                print(error)
+                print()
     else:
         helpIfNotCommand(command)
 

@@ -36,12 +36,12 @@ def getCommand(problemName, options):
     return GetResponse.Success
 
 
-def promptToGet(args, options):
+def promptToGet(arg, options):
     print("This problem is not present...")
     print("Do you want to get it?")
     if yes():
         print("Getting problem...")
-        getCommand(args, options)
+        getCommand(arg, options)
 
 
 def downloadSampleFiles(problemName, problemUrl):
