@@ -34,7 +34,7 @@ flags = defineFlags(submitFlags + testFlags + listFlags + getFlags + readFlags +
 def divideArgs(args):
     arg = []
     options = {}
-    for i in range(0, len(args)):
+    for i in range(1, len(args)):
         word = args[i]
         if "-" in word:
             otherWord = args[i+1] if i+1 < len(args) else None
