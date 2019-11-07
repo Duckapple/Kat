@@ -37,8 +37,8 @@ problemCommands = [  # problem commands are commands that take a problem as thei
 def main():
     args, options = divideArgs(sys.argv)
 
-    command = args[1] if args[1:] else ""
-    args = args[2:] if args[2:] else []
+    command = args[0] if args[0:] else ""
+    args = args[1:] if args[1:] else []
 
     if command == "" or "help" in options:
         printHelp(command)
