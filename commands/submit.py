@@ -73,17 +73,22 @@ def submitCommand(args, options):
     if id == -1:
         return False
 
-    response = printUntilDone(id, problemName, config, session, options)
+    response = Response.Failure
+    try:
+        response = printUntilDone(id, problemName, config, session, options)
+    except:
+        pass
     if "sound" in options:
         if response == Response.Success: winsound()
         else:
             if response == Response.Failure:
                 losesound()
             return response
+    if response == Response.Success:
+        if "archive" in options:
+            archiveCommand(problemName, options, ".solved/")
+    return response
 
-    if "archive" in options:
-        archiveCommand(args, options, ".solved/")
-    return Response.Success
 
 
 def confirm(problemName, programFile):

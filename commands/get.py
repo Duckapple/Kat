@@ -5,6 +5,7 @@ from enum import Enum, auto
 
 from helpers.cli import yes
 from helpers.exceptions import RedundantCommandException, InvalidProblemException
+from helpers.webutils import checkProblemExistence
 
 
 class GetResponse(Enum):
@@ -19,9 +20,7 @@ def getCommand(problemName, options):
 
     problemUrl = "https://open.kattis.com/problems/" + problemName
 
-    existenceTest = requests.get(problemUrl)
-    if existenceTest.status_code != 200:
-        raise InvalidProblemException("⚠️ Problem '" + problemName + "' does not exist!")
+    checkProblemExistence(problemName)
 
     print("🧰  Initializing problem " + problemName)
 

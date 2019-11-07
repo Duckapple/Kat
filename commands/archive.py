@@ -3,12 +3,11 @@ from commands.get import promptToGet
 from helpers.exceptions import RedundantCommandException
 
 
-def archiveCommand(args, options, folder=".archive/"):
-
-    if os.path.exists(folder + args[0]):
+def archiveCommand(problemName, options, folder=".archive/"):
+    if os.path.exists(folder + problemName):
         raise RedundantCommandException("️️⚠️  You have already archived this problem.")
-    if not os.path.exists(args[0]):
-        promptToGet(args, options)
+    if not os.path.exists(problemName):
+        promptToGet(problemName, options)
         return
-    shutil.move(args[0], folder + args[0])
-    print("📦 Moved problem", args[0], "to archive")
+    shutil.move(problemName, folder + problemName)
+    print("📦 Moved problem", problemName, "to archive")

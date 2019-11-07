@@ -5,3 +5,7 @@ class InvalidProblemException(Exception):
 class RedundantCommandException(Exception):
     pass
 
+
+class IllegalCommandException(Exception):
+    pass
+

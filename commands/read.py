@@ -3,20 +3,21 @@ from helpers.auth import login
 from helpers.config import getConfig
 from bs4 import BeautifulSoup
 from commands.open import openCommand
+from helpers.webutils import checkProblemExistence
 
 
 def readCommand(arg, options):
     session = requests.Session()
     config = getConfig()
     problemName = arg
-    url = "https://open.kattis.com/problems/" + problemName
+    problemUrl = "https://open.kattis.com/problems/" + problemName
 
-    login(config, session)
+    checkProblemExistence(problemName)
 
     if "open" in options:
         openCommand(problemName)
     else:
-        problemText = fetchProblemText(url, options, session)
+        problemText = fetchProblemText(problemUrl, options, session)
 
         for line in problemText:
             print(line)
