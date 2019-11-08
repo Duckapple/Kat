@@ -1,4 +1,6 @@
 import os, requests, sys, re, time
+from enum import Enum, auto
+
 from bs4 import BeautifulSoup
 from helpers.cli import yes
 from commands.open import openSubmission
@@ -12,8 +14,16 @@ from helpers.programSelector import (
 )
 from helpers.auth import login
 from helpers.config import getConfig, getUrl
-from commands.archive import archive
+from commands.archive import archiveCommand
 from helpers.sound import losesound, winsound
+
+
+class Response(Enum):
+    Success = auto()
+    Failure = auto()
+    Error = auto()
+    Aborted = auto()
+
 
 _HEADERS = {"User-Agent": "Kat"}
 
@@ -28,13 +38,13 @@ _ERROR_MESSAGES = {
 }
 
 
-def submit(args, options):
+def submitCommand(args, options):
     problemName = args[0]
     directory = os.path.join(os.getcwd(), problemName)
 
     if not os.path.exists(problemName):
         promptToGet(args, options)
-        return
+        return Response.Error
 
     # if programFile is not given, we will attempt to guess it
     programFile = (
@@ -42,10 +52,11 @@ def submit(args, options):
     )
 
     if programFile == -1:
-        return
+        raise Exception("Could not guess programFile")
 
     if "force" not in options:
-        confirmOrDie(problemName, programFile)
+        response = confirm(problemName, programFile)
+        if not response: return Response.Aborted
 
     config = getConfig()
 
@@ -62,26 +73,31 @@ def submit(args, options):
     if id == -1:
         return False
 
-    if "-o" in options:
-        openSubmission(id)
-    else:
-        printUntilDone(id, problemName, config, session, options)
-
-        if "archive" in options:
-            archive(args, options)
+    response = Response.Failure
+    try:
+        response = printUntilDone(id, problemName, config, session, options)
+    except:
+        pass
     if "sound" in options:
-        winsound()
-    return True
+        if response == Response.Success: winsound()
+        else:
+            if response == Response.Failure:
+                losesound()
+            return response
+    if response == Response.Success:
+        if "archive" in options:
+            archiveCommand(problemName, options, ".solved/")
+    return response
 
 
-def confirmOrDie(problemName, programFile):
+
+def confirm(problemName, programFile):
     print("Are you sure you want to submit?")
     print("Problem: " + problemName)
     print("File: " + programFile["relativePath"])
     print("Language: " + guessLanguage(programFile))
 
-    if not yes():
-        sys.exit(1)
+    return yes()
 
 
 def postSubmission(config, session, problemName, programFile):
@@ -92,12 +108,13 @@ def postSubmission(config, session, problemName, programFile):
 
     if language == -1:
         print("Could not guess language for " + programFile)
-        return -1
+        raise Exception("Could not guess language for " + programFile)
 
+    language = formatLanguage(language)
     data = {
         "submit": "true",
         "submit_ctr": 2,
-        "language": formatLanguage(language),
+        "language": language,
         "problem": problemName,
         "script": "true",
     }
@@ -130,15 +147,14 @@ def postSubmission(config, session, problemName, programFile):
 
 
 def printUntilDone(id, problemName, config, session, options):
-    lastTotal = 0
     lastCount = 0
 
     print("⚖️  Submission Status:")
 
     while True:
         login(config, session)
-        testCount, testTotal = fetchNewSubmissionStatus(id, session, config, options)
-
+        response, testCount, testTotal = fetchNewSubmissionStatus(id, session, config, options)
+        if response != Response.Success: return response
         for i in range(0, abs(lastCount - testCount)):
             sys.stdout.write("💚")
         sys.stdout.flush()
@@ -146,7 +162,6 @@ def printUntilDone(id, problemName, config, session, options):
         if testTotal != 0 and testCount == testTotal:
             break
 
-        lastTotal = testTotal
         lastCount = testCount
         time.sleep(1)
 
@@ -157,6 +172,7 @@ def printUntilDone(id, problemName, config, session, options):
         + " tests for "
         + problemName
     )
+    return Response.Success
 
 
 def fetchNewSubmissionStatus(id, session, cfg, options):
@@ -172,7 +188,7 @@ def fetchNewSubmissionStatus(id, session, cfg, options):
 
     if status.text == "Compile Error":
         print(_ERROR_MESSAGES["Compile Error"])
-        sys.exit(1)
+        raise Exception(_ERROR_MESSAGES["Compile Error"])
 
     successCount = 0
     testTotal = 0
@@ -184,7 +200,7 @@ def fetchNewSubmissionStatus(id, session, cfg, options):
             print(
                 "⚠️ Error while parsing test cases. Please report this on our github so we can fix it in future versions."
             )
-            sys.exit(1)
+            raise Exception("⚠️ Error while parsing test cases. Please report this on our github so we can fix it in future versions.")
         testNumber = match.group(1)
         testTotal = match.group(2)
         testStatus = match.group(3).strip()
@@ -200,19 +216,16 @@ def fetchNewSubmissionStatus(id, session, cfg, options):
                 .replace("@total", testTotal)
             )
             print("\U0000274C\n" + msg)
-
-            if "sound" in options:
-                losesound()
-            sys.exit(1)
+            return Response.Failure
         else:
             print(
                 "⚠️\n😕 Unknown error  '"
                 + testStatus
                 + "' for test case. Please report this on our github so we can fix it in future versions"
             )
-            sys.exit(1)
+            raise Exception("Unknown Error")
 
-    return successCount, int(testTotal)
+    return Response.Success, successCount, int(testTotal)
 
 
 def formatLanguage(language):
@@ -227,7 +240,7 @@ def formatPythonLanguage(language):
 
     if python_version not in ["2", "3"]:
         print("python-version in .kattisrc must be 2 or 3")
-        sys.exit(1)
+        raise Exception("python-version in .kattisrc must be 2 or 3")
 
     return "Python " + python_version
 

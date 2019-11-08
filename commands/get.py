@@ -1,24 +1,26 @@
 import os, requests, zipfile, io, shutil
 
 from commands.open import openCommand
+from enum import Enum, auto
+
+from helpers.cli import yes
+from helpers.exceptions import RedundantCommandException, InvalidProblemException
+from helpers.webutils import checkProblemExistence
 
 
-def get(args, options):
-    for arg in args:
-        getProblem(arg, options)
+class GetResponse(Enum):
+    Success = auto()
+    Failure = auto()
+    Redundant = auto()
 
 
-def getProblem(problemName, options):
-    if os.path.exists(problemName) or os.path.exists(".archive/" + problemName):
-        print("⚠️ You have already gotten problem " + problemName + "!")
-        return
+def getCommand(problemName, options):
+    if os.path.exists(problemName) or os.path.exists(".archive/" + problemName) or os.path.exists(".solved/" + problemName):
+        raise RedundantCommandException("⚠️ You have already gotten problem " + problemName + "!")
 
     problemUrl = "https://open.kattis.com/problems/" + problemName
 
-    existenceTest = requests.get(problemUrl)
-    if existenceTest.status_code != 200:
-        print("⚠️ Problem does not exist!")
-        return
+    checkProblemExistence(problemName)
 
     print("🧰  Initializing problem " + problemName)
 
@@ -30,14 +32,15 @@ def getProblem(problemName, options):
     print("   You can test your script with 'kattis test " + problemName + "'")
     if "open" in options:
         openCommand(problemName)
+    return GetResponse.Success
 
 
-def promptToGet(args, options):
+def promptToGet(arg, options):
     print("This problem is not present...")
     print("Do you want to get it?")
     if yes():
         print("Getting problem...")
-        get(args, options)
+        getCommand(arg, options)
 
 
 def downloadSampleFiles(problemName, problemUrl):
