@@ -3,6 +3,7 @@ import os, requests, zipfile, io, shutil
 from commands.open import openCommand
 from enum import Enum, auto
 
+from commands.unarchive import unarchiveCommand
 from helpers.cli import yes
 from helpers.exceptions import RedundantCommandException, InvalidProblemException
 from helpers.webutils import checkProblemExistence
@@ -15,24 +16,26 @@ class GetResponse(Enum):
 
 
 def getCommand(problemName, options):
-    if os.path.exists(problemName) or os.path.exists(".archive/" + problemName) or os.path.exists(".solved/" + problemName):
-        raise RedundantCommandException("⚠️ You have already gotten problem " + problemName + "!")
-
-    problemUrl = "https://open.kattis.com/problems/" + problemName
-
-    checkProblemExistence(problemName)
-
-    print("🧰  Initializing problem " + problemName)
-
-    os.makedirs(problemName)
-    downloadSampleFiles(problemName, problemUrl)
-    createBoilerplate(problemName)
+    if os.path.exists(problemName):
+        return
+    if os.path.exists(".archive/" + problemName) or os.path.exists(".solved/" + problemName):
+        unarchiveCommand(problemName, [])
+    else:
+        fetchProblem(problemName)
 
     print("👍 Successfully initialized exercise", problemName + "!")
     print("   You can test your script with 'kattis test " + problemName + "'")
     if "open" in options:
         openCommand(problemName)
-    return GetResponse.Success
+
+
+def fetchProblem(problemName):
+    problemUrl = "https://open.kattis.com/problems/" + problemName
+    checkProblemExistence(problemName)
+    print("🧰  Initializing problem " + problemName)
+    os.makedirs(problemName)
+    downloadSampleFiles(problemName, problemUrl)
+    createBoilerplate(problemName)
 
 
 def promptToGet(arg, options):

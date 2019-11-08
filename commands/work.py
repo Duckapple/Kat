@@ -50,13 +50,7 @@ def getProblem(currentI, options, problems):
     getOptions = [x for x in allowedGetOptions if x in options]
     try:
         getCommand(currentProblem, getOptions)
-    except RedundantCommandException as error:
-        print()
-        print(error)
-        try:
-            unarchiveCommand(currentProblem, [])
-        except Exception as error:
-            print()
-            print(error)
+    except RedundantCommandException:
+        unarchiveCommand(currentProblem, [])
 
     return currentProblem
