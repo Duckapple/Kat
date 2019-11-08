@@ -1,4 +1,4 @@
-import requests, sys
+import requests, sys, os
 from helpers.auth import login
 from helpers.config import getConfig
 from bs4 import BeautifulSoup
@@ -21,7 +21,7 @@ def collectProblems(args, options):
     url = "https://open.kattis.com/problems/"
     parameters = buildParameters(args, options)
     login(config, session)
-    problems = fetchProblems(url, parameters, session)
+    problems = fetchProblems(url, parameters, args, session)
     return problems
 
 
@@ -58,7 +58,7 @@ def buildParameters(args, options):
     return parameters
 
 
-def fetchProblems(url, parameters, session):
+def fetchProblems(url, parameters, args, session):
     response = session.get(url, params=parameters)
 
     body = response.content.decode("utf-8")
@@ -69,10 +69,12 @@ def fetchProblems(url, parameters, session):
 
     for row in rows:
         link = row.select_one(".name_column a")
-
+        pName = link.get("href").replace("/problems/", "")
+        if 'unarchived' in args and isArchived(pName):
+            continue
         problems.append(
             [
-                link.get("href").replace("/problems/", ""),
+                pName,
                 link.text,
                 row.select_one("td:nth-of-type(9)").text,
             ]
@@ -80,6 +82,8 @@ def fetchProblems(url, parameters, session):
 
     return problems
 
+def isArchived(problemName, folder=".archive/"):
+    return os.path.exists(folder + problemName)
 
 def selectOne(needles, haystack, default=None):
     intersection = intersect(needles, haystack)
