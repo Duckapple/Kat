@@ -1,12 +1,10 @@
-import os, requests, zipfile, io, shutil
+import os
 
 from commands.open import openCommand
 from enum import Enum, auto
 
 from commands.unarchive import unarchiveCommand
-from helpers.cli import yes
-from helpers.exceptions import RedundantCommandException, InvalidProblemException
-from helpers.webutils import checkProblemExistence
+from helpers.webutils import fetchProblem
 
 
 class GetResponse(Enum):
@@ -18,49 +16,17 @@ class GetResponse(Enum):
 def getCommand(problemName, options):
     if os.path.exists(problemName):
         return
+    message = "👍 Successfully unarchived exercise", problemName + "!"
     if os.path.exists(".archive/" + problemName) or os.path.exists(".solved/" + problemName):
         unarchiveCommand(problemName, [])
     else:
         fetchProblem(problemName)
+        message = "👍 Successfully initialized exercise", problemName + "!"
 
-    print("👍 Successfully initialized exercise", problemName + "!")
-    print("   You can test your script with 'kattis test " + problemName + "'")
+    print(message)
     if "open" in options:
         openCommand(problemName)
 
-
-def fetchProblem(problemName):
-    problemUrl = "https://open.kattis.com/problems/" + problemName
-    checkProblemExistence(problemName)
-    print("🧰  Initializing problem " + problemName)
-    os.makedirs(problemName)
-    downloadSampleFiles(problemName, problemUrl)
-    createBoilerplate(problemName)
-
-
-def promptToGet(arg, options):
-    print("This problem is not present...")
-    print("Do you want to get it?")
-    if yes():
-        print("Getting problem...")
-        getCommand(arg, options)
-
-
-def downloadSampleFiles(problemName, problemUrl):
-    r = requests.get(problemUrl + "/file/statement/samples.zip", stream=True)
-    if r.status_code != 200:
-        print("🤷 No sample files for this problem")
-        return
-    print("⬇️  Attempting to download sample files from kattis...")
-    z = zipfile.ZipFile(io.BytesIO(r.content))
-    z.extractall(problemName + "/test")
-
-
-def createBoilerplate(problemName):
-    shutil.copy2(
-        os.path.dirname(os.path.realpath(__file__)) + "/../boilerplate/boilerplate.py",
-        problemName + "/" + problemName + ".py",
-    )
 
 getFlags = [
     ("open", False),

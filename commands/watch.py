@@ -3,7 +3,7 @@ from helpers.debounce import debounce
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, FileModifiedEvent
 
-from commands.get import promptToGet
+from helpers.webutils import promptToFetch
 from commands.test import testCommand
 from helpers.programSelector import selectProgramFile, formatProgramFile
 
@@ -13,7 +13,7 @@ def watchCommand(args, options):
     directory = os.path.join(os.getcwd(), problemName)
 
     if not os.path.exists(problemName):
-        promptToGet(args, options)
+        promptToFetch(args, options)
         return
 
     # if programFile is not given, we will attempt to guess it

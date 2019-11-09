@@ -8,7 +8,7 @@ from helpers.programSelector import (
     compile,
 )
 from helpers.fileutils import getBytesFromFile
-from commands.get import promptToGet
+from helpers.webutils import promptToFetch
 from commands.archive import archiveCommand
 
 
@@ -17,7 +17,7 @@ def testCommand(args, options):
     directory = os.path.join(os.getcwd(), problemName)
 
     if not os.path.exists(problemName):
-        promptToGet(args, options)
+        promptToFetch(args, options)
         return
 
     # if programFile is not given, we will attempt to guess it

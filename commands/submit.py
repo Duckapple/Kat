@@ -4,7 +4,7 @@ from enum import Enum, auto
 from bs4 import BeautifulSoup
 from helpers.cli import yes
 from commands.open import openSubmission
-from commands.get import promptToGet
+from helpers.webutils import promptToFetch
 from helpers.programSelector import (
     formatProgramFile,
     selectProgramFile,
@@ -43,7 +43,7 @@ def submitCommand(args, options):
     directory = os.path.join(os.getcwd(), problemName)
 
     if not os.path.exists(problemName):
-        promptToGet(args, options)
+        promptToFetch(args, options)
         return Response.Error
 
     # if programFile is not given, we will attempt to guess it

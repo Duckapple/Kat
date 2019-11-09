@@ -1,6 +1,6 @@
 import os, shutil
-from commands.get import promptToGet
-from helpers.exceptions import RedundantCommandException
+from helpers.webutils import promptToFetch
+
 archive = ".archive/"
 solved = ".solved/"
 
@@ -15,7 +15,7 @@ def unarchiveCommand(problemName, options):
         folder = solved
     else:
         print("️️⚠️  This problem does not exist in .archive.")
-        promptToGet(problemName, options)
+        promptToFetch(problemName, options)
         return
     shutil.move(folder + problemName, problemName)
     print("📦 Moved problem", problemName, "from " + solved[:-1])
