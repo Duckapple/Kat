@@ -1,21 +1,17 @@
-import os, shutil
-from helpers.webutils import promptToFetch
+import shutil
 
-archive = ".archive/"
-solved = ".solved/"
+from helpers.fileutils import findProblemLocation
+from helpers.webutils import promptToFetch
 
 
 def unarchiveCommand(problemName, options):
-    if os.path.exists(problemName):
-        return
-    folder = ""
-    if os.path.exists(archive + problemName):
-        folder = archive
-    elif os.path.exists(solved + problemName):
-        folder = solved
-    else:
-        print("️️⚠️  This problem does not exist in .archive.")
+    folder = findProblemLocation(problemName)
+    if folder is None:
+        print("️️⚠️  You do not have this problem in your files")
         promptToFetch(problemName, options)
+    if folder == "":
         return
     shutil.move(folder + problemName, problemName)
-    print("📦 Moved problem", problemName, "from " + solved[:-1])
+    print("📦 Moved problem", problemName, "to main folder")
+
+

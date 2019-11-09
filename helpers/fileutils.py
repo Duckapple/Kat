@@ -14,3 +14,11 @@ def createBoilerplate(problemName):
         os.path.dirname(os.path.realpath(__file__)) + "/../boilerplate/boilerplate.py",
         problemName + "/" + problemName + ".py",
     )
+
+
+def findProblemLocation(problemName):
+    folders = [".archive/", ".solved/", ""]
+    for folder in folders:
+        if os.path.exists(folder + problemName):
+            return folder
+    return None
