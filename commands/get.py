@@ -1,31 +1,27 @@
 import os
 
-from commands.open import openCommand
+from commands.web import webCommand
 from enum import Enum, auto
 
 from commands.unarchive import unarchiveCommand
+from helpers.fileutils import findProblemLocation
 from helpers.webutils import fetchProblem
 
 
-class GetResponse(Enum):
-    Success = auto()
-    Failure = auto()
-    Redundant = auto()
-
-
 def getCommand(problemName, options):
-    if os.path.exists(problemName):
-        return
-    message = "👍 Successfully unarchived exercise", problemName + "!"
-    if os.path.exists(".archive/" + problemName) or os.path.exists(".solved/" + problemName):
-        unarchiveCommand(problemName, [])
-    else:
+    message = ""
+    folder = findProblemLocation(problemName)
+    if folder is None:
         fetchProblem(problemName)
         message = "👍 Successfully initialized exercise", problemName + "!"
+    elif folder != "":
+        unarchiveCommand(problemName, [])
+        message = "👍 Successfully unarchived exercise", problemName + "!"
 
-    print(message)
+    if message != "":
+        print(message)
     if "open" in options:
-        openCommand(problemName)
+        webCommand(problemName)
 
 
 getFlags = [

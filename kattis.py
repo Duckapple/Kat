@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 
+from commands.web import webCommand
 from commands.work import workCommand
 from commands.archive import archiveCommand
 from commands.get import getCommand
@@ -26,11 +27,11 @@ execCommand = {
     "work": workCommand,
 }
 
-problemCommands = [  # problem commands are commands that take a problem as their only argument
+problemCommands = [  # problem commands are commands that take a single problem as their only argument
     "archive",
     "unarchive",
     "get",
-    "read",
+    "read"
 ]
 
 

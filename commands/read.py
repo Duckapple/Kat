@@ -2,7 +2,7 @@ import requests
 from helpers.auth import login
 from helpers.config import getConfig
 from bs4 import BeautifulSoup
-from commands.open import openCommand
+from commands.web import webCommand
 from helpers.webutils import checkProblemExistence
 
 
@@ -14,8 +14,8 @@ def readCommand(arg, options):
 
     checkProblemExistence(problemName)
 
-    if "open" in options:
-        openCommand(problemName)
+    if "console" not in options:
+        webCommand(problemName)
     else:
         problemText = fetchProblemText(problemUrl, options, session)
 
@@ -46,5 +46,5 @@ def fetchProblemText(url, options, session):
     return textLines
 
 readFlags = [
-    ("open", False),
+    ("console", False),
 ]

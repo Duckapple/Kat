@@ -1,10 +1,9 @@
 from commands.archive import archiveCommand
-from commands.get import getCommand, GetResponse
+from commands.get import getCommand
 from commands.list import collectProblems
 from commands.read import readCommand
-from commands.submit import submitCommand
+from commands.submit import submitCommand, Response
 from commands.test import testCommand
-from commands.unarchive import unarchiveCommand
 from helpers.exceptions import RedundantCommandException, InvalidProblemException
 
 allowedSubmitOptions = ["archive", "force", "sound"]
@@ -32,7 +31,7 @@ def workCommand(args, options):
                 except Exception as error:
                     print(error)
 
-                if successful:
+                if successful == Response.Success:
                     currentI += 1
                     currentProblem = getProblem(currentI, options, problems)
             elif command == "skip":
@@ -48,9 +47,7 @@ def workCommand(args, options):
 def getProblem(currentI, options, problems):
     currentProblem = problems[currentI]
     getOptions = [x for x in allowedGetOptions if x in options]
-    try:
-        getCommand(currentProblem, getOptions)
-    except RedundantCommandException:
-        unarchiveCommand(currentProblem, [])
+
+    getCommand(currentProblem, getOptions)
 
     return currentProblem

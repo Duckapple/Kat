@@ -3,7 +3,7 @@ from enum import Enum, auto
 
 from bs4 import BeautifulSoup
 from helpers.cli import yes
-from commands.open import openSubmission
+from commands.web import openSubmission
 from helpers.webutils import promptToFetch
 from helpers.programSelector import (
     formatProgramFile,
@@ -79,11 +79,10 @@ def submitCommand(args, options):
     except:
         pass
     if "sound" in options:
-        if response == Response.Success: winsound()
-        else:
-            if response == Response.Failure:
-                losesound()
-            return response
+        if response == Response.Success:
+            winsound()
+        elif response == Response.Failure:
+            losesound()
     if response == Response.Success:
         if "archive" in options:
             archiveCommand(problemName, options, ".solved/")
@@ -154,7 +153,8 @@ def printUntilDone(id, problemName, config, session, options):
     while True:
         login(config, session)
         response, testCount, testTotal = fetchNewSubmissionStatus(id, session, config, options)
-        if response != Response.Success: return response
+        if response != Response.Success:
+            return response
         for i in range(0, abs(lastCount - testCount)):
             sys.stdout.write("💚")
         sys.stdout.flush()

@@ -1,7 +1,7 @@
 import webbrowser
 
 
-def openCommand(problemName):
+def webCommand(problemName):
     url = "https://open.kattis.com/problems/" + problemName
     webbrowser.open(url)
 
