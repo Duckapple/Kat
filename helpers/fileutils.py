@@ -1,5 +1,7 @@
-import os
 import shutil
+
+from os import listdir, getcwd
+from os.path import isfile, join, dirname, realpath, exists
 
 
 def getBytesFromFile(file):
@@ -11,14 +13,20 @@ def getBytesFromFile(file):
 
 def createBoilerplate(problemName):
     shutil.copy2(
-        os.path.dirname(os.path.realpath(__file__)) + "/../boilerplate/boilerplate.py",
+        dirname(realpath(__file__)) + "/../boilerplate/boilerplate.py",
         problemName + "/" + problemName + ".py",
     )
 
+def getAllProblems():
+    blacklist = [".archive", ".solved", ".git", '__pycache__']
+    path = getcwd()
+    folders = [f for f in listdir(path) if not isfile(join(path, f)) and not f in blacklist]
+
+    return folders
 
 def findProblemLocation(problemName):
     folders = [".archive/", ".solved/", ""]
     for folder in folders:
-        if os.path.exists(folder + problemName):
+        if exists(folder + problemName):
             return folder
     return None

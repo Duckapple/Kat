@@ -33,7 +33,10 @@ def testCommand(args, options):
         if compile(programFile, directory) == -1:
             return
 
-    inFiles, ansFiles = getTestFiles(problemName)
+    testFiles = getTestFiles(problemName)
+    if(testFiles == -1):
+        return
+    inFiles, ansFiles = testFiles
     passed = True
 
     command = getRunCommand(programFile)
@@ -47,11 +50,14 @@ def testCommand(args, options):
             passed = False
 
     if passed and "archive" in options:
-        archiveCommand(args, options)
+        archiveCommand(problemName, options, ".solved/")
 
 
 def getTestFiles(problemName):
     testPath = problemName + "/test"
+    if not os.path.exists(testPath):
+        print("test files not found. skipping")
+        return -1
     files = [
         f for f in os.listdir(testPath) if os.path.isfile(os.path.join(testPath, f))
     ]

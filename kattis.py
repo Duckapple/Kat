@@ -14,6 +14,7 @@ from commands.read import readCommand
 from helpers.exceptions import RedundantCommandException, InvalidProblemException
 from helpers.flags import divideArgs
 from commands.unarchive import unarchiveCommand
+from commands.cleanup import cleanupCommand
 
 execCommand = {
     "archive": archiveCommand,
@@ -25,6 +26,7 @@ execCommand = {
     "read": readCommand,
     "watch": watchCommand,
     "work": workCommand,
+    "cleanup": cleanupCommand
 }
 
 problemCommands = [  # problem commands are commands that take a single problem as their only argument
