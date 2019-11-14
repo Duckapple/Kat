@@ -16,6 +16,7 @@ from helpers.auth import login
 from helpers.config import getConfig, getUrl
 from commands.archive import archiveCommand
 from helpers.sound import losesound, winsound
+from helpers.fileutils import undoBOM
 
 
 class Response(Enum):
@@ -122,6 +123,7 @@ def postSubmission(config, session, problemName, programFile):
         data["mainclass"] = detectClassName(programFile)
 
     sub_files = []
+    undoBOM(programFile["relativePath"])
     with open(programFile["relativePath"]) as sub_file:
         sub_files.append(
             (
