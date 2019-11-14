@@ -1,41 +1,17 @@
 import os, re, subprocess
 
 from helpers.fileutils import getBytesFromFile
+from helpers.config import getConfig
 
 # import os, subprocess, re
 
-_LANGUAGE_GUESS = {
-    ".c": "C",
-    ".c#": "C#",
-    ".c++": "C++",
-    ".cc": "C++",
-    ".cpp": "C++",
-    ".cs": "C#",
-    ".cxx": "C++",
-    ".go": "Go",
-    ".h": "C++",
-    ".hs": "Haskell",
-    ".java": "Java",
-    ".js": "JavaScript",
-    ".m": "Objective-C",
-    ".pas": "Pascal",
-    ".php": "PHP",
-    ".pl": "Prolog",
-    ".py": "Python",
-    ".rb": "Ruby",
-}
+cfg = getConfig()
 
-_LANGUAGE_RUN_COMMANDS = {
-    ".py": ["python", "@f"],
-    ".php": ["php", "@f"],
-    ".java": ["java", "@c"],
-    ".cs": ["dotnet", "run", "@f"]
-    # TODO: Support rest of the languages that kattis supports
-}
+_LANGUAGE_GUESS = cfg["File associations"]
 
-_LANGUAGE_COMPILE_COMMANDS = {".java": ["javac", "@f"]}
+_LANGUAGE_RUN_COMMANDS = cfg["Run commands"]
 
-_LANGUAGE_REQUIRES_CLASS = [".java"]
+_LANGUAGE_COMPILE_COMMANDS = cfg["Compile commands"]
 
 
 def selectProgramFile(problemName):
@@ -72,7 +48,7 @@ def selectProgramFile(problemName):
 def isValidProgramFile(file):
     return (
         os.path.isfile(file["relativePath"])
-        and file["extension"] in _LANGUAGE_RUN_COMMANDS
+        and str(guessLanguage(file)) in _LANGUAGE_RUN_COMMANDS
     )
 
 
@@ -95,11 +71,11 @@ def detectClassName(file):
 
 
 def getRunCommand(programFile):
-    if programFile["extension"] not in _LANGUAGE_RUN_COMMANDS:
+    if guessLanguage(programFile) not in _LANGUAGE_RUN_COMMANDS:
         print("Unsupported programming language")
         return -1
 
-    cmd = _LANGUAGE_RUN_COMMANDS[programFile["extension"]]
+    cmd = _LANGUAGE_RUN_COMMANDS.getcommand(guessLanguage(programFile))
 
     return [formatCommand(p, programFile) for p in cmd]
 
@@ -109,17 +85,21 @@ def formatCommand(cmd, file):
     if className == -1:
         return -1
 
-    return cmd.replace("@f", file["name"]).replace("@c", className)
+    cmd = cmd.replace("@f", file["name"])
+    cmd = cmd.replace("@c", className)
+    cmd = cmd.replace("@d", file["relativePath"].replace("\\" + file["name"], ""))
+    
+    return cmd
 
 
 def compile(file, directory):
-    if file["extension"] not in _LANGUAGE_COMPILE_COMMANDS:
+    if guessLanguage(file) not in _LANGUAGE_COMPILE_COMMANDS:
         print("Files of this type should not be compiled")
         return -1
     print("Compiling " + file["name"])
 
     cmd = [
-        formatCommand(p, file) for p in _LANGUAGE_COMPILE_COMMANDS[file["extension"]]
+        formatCommand(p, file) for p in _LANGUAGE_COMPILE_COMMANDS.getcommand(guessLanguage(file))
     ]
     if -1 in cmd:
         print("Error duing compilation")
@@ -129,7 +109,7 @@ def compile(file, directory):
 
 
 def shouldCompile(file):
-    return file["extension"] in _LANGUAGE_COMPILE_COMMANDS
+    return guessLanguage(file) in _LANGUAGE_COMPILE_COMMANDS
 
 
 def guessLanguage(file):
@@ -141,4 +121,4 @@ def guessLanguage(file):
 
 
 def requiresClass(file):
-    return file["extension"] in _LANGUAGE_REQUIRES_CLASS
+    return guessLanguage(file) in _LANGUAGE_COMPILE_COMMANDS

@@ -9,7 +9,7 @@ def unarchiveCommand(problemName, options):
     if folder is None:
         print("️️⚠️  You do not have this problem in your files")
         promptToFetch(problemName, options)
-    if folder == "":
+    if not folder:
         return
     shutil.move(folder + problemName, problemName)
     print("📦 Moved problem", problemName, "to main folder")
