@@ -82,8 +82,8 @@ def preconfigure(cfg, location):
         ".fsscript": "F#",
     }
     cfg["Initialize commands"] = {
-        "F#": "dotnet new console -lang F# -o @d",
-        "C#": "dotnet new console -o @d",
+        "F#": "dotnet new console -lang F#",
+        "C#": "dotnet new console",
     }
     cfg["Run commands"] = {
         "Python": "python @f",
