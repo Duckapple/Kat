@@ -14,10 +14,13 @@ from commands.read import readCommand
 from helpers.exceptions import RedundantCommandException, InvalidProblemException
 from helpers.flags import divideArgs
 from commands.unarchive import unarchiveCommand
+from commands.config import configCommand
+from helpers.config import commandConvert
 
 execCommand = {
     "archive": archiveCommand,
     "unarchive": unarchiveCommand,
+    "config": configCommand,
     "get": getCommand,
     "submit": submitCommand,
     "test": testCommand,

@@ -36,7 +36,7 @@ def divideArgs(args):
     options = {}
     for i in range(1, len(args)):
         word = args[i]
-        if "-" in word:
+        if word.startswith("-"):
             otherWord = args[i+1] if i+1 < len(args) else None
             option = makeOption(word, otherWord)
             if option:

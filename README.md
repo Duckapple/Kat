@@ -4,16 +4,19 @@ This is a command line program for getting, testing and submitting Kattis attemp
 
 Credits to Kattis and their own python script for submitting files [(found here)](https://open.kattis.com/help/submit). Our submission script is heavily inspired by theirs.
 
-## Installing:
+## Installing
+
 1. First of all download this repository (either by zip or git) and make sure to extract it to a known location.
-2. Install dependencies by running `pip3 install -r requirements.txt` inside the directory.
+2. Install dependencies by running `python -m pip install -r requirements.txt` inside the directory.
 3. Add the directory to %PATH or `ln -s /path/to/kat/kattis.py /usr/bin/kat` (latter only works on unix systems)
-4. To use most functionalities, add your personal configuration to this repository. Go to open.kattis.com > Help > How to submit > Download your personal configuaration file and download the resulting file to this folder.
-## Usage:
+4. To use most functionalities, add your personal configuration to this repository. Go to open.kattis.com > Help > How to submit > Download your personal configuaration file and download the resulting file to this folder as `.kattisrc`.
+5. Run `kattis config` to copy Kat-internal configurations to the `.kattisrc` file for you to configure (might we suggest changing `language` under `[kat]`?).
+
+## Usage
 
 ### Get
 
-```
+```txt
 kattis get <problem-name>
 ```
 
@@ -21,7 +24,7 @@ This downloads the sample input-output files for the problem and creates a direc
 
 ### Test
 
-```
+```txt
 kattis test <problem-name> [path-to-file]
 ```
 
@@ -31,11 +34,17 @@ If multiple supported source files are present within the problem directory, you
 
 ### Submit
 
-```
+```txt
 kattis submit <problem-name> [path-to-file]
 ```
 
 This submits a given script to kattis for final judgement.
 Remember to get your own configuration file from [here](https://open.kattis.com/help/submit).
 
-If multiple supported source files are present within the problem directory, you will be prompted to choose one. Alternativly you can supply the path to your chosen script as a second argument
+If multiple supported source files are present within the problem directory, you will be prompted to choose one. Alternativly you can supply the path to your chosen script as a second argument.
+
+### Other commands
+
+We also provide commands such as `archive`, `unarchive`, `list`, `help`, `read`, `watch`, `web` and `work`.
+
+`@TODO: write information about these commands`
