@@ -1,19 +1,19 @@
 from helpers.config import getConfig
 
 
-def makeKattisUrl(path):
+def _makeKattisUrl(path):
     cfg = getConfig()
     hostname = cfg.get("kattis", "hostname")
     return "https://"+hostname+path
 
 
 def makeProblemUrl(problemName):
-    return makeKattisUrl("/problems/"+problemName)
+    return _makeKattisUrl("/problems/"+problemName)
 
 
 def makeSubmissionUrl(id):
-    return makeKattisUrl("/submissions/" + id)
+    return _makeKattisUrl("/submissions/" + id)
 
 
 def getProblemsUrl():
-    return makeKattisUrl("/problems/")
+    return _makeKattisUrl("/problems/")
