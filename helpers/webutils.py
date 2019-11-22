@@ -6,21 +6,25 @@ import requests
 
 from helpers.fileutils import createBoilerplate
 from helpers.cli import yes
+from helpers.url import makeProblemUrl
 
 
 def checkProblemExistence(problemName):
-    problemUrl = "https://open.kattis.com/problems/" + problemName
+    problemUrl = makeProblemUrl(problemName)
     existenceTest = requests.get(problemUrl)
     if existenceTest.status_code != 200:
-        raise InvalidProblemException("⚠️ Problem '" + problemName + "' does not exist!")
+        raise InvalidProblemException(
+            "⚠️ Problem '" + problemName + "' does not exist!")
 
 
 def fetchProblem(problemName):
-    problemUrl = "https://open.kattis.com/problems/" + problemName
     checkProblemExistence(problemName)
     print("🧰  Initializing problem " + problemName)
     os.makedirs(problemName)
+
+    problemUrl = makeProblemUrl(problemName)
     downloadSampleFiles(problemName, problemUrl)
+
     createBoilerplate(problemName)
 
 

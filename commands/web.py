@@ -1,12 +1,12 @@
 import webbrowser
+from helpers.url import makeProblemUrl, makeSubmissionUrl
 
 
 def webCommand(problemName):
-    url = "https://open.kattis.com/problems/" + problemName
+    url = makeProblemUrl(problemName)
     webbrowser.open(url)
 
 
 def openSubmission(submissionId):
-    url = "https://open.kattis.com/submissions/" + submissionId
+    url = makeSubmissionUrl(submissionId)
     webbrowser.open(url)
-

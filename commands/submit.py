@@ -1,4 +1,8 @@
-import os, requests, sys, re, time
+import os
+import requests
+import sys
+import re
+import time
 from enum import Enum, auto
 
 from bs4 import BeautifulSoup
@@ -17,6 +21,7 @@ from helpers.config import getConfig, getUrl
 from commands.archive import archiveCommand
 from helpers.sound import losesound, winsound
 from helpers.fileutils import undoBOM
+from helpers.url import makeSubmissionUrl
 
 
 class Response(Enum):
@@ -49,7 +54,8 @@ def submitCommand(args, options):
 
     # if programFile is not given, we will attempt to guess it
     programFile = (
-        formatProgramFile(args[1]) if args[1:] else selectProgramFile(problemName)
+        formatProgramFile(
+            args[1]) if args[1:] else selectProgramFile(problemName)
     )
 
     if programFile == -1:
@@ -57,7 +63,8 @@ def submitCommand(args, options):
 
     if "force" not in options:
         response = confirm(problemName, programFile)
-        if not response: return Response.Aborted
+        if not response:
+            return Response.Aborted
 
     config = getConfig()
 
@@ -66,9 +73,9 @@ def submitCommand(args, options):
     print("📨 Submitting " + problemName + "...")
 
     id = postSubmission(config, session, problemName, programFile)
-
+    submissionUrl = makeSubmissionUrl(id)
     print(
-        "📬 Submission Successfull (url https://open.kattis.com/submissions/" + id + ")"
+        "📬 Submission Successfull (url "+submissionUrl+")"
     )
 
     if id == -1:
@@ -88,7 +95,6 @@ def submitCommand(args, options):
         if "archive" in options:
             archiveCommand(problemName, options, ".solved/")
     return response
-
 
 
 def confirm(problemName, programFile):
@@ -128,7 +134,8 @@ def postSubmission(config, session, problemName, programFile):
         sub_files.append(
             (
                 "sub_file[]",
-                (programFile["name"], sub_file.read(), "application/octet-stream"),
+                (programFile["name"], sub_file.read(),
+                 "application/octet-stream"),
             )
         )
 
@@ -154,7 +161,8 @@ def printUntilDone(id, problemName, config, session, options):
 
     while True:
         login(config, session)
-        response, testCount, testTotal = fetchNewSubmissionStatus(id, session, config, options)
+        response, testCount, testTotal = fetchNewSubmissionStatus(
+            id, session, config, options)
         if response != Response.Success:
             return response
         for i in range(0, abs(lastCount - testCount)):
@@ -178,9 +186,8 @@ def printUntilDone(id, problemName, config, session, options):
 
 
 def fetchNewSubmissionStatus(id, session, cfg, options):
-    response = session.get(
-        "https://open.kattis.com/submissions/" + id, headers=_HEADERS
-    )
+    submissionUrl = makeSubmissionUrl(id)
+    response = session.get(submissionUrl, headers=_HEADERS)
 
     body = response.content.decode("utf-8")
     soup = BeautifulSoup(body, "html.parser")
@@ -202,7 +209,8 @@ def fetchNewSubmissionStatus(id, session, cfg, options):
             print(
                 "⚠️ Error while parsing test cases. Please report this on our github so we can fix it in future versions."
             )
-            raise Exception("⚠️ Error while parsing test cases. Please report this on our github so we can fix it in future versions.")
+            raise Exception(
+                "⚠️ Error while parsing test cases. Please report this on our github so we can fix it in future versions.")
         testNumber = match.group(1)
         testTotal = match.group(2)
         testStatus = match.group(3).strip()

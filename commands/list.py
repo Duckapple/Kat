@@ -1,8 +1,11 @@
-import requests, sys, os
+import requests
+import sys
+import os
 from helpers.auth import login
 from helpers.config import getConfig
 from bs4 import BeautifulSoup
 from tabulate import tabulate
+from helpers.url import getProblemsUrl
 
 
 def listCommand(args, options):
@@ -18,7 +21,7 @@ def listCommand(args, options):
 def collectProblems(args, options):
     session = requests.Session()
     config = getConfig()
-    url = "https://open.kattis.com/problems/"
+    url = getProblemsUrl()
     parameters = buildParameters(args, options)
     login(config, session)
     problems = fetchProblems(url, parameters, args, session)
@@ -38,7 +41,8 @@ def buildParameters(args, options):
         parameters["dir"] = "desc"
 
     # Status
-    status = intersect(args, {"solved", "tried", "untried", "unsolved"}) or None
+    status = intersect(
+        args, {"solved", "tried", "untried", "unsolved"}) or None
 
     if status is not None:
         parameters["show_solved"] = "off"
@@ -82,8 +86,10 @@ def fetchProblems(url, parameters, args, session):
 
     return problems
 
+
 def isArchived(problemName, folder=".archive/"):
     return os.path.exists(folder + problemName)
+
 
 def selectOne(needles, haystack, default=None):
     intersection = intersect(needles, haystack)
@@ -100,6 +106,7 @@ def selectOne(needles, haystack, default=None):
 
 def intersect(list1, list2):
     return set(list1).intersection(set(list2))
+
 
 listFlags = [
     ("page", True, "1"),

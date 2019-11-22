@@ -10,7 +10,7 @@ def readCommand(arg, options):
     session = requests.Session()
     config = getConfig()
     problemName = arg
-    problemUrl = "https://open.kattis.com/problems/" + problemName
+    problemUrl = makeProblemUrl(problemName)
 
     checkProblemExistence(problemName)
 
@@ -44,6 +44,7 @@ def fetchProblemText(url, options, session):
     textLines = addNewlines(textLines)
 
     return textLines
+
 
 readFlags = [
     ("console", False),
