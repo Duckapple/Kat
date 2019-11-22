@@ -1,3 +1,4 @@
 .kattisrc
 *.pyc
 __pycache__/
+.vscode
