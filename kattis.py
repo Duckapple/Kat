@@ -11,6 +11,7 @@ from commands.watch import watchCommand
 from commands.list import listCommand
 from commands.help import printHelp, helpIfNotCommand
 from commands.read import readCommand
+from commands.contest import contestCommand
 from helpers.exceptions import RedundantCommandException, InvalidProblemException
 from helpers.flags import divideArgs
 from commands.unarchive import unarchiveCommand
@@ -28,6 +29,7 @@ execCommand = {
     "read": readCommand,
     "watch": watchCommand,
     "work": workCommand,
+    "contest": contestCommand,
 }
 
 problemCommands = [  # problem commands are commands that take a single problem as their only argument
