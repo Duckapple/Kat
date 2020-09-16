@@ -68,7 +68,7 @@ def submitCommand(args, options):
     id = postSubmission(config, session, problemName, programFile)
 
     print(
-        "📬 Submission Successfull (url https://open.kattis.com/submissions/" + id + ")"
+        "📬 Submission Successful (url https://open.kattis.com/submissions/" + id + ")"
     )
 
     if id == -1:
