@@ -17,10 +17,9 @@ jobs:
                   node-version: 12.x
             - name: Run yarn
               run: yarn
-            - name: Run tests
-              uses: tangro/actions-test@1.1.1
-              # with:
-              #     post-comment: true
+            uses: mattallty/jest-github-action@v1
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  GITHUB_CONTEXT: ${{ toJson(github) }}
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                # this is just an example, this could be any command that will trigger jest
+                test-command: "yarn test"
