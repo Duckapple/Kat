@@ -16,10 +16,6 @@ jobs:
               with:
                   node-version: 12.x
             - name: Run yarn
-              run: yarn
-            uses: mattallty/jest-github-action@v1
-              env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                # this is just an example, this could be any command that will trigger jest
-                test-command: "yarn test"
+              run: yarn install
+            - name: Run tests
+              run: yarn test

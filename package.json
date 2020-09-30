@@ -13,7 +13,7 @@
         "start": "tsc && node dist/index.js",
         "lint": "eslint 'src/**/*.{js,ts,tsx}'",
         "test": "jest",
-        "test:ci": "jest --testLocationInResults --ci --outputFile=test_results.json --json",
+        "test:ci": "jest --testLocationInResults --ci --json",
         "typeorm": "tsc && npx typeorm"
     },
     "repository": {
