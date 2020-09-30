@@ -1,0 +1,16 @@
+name: Pull Request CI
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Todo conversion to issues
+        uses: alstr/todo-to-issue-action@v2.1
+        with:
+          LABEL: "// TODO"
+          COMMENT_MARKER: "//"
