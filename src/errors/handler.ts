@@ -2,7 +2,9 @@ import PrettyError from 'pretty-error';
 import UserError from './UserError';
 
 // Make global pretty-printer
-const pe = new PrettyError();
+/* istanbul ignore next */
+export const pe = new PrettyError();
+/* istanbul ignore next */
 pe.appendStyle({
     'pretty-error > header > title > kind': {
         background: 'none',

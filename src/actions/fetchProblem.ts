@@ -26,6 +26,7 @@ async function ensureProblemIsValid(problemName: string): Promise<void> {
     const response = await got(baseUrl(`/problems/${problemName}`), {
         throwHttpErrors: false,
     });
+
     if (response.statusCode !== 200) {
         throw new UserError(`⚠️ Problem '${problemName}' does not exist!`);
     }

@@ -1,14 +1,14 @@
 #!/usr/bin/env node
+
 import { CommandModule } from 'yargs';
+import { parser } from './lib/cli';
+import render from './errors/handler';
 
 import * as getCommand from './commands/getCommand';
 import { GetArgs } from './commands/getCommand';
 
 import * as listCommand from './commands/listCommand';
 import { ListArgs } from './commands/listCommand';
-
-import { parser } from './lib/cli';
-import render from './errors/handler';
 
 try {
     parser
