@@ -20,7 +20,7 @@ jobs:
             - name: Run tests
               uses: tangro/actions-test@1.1.1
               with:
-                  command: 'tests'
+                  command: 'test'
                   post-comment: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
