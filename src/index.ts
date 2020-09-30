@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { CommandModule } from 'yargs';
 
 import * as getCommand from './commands/getCommand';
