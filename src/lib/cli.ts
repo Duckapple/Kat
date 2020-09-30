@@ -5,6 +5,7 @@ export const parser = yargs
     .scriptName('kat')
     .demandCommand(1)
     .recommendCommands()
+    .completion()
     .fail((_, err) => {
         if (err) {
             render(err);
