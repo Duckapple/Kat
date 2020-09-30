@@ -1,7 +1,7 @@
-import got from 'got/dist/source';
 import stream from 'stream';
-import { Extract } from 'unzipper';
 import { promisify } from 'util';
+import got from 'got/dist/source';
+import { Extract } from 'unzipper';
 
 const pipeline = promisify(stream.pipeline);
 

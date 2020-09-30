@@ -1,8 +1,8 @@
 import { resolve } from 'path';
-import got from 'got/dist/source';
 import { existsSync, mkdirSync } from 'fs';
-import UserError from '../errors/UserError';
 import { cwd } from 'process';
+import got from 'got/dist/source';
+import UserError from '../errors/UserError';
 import { downloadAndExtractZip } from '../lib/download';
 import { baseUrl } from '../lib/url';
 

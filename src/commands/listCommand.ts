@@ -1,6 +1,9 @@
 import { Arguments, CommandBuilder } from 'yargs';
 
-export type ListArgs = {};
+export type ListArgs = {
+    sort: 'easiest' | 'hardest';
+    choises: ('unsolved' | 'solved' | 'untried' | 'tried')[];
+};
 
 export const command = 'list';
 export const describe = 'Lists problems directly from Kattis according to some criteria.';
