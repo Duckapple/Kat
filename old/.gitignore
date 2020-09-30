@@ -1,0 +1,7 @@
+.kattisrc
+*.pyc
+__pycache__/
+
+# Stupid sexy VSCode
+.vscode
+.ionide
