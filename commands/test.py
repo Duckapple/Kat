@@ -14,16 +14,25 @@ from commands.archive import archiveCommand
 
 def testCommand(args, options):
     problemName = args[0]
+    testIndice = args[1:] # gets test indexes for singulartests
+    singularTest = len(testIndice) > 0 # bool for singulartests
     directory = os.path.join(os.getcwd(), problemName)
+
+    # if it's a range of numbers (1-4) convert to list [1,2,3,4]
+    # otherwise, convert to ints
+    if singularTest:
+        if not testIndice[0].isdigit():
+            rangeIs = testIndice[0].split("-")
+            testIndice = list(range(int(rangeIs[0]), int(rangeIs[1])+1))
+        else:
+            testIndice = [int(x) for x in testIndice]
 
     if not os.path.exists(problemName):
         promptToFetch(args, options)
         return
 
     # if programFile is not given, we will attempt to guess it
-    programFile = (
-        formatProgramFile(args[1]) if args[1:] else selectProgramFile(problemName)
-    )
+    programFile = selectProgramFile(problemName)
     if programFile == -1:
         return
 
@@ -41,8 +50,14 @@ def testCommand(args, options):
     if command == -1:
         return
 
-    for inF, ansF in zip(inFiles, ansFiles):
-        result = runSingleTest(command, directory, inF, ansF)
+    for i, (inF, ansF) in enumerate(zip(inFiles, ansFiles)):
+        if singularTest:
+            if i+1 in testIndice:
+                result = runSingleTest(command, directory, inF, ansF)
+            else: 
+                result = True
+        else:
+            result = runSingleTest(command, directory, inF, ansF)
         if not result:
             passed = False
 
