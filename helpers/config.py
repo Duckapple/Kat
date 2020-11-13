@@ -25,6 +25,7 @@ def getConfig(shouldReturnLocation = False):
         _DEFAULT_CONFIG,
         os.path.join(str(Path.home()), ".kattisrc"),
         os.path.join(os.path.dirname(sys.argv[0]), ".kattisrc"),
+        os.path.join(os.getcwd(), ".kattisrc")
     ]
 
     found = None
