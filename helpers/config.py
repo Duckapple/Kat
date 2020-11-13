@@ -35,9 +35,7 @@ def getConfig(shouldReturnLocation = False):
 
     if not found:
         print(_CONFIG_NOT_FOUND_MSG)
-        if shouldReturnLocation:
-            return -1, ""
-        return -1
+        sys.exit()
 
     cfg = preconfigure(cfg, found)
 
