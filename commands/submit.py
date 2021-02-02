@@ -68,7 +68,7 @@ def submitCommand(args, options):
     id = postSubmission(config, session, problemName, programFile)
 
     print(
-        "📬 Submission Successful (url https://open.kattis.com/submissions/" + id + ")"
+        "📬 Submission Successful (url " + getUrl(config, "submissionsurl", "submissions") + "/" + id + ")"
     )
 
     if id == -1:
@@ -179,7 +179,7 @@ def printUntilDone(id, problemName, config, session, options):
 
 def fetchNewSubmissionStatus(id, session, cfg, options):
     response = session.get(
-        "https://open.kattis.com/submissions/" + id, headers=_HEADERS
+        getUrl(cfg, "submissionsurl", "submissions") + "/" + id, headers=_HEADERS
     )
 
     body = response.content.decode("utf-8")

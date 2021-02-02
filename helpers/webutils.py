@@ -6,18 +6,19 @@ import requests
 
 from helpers.fileutils import createBoilerplate
 from helpers.cli import yes
+from helpers.config import getUrl
 
 
-def checkProblemExistence(problemName):
-    problemUrl = "https://open.kattis.com/problems/" + problemName
+def checkProblemExistence(config, problemName):
+    problemUrl = getUrl(config, "problemsurl", "problems") + "/" + problemName
     existenceTest = requests.get(problemUrl)
     if existenceTest.status_code != 200:
         raise InvalidProblemException("⚠️ Problem '" + problemName + "' does not exist!")
 
 
-def fetchProblem(problemName):
-    problemUrl = "https://open.kattis.com/problems/" + problemName
-    checkProblemExistence(problemName)
+def fetchProblem(config, problemName):
+    problemUrl = getUrl(config, "problemsurl", "problems") + "/" + problemName
+    checkProblemExistence(config, problemName)
     print("🧰  Initializing problem " + problemName)
     os.makedirs(problemName)
     downloadSampleFiles(problemName, problemUrl)

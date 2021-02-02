@@ -1,6 +1,6 @@
 import requests, sys, os
 from helpers.auth import login
-from helpers.config import getConfig
+from helpers.config import getConfig, getUrl
 from bs4 import BeautifulSoup
 from tabulate import tabulate
 
@@ -18,7 +18,7 @@ def listCommand(args, options):
 def collectProblems(args, options):
     session = requests.Session()
     config = getConfig()
-    url = "https://open.kattis.com/problems/"
+    url = getUrl(config, "problemsurl", "problems")
     parameters = buildParameters(args, options)
     login(config, session)
     problems = fetchProblems(url, parameters, args, session)
