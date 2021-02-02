@@ -149,30 +149,41 @@ def postSubmission(config, session, problemName, programFile):
 
 def printUntilDone(id, problemName, config, session, options):
     lastCount = 0
+    spinnerParts = ["-", "\\", "|", "/"]
 
     print("⚖️  Submission Status:")
 
     while True:
         login(config, session)
-        response, testCount, testTotal = fetchNewSubmissionStatus(id, session, config, options)
+        response, data = fetchNewSubmissionStatus(id, session, config, options)
         if response != Response.Success:
             return response
-        for i in range(0, abs(lastCount - testCount)):
-            sys.stdout.write("💚")
-        sys.stdout.flush()
+        if "status" in data:
+            status = data["status"]
+            lastCount += 1
+            print(status, spinnerParts[lastCount % 4], end="\r")
+            sys.stdout.flush()
+            if status == "Accepted":
+                print("\r💚                ") # clear line
+                break
+        else:
+            for _ in range(0, abs(lastCount - data["testCount"])):
+                sys.stdout.write("💚")
+            sys.stdout.flush()
 
-        if testTotal != 0 and testCount == testTotal:
-            break
+            if data["testTotal"] != 0 and data["testCount"] == data["testTotal"]:
+                break
 
-        lastCount = testCount
+            lastCount = data["testCount"]
+
         time.sleep(1)
 
     print()
     print(
-        "🎉 Congratulations! You completed all "
-        + str(testTotal)
-        + " tests for "
-        + problemName
+        "🎉 Congratulations! You completed all ",
+        (str(data["testTotal"]) if "testTotal" in data else ""),
+        " tests for ",
+        problemName
     )
     return Response.Success
 
@@ -184,13 +195,18 @@ def fetchNewSubmissionStatus(id, session, cfg, options):
 
     body = response.content.decode("utf-8")
     soup = BeautifulSoup(body, "html.parser")
-    [info, testcases] = soup.select("#judge_table tbody tr")
+    data = soup.select("#judge_table tbody tr")
+    info = data[0]
+    testcases = data[1] if len(data) > 1 else None
 
-    status = info.select_one("td.status")
+    status = info.select_one("td.status").text
 
-    if status.text == "Compile Error":
+    if status == "Compile Error":
         print(_ERROR_MESSAGES["Compile Error"])
         raise Exception(_ERROR_MESSAGES["Compile Error"])
+
+    if not testcases:
+        return Response.Success, {"status": status}
 
     successCount = 0
     testTotal = 0
@@ -227,7 +243,7 @@ def fetchNewSubmissionStatus(id, session, cfg, options):
             )
             raise Exception("Unknown Error")
 
-    return Response.Success, successCount, int(testTotal)
+    return Response.Success, {"testCount": successCount, "testTotal": int(testTotal)}
 
 
 def formatLanguage(language):
