@@ -35,6 +35,7 @@ def getConfig(shouldReturnLocation = False):
             found = location
 
     if not found:
+        print("Config locations searched:", alternativeLocations, "\n")
         print(_CONFIG_NOT_FOUND_MSG)
         sys.exit()
 
