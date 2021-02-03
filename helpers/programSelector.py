@@ -62,7 +62,7 @@ def formatProgramFile(file):
 
 def detectClassName(file):
     content = getBytesFromFile(file["relativePath"]).decode("utf-8")
-    match = re.search("class (\w+)", content)
+    match = re.search("class (\\w+)", content)
     if match is None:
         print("Could not detect class in file '" + file["name"] + "'")
         return -1

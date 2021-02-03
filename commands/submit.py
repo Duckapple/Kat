@@ -13,7 +13,7 @@ from helpers.programSelector import (
     detectClassName,
 )
 from helpers.auth import login
-from helpers.config import getConfig, getUrl
+from helpers.config import getConfigUrl
 from commands.archive import archiveCommand
 from helpers.sound import losesound, winsound
 from helpers.fileutils import undoBOM
@@ -41,7 +41,6 @@ _ERROR_MESSAGES = {
 
 def submitCommand(args, options):
     problemName = args[0]
-    directory = os.path.join(os.getcwd(), problemName)
 
     if not os.path.exists(problemName):
         promptToFetch(args, options)
@@ -59,16 +58,14 @@ def submitCommand(args, options):
         response = confirm(problemName, programFile)
         if not response: return Response.Aborted
 
-    config = getConfig()
-
     session = requests.Session()
 
     print("📨 Submitting " + problemName + "...")
 
-    id = postSubmission(config, session, problemName, programFile)
+    id = postSubmission(session, problemName, programFile)
 
     print(
-        "📬 Submission Successful (url " + getUrl(config, "submissionsurl", "submissions") + "/" + id + ")"
+        "📬 Submission Successful (url " + getConfigUrl("submissionsurl", "submissions") + "/" + id + ")"
     )
 
     if id == -1:
@@ -76,7 +73,7 @@ def submitCommand(args, options):
 
     response = Response.Failure
     try:
-        response = printUntilDone(id, problemName, config, session, options)
+        response = printUntilDone(id, problemName, session, options)
     except:
         pass
     if "sound" in options:
@@ -100,10 +97,10 @@ def confirm(problemName, programFile):
     return yes()
 
 
-def postSubmission(config, session, problemName, programFile):
-    login(config, session)
+def postSubmission(session, problemName, programFile):
+    login(session)
 
-    url = getUrl(config, "submissionurl", "submit")
+    url = getConfigUrl("submissionurl", "submit")
     language = guessLanguage(programFile)
 
     if language == -1:
@@ -147,15 +144,15 @@ def postSubmission(config, session, problemName, programFile):
     return match.group(1).strip()
 
 
-def printUntilDone(id, problemName, config, session, options):
+def printUntilDone(id, problemName, session, options):
     lastCount = 0
     spinnerParts = ["-", "\\", "|", "/"]
 
     print("⚖️  Submission Status:")
 
     while True:
-        login(config, session)
-        response, data = fetchNewSubmissionStatus(id, session, config, options)
+        login(session)
+        response, data = fetchNewSubmissionStatus(id, session, options)
         if response != Response.Success:
             return response
         if "status" in data:
@@ -180,17 +177,17 @@ def printUntilDone(id, problemName, config, session, options):
 
     print()
     print(
-        "🎉 Congratulations! You completed all ",
+        "🎉 Congratulations! You completed all",
         (str(data["testTotal"]) if "testTotal" in data else ""),
-        " tests for ",
+        "tests for",
         problemName
     )
     return Response.Success
 
 
-def fetchNewSubmissionStatus(id, session, cfg, options):
+def fetchNewSubmissionStatus(id, session, options):
     response = session.get(
-        getUrl(cfg, "submissionsurl", "submissions") + "/" + id, headers=_HEADERS
+        getConfigUrl("submissionsurl", "submissions") + "/" + id, headers=_HEADERS
     )
 
     body = response.content.decode("utf-8")

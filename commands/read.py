@@ -1,6 +1,6 @@
 import requests
 from helpers.auth import login
-from helpers.config import getConfig, getUrl
+from helpers.config import getConfigUrl
 from bs4 import BeautifulSoup
 from commands.web import webCommand
 from helpers.webutils import checkProblemExistence
@@ -8,11 +8,10 @@ from helpers.webutils import checkProblemExistence
 
 def readCommand(arg, options):
     session = requests.Session()
-    config = getConfig()
     problemName = arg
-    problemUrl = getUrl(config, "problemsurl", "problems") + "/" + problemName
+    problemUrl = getConfigUrl("problemsurl", "problems") + "/" + problemName
 
-    checkProblemExistence(config, problemName)
+    checkProblemExistence(problemName)
 
     if "console" not in options:
         webCommand(problemName)

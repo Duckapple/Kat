@@ -17,35 +17,50 @@ token: *********
 loginurl: https://<kattis>/login
 submissionurl: https://<kattis>/submit"""
 
+class Config:
+    """The config singleton, use getConfig to access."""
+    __instance = None
+    __location = None
+    @staticmethod
+    def getInstance(shouldReturnLocation = False):
+        if Config.__instance == None:
+            Config()
+        if shouldReturnLocation:
+            return Config.__instance, Config.__location
+        return Config.__instance
+    def __init__(self):
+        if Config.__instance != None:
+            raise Exception("Config was tried initialized outside static scope.")
+        else:
+            _config = configparser.ConfigParser(converters={"array": strToArr, "command": toCommandArray})
+
+            alternativeLocations = [
+                _DEFAULT_CONFIG,
+                os.path.join(str(Path.home()), ".kattisrc"),
+                os.path.join(os.path.dirname(sys.argv[0]), ".kattisrc"),
+                os.path.join(os.getcwd(), ".kattisrc")
+            ]
+
+            found = None
+            for location in alternativeLocations:
+                if os.path.exists(location):
+                    _config.read(location)
+                    found = location
+
+            if not found:
+                print("Config locations searched:", alternativeLocations, "\n")
+                print(_CONFIG_NOT_FOUND_MSG)
+                sys.exit()
+
+            self = preconfigure(_config, found)
+            Config.__instance = self
+            Config.__location = found
 
 def getConfig(shouldReturnLocation = False):
-    cfg = configparser.ConfigParser(converters={"array": strToArr, "command": toCommandArray})
+    return Config.getInstance(shouldReturnLocation)
 
-    alternativeLocations = [
-        _DEFAULT_CONFIG,
-        os.path.join(str(Path.home()), ".kattisrc"),
-        os.path.join(os.path.dirname(sys.argv[0]), ".kattisrc"),
-        os.path.join(os.getcwd(), ".kattisrc")
-    ]
-
-    found = None
-    for location in alternativeLocations:
-        if os.path.exists(location):
-            cfg.read(location)
-            found = location
-
-    if not found:
-        print("Config locations searched:", alternativeLocations, "\n")
-        print(_CONFIG_NOT_FOUND_MSG)
-        sys.exit()
-
-    cfg = preconfigure(cfg, found)
-
-    if shouldReturnLocation:
-        return cfg, found
-    return cfg
-
-def getUrl(cfg, option, default):
+def getConfigUrl(option, default):
+    cfg = getConfig()
     if cfg.has_option("kattis", option):
         return cfg.get("kattis", option)
     else:

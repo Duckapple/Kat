@@ -3,7 +3,7 @@ from helpers.config import getConfig, commandConvert
 def configCommand(args, options):
     if len(args) == 0:
         print("Adding/updating configuration to your .kattisrc...")
-        if getConfig() == -1:
+        if not getConfig():
             print("""\
 Something went wrong in locating the configuration file
 for kattis. Have you fetched the .kattisrc? Consult the 
@@ -13,7 +13,7 @@ README.md for more details.""")
 
     elif len(args) == 3:
         cfg, location = getConfig(shouldReturnLocation=True)
-        if type(cfg) is int:
+        if not cfg:
             print("""\
 Something went wrong in locating the configuration file
 for kattis. Have you fetched the .kattisrc? Consult the 

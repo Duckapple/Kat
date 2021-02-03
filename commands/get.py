@@ -11,10 +11,9 @@ from helpers.config import getConfig
 
 def getCommand(problemName, options):
     message = ""
-    config = getConfig()
     folder = findProblemLocation(problemName)
     if folder is None:
-        fetchProblem(config, problemName)
+        fetchProblem(problemName)
         message = "👍 Successfully initialized exercise " + problemName + "!"
     elif folder != "":
         unarchiveCommand(problemName, [])
