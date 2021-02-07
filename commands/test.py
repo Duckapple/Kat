@@ -1,3 +1,5 @@
+from argparse import ArgumentParser
+from commands.submit import submitCommand
 import os, subprocess
 
 from helpers.programSelector import (
@@ -9,22 +11,22 @@ from helpers.programSelector import (
 )
 from helpers.fileutils import getBytesFromFile
 from helpers.webutils import promptToFetch
-from commands.archive import archiveCommand
+from commands.archive import archive
 
 
-def testCommand(args, options):
-    problemName = args[0]
+def testCommand(data):
+    problemName = data['problem']
     directory = os.path.join(os.getcwd(), problemName)
 
     if not os.path.exists(problemName):
-        promptToFetch(args, options)
+        promptToFetch(problemName)
         return
 
     # if programFile is not given, we will attempt to guess it
     programFile = (
-        formatProgramFile(args[1]) if args[1:] else selectProgramFile(problemName)
+        formatProgramFile(data["file"]) if "file" in data and data['file'] else selectProgramFile(problemName)
     )
-    if programFile == -1:
+    if not programFile:
         return
 
     print("🔎 Running tests on " + programFile["name"])
@@ -46,8 +48,11 @@ def testCommand(args, options):
         if not result:
             passed = False
 
-    if passed and "archive" in options:
-        archiveCommand(args, options)
+    if passed:
+        if "submit" in data and data['submit']:
+            submitCommand({"problem": problemName, "file": programFile['relativePath']})
+        if "archive" in data and data['archive']:
+            archive(problemName)
 
 
 def getTestFiles(problemName):
@@ -85,7 +90,11 @@ def runSingleTest(command, directory, inFile, answerFile):
         print(result)
         return False
 
-testFlags = [
-    ("archive", False),
-    ("submit", False),
-]
+def testParser(parsers: ArgumentParser):
+    helpText = 'Test a problem against the problem test cases.'
+    parser = parsers.add_parser('test', description=helpText, help=helpText)
+    parser.add_argument('problem', help='The problem to test.')
+    parser.add_argument('file', nargs='?', help='Name of the specific file to test')
+    #parser.add_argument('-i', '--interval', help='.')
+    parser.add_argument('-a', '--archive', action='store_true', help='Archive the problem if all tests succeed.')
+    parser.add_argument('-s', '--submit', action='store_true', help='Submit the problem if all tests succeed.')

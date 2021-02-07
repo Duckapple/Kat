@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 import os, time
 from helpers.debounce import debounce
 from watchdog.observers import Observer
@@ -8,19 +9,19 @@ from commands.test import testCommand
 from helpers.programSelector import selectProgramFile, formatProgramFile
 
 
-def watchCommand(args, options):
-    problemName = args[0]
+def watchCommand(data):
+    problemName = data["problem"]
     directory = os.path.join(os.getcwd(), problemName)
 
     if not os.path.exists(problemName):
-        promptToFetch(args, options)
+        promptToFetch(problemName)
         return
 
     # if programFile is not given, we will attempt to guess it
     programFile = (
-        formatProgramFile(args[1]) if args[1:] else selectProgramFile(problemName)
+        formatProgramFile(data["file"]) if "file" in data and data['file'] else selectProgramFile(problemName)
     )
-    if programFile == -1:
+    if not programFile:
         return
 
     event_handler = KatWatchEventHandler(problemName, programFile)
@@ -51,4 +52,10 @@ class KatWatchEventHandler(FileSystemEventHandler):
 
     @debounce(1)
     def runTests(self):
-        testCommand([self.problemName, self.programFile["relativePath"]], [])
+        testCommand({"problem": self.problemName, "file": self.programFile["relativePath"]})
+
+def watchParser(parsers: ArgumentParser):
+    helpText = 'Watch a problem, running a test on updates.'
+    parser = parsers.add_parser('watch', description=helpText, help=helpText)
+    parser.add_argument('problem', help='Name of problem to watch')
+    parser.add_argument('file', nargs='?', help='Name of the specific file to watch')

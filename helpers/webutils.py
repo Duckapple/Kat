@@ -27,12 +27,12 @@ def fetchProblem(problemName):
     createBoilerplate(problemName)
 
 
-def promptToFetch(arg, options):
+def promptToFetch(problemName):
     print("This problem is not present...")
     print("Do you want to get it?")
     if yes():
         print("Getting problem...")
-        fetchProblem(arg)
+        fetchProblem(problemName)
 
 
 def downloadSampleFiles(problemName, problemUrl):

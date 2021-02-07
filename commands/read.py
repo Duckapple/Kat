@@ -1,25 +1,27 @@
 import requests
-from helpers.auth import login
-from helpers.config import getConfigUrl
+from argparse import ArgumentParser
 from bs4 import BeautifulSoup
 from commands.web import webCommand
+from helpers.config import getConfigUrl
 from helpers.webutils import checkProblemExistence
 
+def readCommand(data):
+    for problem in data['problem']:
+        read(problem, data)
 
-def readCommand(arg, options):
+def read(problemName, data):
     session = requests.Session()
-    problemName = arg
     problemUrl = getConfigUrl("problemsurl", "problems") + "/" + problemName
 
     checkProblemExistence(problemName)
 
-    if "console" not in options:
-        webCommand(problemName)
-    else:
-        problemText = fetchProblemText(problemUrl, options, session)
+    if "console" in data and data['console']:
+        problemText = fetchProblemText(problemUrl, session)
 
         for line in problemText:
             print(line)
+    else:
+        webCommand(problemName)
 
 
 def addNewlines(textLines):
@@ -30,7 +32,7 @@ def addNewlines(textLines):
     return result
 
 
-def fetchProblemText(url, options, session):
+def fetchProblemText(url, session):
     response = session.get(url)
 
     body = response.content.decode("utf-8")
@@ -43,6 +45,12 @@ def fetchProblemText(url, options, session):
     textLines = addNewlines(textLines)
 
     return textLines
+
+def readParser(parsers: ArgumentParser):
+    helpText = 'Read a problem in the browser or on the command line.'
+    parser = parsers.add_parser('read', description=helpText, help=helpText)
+    parser.add_argument('problem', help='The problem to read.', nargs='+')
+    parser.add_argument('-c', '--console', action='store_true', help='Opt to print the description in the console.')
 
 readFlags = [
     ("console", False),

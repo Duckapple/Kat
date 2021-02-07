@@ -1,53 +1,79 @@
-from commands.archive import archiveCommand
-from commands.get import getCommand
-from commands.list import collectProblems
+from argparse import ArgumentParser
+from commands.archive import archive
+from commands.get import getCommand, getFlags
+from commands.list import collectProblems, listFlags
 from commands.read import readCommand
-from commands.submit import submitCommand, Response
+from commands.submit import submitCommand, Response, submitFlags
 from commands.test import testCommand
 from helpers.exceptions import RedundantCommandException, InvalidProblemException
 
 allowedSubmitOptions = ["archive", "force", "sound"]
 allowedGetOptions = ["open"]
 
+_HELP_TEXT = """\
+You are in the REPL Kat work environment.
+a list of problems to 
 
-def workCommand(args, options):
-    problems = [x[0] for x in collectProblems(args, [])]
-    currentI = 0
-    currentProblem = getProblem(currentI, options, problems)
+List of commands:
+  exit      Quit from the work environment
+  help      Show this message
+  read      Read the current problem in your browser
+  skip      Skip over the current problem
+  submit    Submit the current problem
+"""
+
+def workCommand(data):
+    print('Running the Kat work REPL. Run command "help" for more info.')
+    problems = [x[0] for x in collectProblems(data)]
+    currentIndex = 0
+    previousProblem = None
+    currentProblem = getProblem(currentIndex, data, problems)
     while True:
+        if previousProblem != currentProblem:
+            print('Problem:', currentProblem)
+        previousProblem = currentProblem
         try:
-            command = input()
+            command = input('> ')
             if command == "exit":
                 break
             if command == "read":
-                readCommand(currentProblem, ["-o"])
+                readCommand({'problem': [currentProblem], 'open': True})
             elif command == "test":
-                testCommand([currentProblem], [])
+                testCommand({'problem': currentProblem})
             elif command == "submit":
-                submitOptions = [x for x in allowedSubmitOptions if x in options]
-                successful = False
+                response = False
                 try:
-                    successful = submitCommand([currentProblem], submitOptions)
+                    response = submitCommand({**data, 'problem': currentProblem})
                 except Exception as error:
                     print(error)
 
-                if successful == Response.Success:
-                    currentI += 1
-                    currentProblem = getProblem(currentI, options, problems)
+                if response == Response.Success:
+                    currentIndex += 1
+                    currentProblem = getProblem(currentIndex, data, problems)
             elif command == "skip":
-                archiveCommand(currentProblem, [])
-                currentI += 1
-                currentProblem = getProblem(currentI, options, problems)
+                archive(currentProblem)
+                currentIndex += 1
+                currentProblem = getProblem(currentIndex, data, problems)
+            elif command == "help":
+                print(_HELP_TEXT)
         except (InvalidProblemException, RedundantCommandException) as error:
             print()
             print(error)
             print()
+        except KeyboardInterrupt:
+            print('Shutdown by keyboard interrupt')
+            return
 
+def getProblem(currentIndex, data, problems):
+    currentProblem = problems[currentIndex]
 
-def getProblem(currentI, options, problems):
-    currentProblem = problems[currentI]
-    getOptions = [x for x in allowedGetOptions if x in options]
-
-    getCommand(currentProblem, getOptions)
+    getCommand({**data, 'problem': [currentProblem]})
 
     return currentProblem
+
+def workParser(parsers: ArgumentParser):
+    helpText = 'Initiate a loop of running a subset of Kat commands interactively, on a list of problems retrieved from the Kattis instance. Options given to this command will be applied to the relevant commands called in the environment.'
+    parser = parsers.add_parser('work', help=helpText, description=helpText)
+    getFlags(parser)
+    submitFlags(parser)
+    listFlags(parser)

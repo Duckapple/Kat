@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 import os, requests, sys, re, time
 from enum import Enum, auto
 
@@ -14,7 +15,7 @@ from helpers.programSelector import (
 )
 from helpers.auth import login
 from helpers.config import getConfigUrl
-from commands.archive import archiveCommand
+from commands.archive import archive
 from helpers.sound import losesound, winsound
 from helpers.fileutils import undoBOM
 
@@ -39,22 +40,22 @@ _ERROR_MESSAGES = {
 }
 
 
-def submitCommand(args, options):
-    problemName = args[0]
+def submitCommand(data):
+    problemName = data["problem"]
 
     if not os.path.exists(problemName):
-        promptToFetch(args, options)
+        promptToFetch(problemName)
         return Response.Error
 
     # if programFile is not given, we will attempt to guess it
     programFile = (
-        formatProgramFile(args[1]) if args[1:] else selectProgramFile(problemName)
+        formatProgramFile(data["file"]) if "file" in data and data["file"] else selectProgramFile(problemName)
     )
 
     if programFile == -1:
         raise Exception("Could not guess programFile")
 
-    if "force" not in options:
+    if "force" not in data or not data['force']:
         response = confirm(problemName, programFile)
         if not response: return Response.Aborted
 
@@ -73,19 +74,18 @@ def submitCommand(args, options):
 
     response = Response.Failure
     try:
-        response = printUntilDone(id, problemName, session, options)
+        response = printUntilDone(id, problemName, session)
     except:
         pass
-    if "sound" in options:
+    if "sound" in data and data['sound']:
         if response == Response.Success:
             winsound()
         elif response == Response.Failure:
             losesound()
     if response == Response.Success:
-        if "archive" in options:
-            archiveCommand(problemName, options, ".solved/")
+        if "archive" in data and data['archive']:
+            archive(problemName, ".solved/")
     return response
-
 
 
 def confirm(problemName, programFile):
@@ -144,7 +144,7 @@ def postSubmission(session, problemName, programFile):
     return match.group(1).strip()
 
 
-def printUntilDone(id, problemName, session, options):
+def printUntilDone(id, problemName, session):
     lastCount = 0
     spinnerParts = ["-", "\\", "|", "/"]
 
@@ -152,10 +152,10 @@ def printUntilDone(id, problemName, session, options):
 
     while True:
         login(session)
-        response, data = fetchNewSubmissionStatus(id, session, options)
+        response, data = fetchNewSubmissionStatus(id, session)
         if response != Response.Success:
             return response
-        if "status" in data:
+        if "status" in data and data['status']:
             status = data["status"]
             lastCount += 1
             print(status, spinnerParts[lastCount % 4], end="\r")
@@ -185,7 +185,7 @@ def printUntilDone(id, problemName, session, options):
     return Response.Success
 
 
-def fetchNewSubmissionStatus(id, session, options):
+def fetchNewSubmissionStatus(id, session):
     response = session.get(
         getConfigUrl("submissionsurl", "submissions") + "/" + id, headers=_HEADERS
     )
@@ -259,9 +259,14 @@ def formatPythonLanguage(language):
 
     return "Python " + python_version
 
+def submitParser(parsers: ArgumentParser):
+    helptext = 'Submit a problem for evaluation.'
+    parser = parsers.add_parser('submit', description=helptext, help=helptext)
+    parser.add_argument('problem', help='Name of problem to submit')
+    parser.add_argument('file', nargs='?', help='Name of the specific file to submit')
+    submitFlags(parser)
 
-submitFlags = [
-    ("archive", False),
-    ("force", False),
-    ("sound", False),
-]
+def submitFlags(parser):
+    parser.add_argument('-a', '--archive', action='store_true', help='Archive the problem on a successful submittion.')
+    parser.add_argument('-f', '--force', action='store_true', help='Force a submit of the first detected program file.')
+    parser.add_argument('-s', '--sound', action='store_true', help='Play a sound on successful submittion.')
