@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from commands.startup import startupCommand
 from commands.work import workCommand
 from commands.archive import archiveCommand
 from commands.get import getCommand
@@ -13,16 +14,17 @@ from commands.config import configCommand
 from helpers.parser import parse
 
 execCommand = {
-    "archive": archiveCommand,
+    "archive":   archiveCommand,
+    "config":    configCommand,
+    "get":       getCommand,
+    "list":      listCommand,
+    "read":      readCommand,
+    "startup":   startupCommand,
+    "submit":    submitCommand,
+    "test":      testCommand,
     "unarchive": unarchiveCommand,
-    "config": configCommand,
-    "get": getCommand,
-    "submit": submitCommand,
-    "test": testCommand,
-    "list": listCommand,
-    "read": readCommand,
-    "watch": watchCommand,
-    "work": workCommand,
+    "watch":     watchCommand,
+    "work":      workCommand,
 }
 
 def main():

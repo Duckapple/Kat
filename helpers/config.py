@@ -28,6 +28,12 @@ class Config:
         if shouldReturnLocation:
             return Config.__instance, Config.__location
         return Config.__instance
+    @staticmethod
+    def save():
+        if Config.__instance == None:
+            Config()
+        with open(Config.__location, "w") as configFile:
+            Config.__instance.write(configFile)
     def __init__(self):
         if Config.__instance != None:
             raise Exception("Config was tried initialized outside static scope.")
@@ -58,6 +64,9 @@ class Config:
 
 def getConfig(shouldReturnLocation = False):
     return Config.getInstance(shouldReturnLocation)
+
+def saveConfig():
+    Config.save()
 
 def getConfigUrl(option, default):
     cfg = getConfig()

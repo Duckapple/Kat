@@ -9,7 +9,7 @@ from tabulate import tabulate
 def listCommand(data):
     problems = collectProblems(data)
 
-    if "compact" in data:
+    if "compact" in data and data['compact']:
         print(" ".join([x[0] for x in problems]))
     else:
         tableHeaders = ["Id", "Name", "Difficulty"]
