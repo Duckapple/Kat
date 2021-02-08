@@ -113,7 +113,10 @@ def preconfigure(cfg, location):
         },
         "Compile commands": {
             "Java": "javac @f"
-        }
+        },
+        "Naming": {
+            "Java": "Pascal",
+        },
     }
 
     for (section, settings) in defaults.items():
