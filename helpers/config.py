@@ -157,7 +157,6 @@ def commandConvert(array: list):
     result = []
     cumulator = None
     for item in array:
-        print(item, cumulator)
         if item[0] == '"' or item[0] == "'":
             cumulator = item
         elif cumulator:

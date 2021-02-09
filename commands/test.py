@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 from commands.submit import submitCommand
-import os, subprocess
+import os, re, subprocess
 
 from helpers.programSelector import (
     selectProgramFile,
@@ -34,7 +34,6 @@ def testCommand(data):
     if shouldCompile(programFile):
         if compile(programFile, directory) == -1:
             return
-
     inFiles, ansFiles = getTestFiles(problemName)
     passed = True
 
@@ -43,7 +42,11 @@ def testCommand(data):
     if command == -1:
         return
 
-    for inF, ansF in zip(inFiles, ansFiles):
+    testsToRun = data['interval'] or None
+
+    for i, (inF, ansF) in enumerate(zip(inFiles, ansFiles)):
+        if testsToRun and i not in testsToRun:
+            continue
         result = runSingleTest(command, directory, inF, ansF)
         if not result:
             passed = False
@@ -90,11 +93,22 @@ def runSingleTest(command, directory, inFile, answerFile):
         print(result)
         return False
 
+def getInterval(inp):
+    intervals = [intvl.strip() for intvl in inp.split(',')]
+    result = []
+    for interval in intervals:
+        if re.match('\\d+-\\d+', interval):
+            fromI, toI = [int(x.strip()) for x in interval.split('-')]
+            result.extend(range(fromI - 1, toI))
+        else:
+            result.append(int(interval.strip()) - 1)
+    return result
+
 def testParser(parsers: ArgumentParser):
     helpText = 'Test a problem against the problem test cases.'
     parser = parsers.add_parser('test', description=helpText, help=helpText)
     parser.add_argument('problem', help='The problem to test.')
     parser.add_argument('file', nargs='?', help='Name of the specific file to test')
-    #parser.add_argument('-i', '--interval', help='.')
+    parser.add_argument('-i', '--interval', help='Determine an interval of tests to run, instead of all tests. Examples are "1", "1-3", "1,3-5".', type=getInterval)
     parser.add_argument('-a', '--archive', action='store_true', help='Archive the problem if all tests succeed.')
     parser.add_argument('-s', '--submit', action='store_true', help='Submit the problem if all tests succeed.')
