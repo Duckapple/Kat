@@ -121,4 +121,4 @@ def guessLanguage(file):
 
 
 def requiresClass(file):
-    return guessLanguage(file) in _LANGUAGE_COMPILE_COMMANDS
+    return guessLanguage(file) == "Java"
