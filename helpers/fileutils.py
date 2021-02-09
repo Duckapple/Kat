@@ -10,9 +10,14 @@ def getBytesFromFile(file):
     inFile.close()
     return result
 
+# It is worth mentioning that this is merely
+# for language compliance, and not a real conversion
+namingSchemeConverters = {
+    "Pascal": lambda string : string[0].upper() + string[1:],
+}
 
 def createBoilerplate(problemName):
-    from helpers.programSelector import formatCommand, guessLanguage, formatProgramFile
+    from helpers.programSelector import guessLanguage, formatProgramFile
     cfg = getConfig()
     lang = cfg.get("kat", "language")
     if lang in cfg["Initialize commands"]:
@@ -21,18 +26,27 @@ def createBoilerplate(problemName):
         return
     directory = os.path.dirname(os.path.realpath(__file__)) + "/../boilerplate"
     boilerplates = {
-        guessLanguage(formatProgramFile(f)): f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))
+        guessLanguage(formatProgramFile(f)): f for f in 
+            os.listdir(directory) if os.path.isfile(os.path.join(directory, f)
+        )
     }
+
+    fileName = problemName
+    if lang in cfg["Naming"]:
+        naming = cfg.get("Naming", lang)
+        namingFn = namingSchemeConverters[naming]
+        fileName = namingFn(fileName)
+
     if lang in boilerplates:
         boilerplate = boilerplates[lang]
         fileType = "." + boilerplates[lang].split(".")[-1]
         shutil.copy2(
             directory + "/" + boilerplate,
-            problemName + "/" + problemName + fileType,
+            problemName + "/" + fileName + fileType,
         )
     else:
         fileType = [file for (file, k) in cfg["File associations"].items() if k.lower() == lang.lower()]
-        open(problemName + "/" + problemName + fileType[0], "a").close()
+        open(problemName + "/" + fileName + fileType[0], "a").close()
 
 
 def findProblemLocation(problemName):

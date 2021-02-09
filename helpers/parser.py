@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from commands.startup import startupParser
 from commands.work import workParser
 from commands.watch import watchParser
 from commands.unarchive import unarchiveParser
@@ -10,21 +11,27 @@ from commands.submit import submitParser
 from commands.get import getParser
 from commands.archive import archiveParser
 
+parsers = [
+    archiveParser,
+    configParser,
+    getParser,
+    listParser,
+    readParser,
+    startupParser,
+    submitParser,
+    testParser,
+    unarchiveParser,
+    watchParser,
+    workParser,
+]
+
 def parse():
     parser = ArgumentParser(
         description='Get, test and submit Kattis problems.',
     )
     sub_parsers = parser.add_subparsers(dest='command', required=True, metavar='command')
 
-    archiveParser(sub_parsers)
-    getParser(sub_parsers)
-    submitParser(sub_parsers)
-    configParser(sub_parsers)
-    listParser(sub_parsers)
-    readParser(sub_parsers)
-    testParser(sub_parsers)
-    unarchiveParser(sub_parsers)
-    watchParser(sub_parsers)
-    workParser(sub_parsers)
+    for p in parsers:
+        p(sub_parsers)
 
     return parser.parse_args()
