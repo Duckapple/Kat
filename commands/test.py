@@ -51,12 +51,17 @@ def testCommand(data):
         if not result:
             passed = False
 
+    shouldEnd = None
+
     if passed:
         if "submit" in data and data['submit']:
             submitCommand({"problem": problemName, "file": programFile['relativePath']})
+            shouldEnd = True
         if "archive" in data and data['archive']:
             archive(problemName)
-
+            shouldEnd = True
+    if shouldEnd:
+        return shouldEnd
 
 def getTestFiles(problemName):
     testPath = problemName + "/test"
@@ -107,6 +112,9 @@ def getInterval(inp):
 def testParser(parsers: ArgumentParser):
     helpText = 'Test a problem against the problem test cases.'
     parser = parsers.add_parser('test', description=helpText, help=helpText)
+    testFlags(parser)
+
+def testFlags(parser):
     parser.add_argument('problem', help='The problem to test.')
     parser.add_argument('file', nargs='?', help='Name of the specific file to test')
     parser.add_argument('-i', '--interval', help='Determine an interval of tests to run, instead of all tests. Examples are "1", "1-3", "1,3-5".', type=getInterval)

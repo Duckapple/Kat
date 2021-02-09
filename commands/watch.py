@@ -5,7 +5,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, FileModifiedEvent
 
 from helpers.webutils import promptToFetch
-from commands.test import testCommand
+from commands.test import testCommand, testFlags
 from helpers.programSelector import selectProgramFile, formatProgramFile
 
 
@@ -24,13 +24,13 @@ def watchCommand(data):
     if not programFile:
         return
 
-    event_handler = KatWatchEventHandler(problemName, programFile)
-
     observer = Observer()
+    event_handler = KatWatchEventHandler({**data, "file": programFile["relativePath"]}, observer)
+
     observer.schedule(event_handler, directory)
     observer.start()
 
-    print("🕵️  Watching " + programFile["relativePath"] + " for changes")
+    print("🕵️  Watching " + programFile["relativePath"] + " for changes. Press Ctrl+C to terminate.")
 
     try:
         while True:
@@ -41,21 +41,27 @@ def watchCommand(data):
 
 
 class KatWatchEventHandler(FileSystemEventHandler):
-    def __init__(self, problemName, programFile):
-        self.problemName = problemName
-        self.programFile = programFile
+    def __init__(self, data, observer):
+        self.data = data
+        self.observer = observer
+        self.fileType = self.data["file"].split('.')[-1]
         FileSystemEventHandler.__init__(self)
 
     def on_modified(self, event):
         if isinstance(event, FileModifiedEvent):
-            self.runTests()
+            isLangType = event.src_path.endswith(self.fileType)
+            if isLangType:
+                self.runTests()
 
     @debounce(1)
     def runTests(self):
-        testCommand({"problem": self.problemName, "file": self.programFile["relativePath"]})
+        shouldEnd = testCommand(self.data)
+        if shouldEnd:
+            print('Done testing, stopping due to successful end.')
+            os._exit(0)
+        print('Done testing, still watching...')
 
 def watchParser(parsers: ArgumentParser):
-    helpText = 'Watch a problem, running a test on updates.'
+    helpText = 'Watch a problem, running tests on updates.'
     parser = parsers.add_parser('watch', description=helpText, help=helpText)
-    parser.add_argument('problem', help='Name of problem to watch')
-    parser.add_argument('file', nargs='?', help='Name of the specific file to watch')
+    testFlags(parser)
