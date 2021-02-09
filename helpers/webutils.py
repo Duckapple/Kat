@@ -18,13 +18,13 @@ def checkProblemExistence(problemName):
         raise InvalidProblemException("⚠️ Problem '" + problemName + "' does not exist!")
 
 
-def fetchProblem(problemName):
+def fetchProblem(problemName, overrideLanguage = None):
     problemUrl = getConfigUrl("problemsurl", "problems") + "/" + problemName
     checkProblemExistence(problemName)
     print("🧰  Initializing problem " + problemName)
     os.makedirs(problemName)
     downloadSampleFiles(problemName, problemUrl)
-    createBoilerplate(problemName)
+    createBoilerplate(problemName, overrideLanguage)
 
 
 def promptToFetch(problemName):
