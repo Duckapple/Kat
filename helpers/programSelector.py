@@ -105,7 +105,10 @@ def compile(file, directory):
         print("Error duing compilation")
         return -1
 
-    subprocess.run(cmd, cwd=directory)
+    compileResult = subprocess.run(cmd, cwd=directory)
+    if compileResult.returncode != 0:
+        print('Compilation failed.')
+        return -1
 
 
 def shouldCompile(file):
