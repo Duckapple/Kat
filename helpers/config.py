@@ -118,10 +118,12 @@ def preconfigure(cfg, location):
             "Java": "java @c",
             "C#": "dotnet run",
             "F#": "dotnet run",
+            "C++": "@d/@d",
             # TODO: Support rest of the languages that kattis supports
         },
         "Compile commands": {
-            "Java": "javac @f"
+            "Java": "javac @f",
+            "C++" : "g++ @f -o @d"
         },
         "Naming": {
             "Java": "Pascal",

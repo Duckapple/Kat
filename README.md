@@ -147,6 +147,9 @@ These commands tell Kat that script files should be compiled before being run.
 
 See the section on Run commands above for info on indicators.
 
+For C++ support it is required that a C++ compiler exists in PATH and is specified under `[Compile commands]` in your `.kattisrc`.
+By default the compiler used is `g++`.
+
 ### Naming
 
 Some languages, like Java, enforce a naming convention for their files.
