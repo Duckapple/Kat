@@ -22,7 +22,7 @@ To get a list of commands and usage, use `kattis --help` and `kattis [command] -
 kattis get problem [problem ...]
 ```
 
-This downloads the sample input-output files for the problem and creates a directory for the problem. Inside, the test files are put in the subfolder `test`, and an initial script file is waiting for your solution. Happy hacking!
+This downloads the sample input-output files for the problem and creates a directory for the problem. Inside, the test files are put in the subfolder `test`, and an initial script file is waiting for your solution. To specify your language of choice for a single problem, use the command `-l LANGUAGE`. Happy hacking!
 
 ### Test/watch
 
