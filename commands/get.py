@@ -14,12 +14,12 @@ def get(problemName, data):
     message = ""
     folder = findProblemLocation(problemName)
     if folder is None:
-        fetchProblem(problemName)
+        overrideLanguage = data['language']
+        fetchProblem(problemName, overrideLanguage)
         message = "👍 Successfully initialized exercise " + problemName + "!"
     elif folder != "":
         unarchive(problemName)
         message = "👍 Successfully unarchived exercise " + problemName + "!"
-
     if message != "":
         print(message)
     if "open" in data and data['open']:
@@ -33,3 +33,4 @@ def getParser(parsers: ArgumentParser):
 
 def getFlags(parser):
     parser.add_argument('-o', '--open', action='store_true', help='Open the problem in your web-browser.')
+    parser.add_argument('-l', '--language', type=str, help='Choose the language to initialize the problem in')

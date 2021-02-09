@@ -16,10 +16,13 @@ namingSchemeConverters = {
     "Pascal": lambda string : string[0].upper() + string[1:],
 }
 
-def createBoilerplate(problemName):
+def createBoilerplate(problemName, overrideLanguage = None):
     from helpers.programSelector import guessLanguage, formatProgramFile
     cfg = getConfig()
-    lang = cfg.get("kat", "language")
+    if overrideLanguage:
+        lang = overrideLanguage
+    else:
+        lang = cfg.get("kat", "language")
     if lang in cfg["Initialize commands"]:
         cmd = cfg["Initialize commands"].getcommand(lang)
         subprocess.run([p for p in cmd], cwd=problemName)
