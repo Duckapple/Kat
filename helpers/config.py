@@ -127,11 +127,13 @@ def preconfigure(cfg, location):
             "C#": "dotnet run",
             "F#": "dotnet run",
             "C++": "@d/@d",
+            "Haskell": "./@p",
             # TODO: Support rest of the languages that kattis supports
         },
         "Compile commands": {
             "Java": "javac @f",
-            "C++" : "g++ @f -o @d"
+            "C++" : "g++ @f -o @d",
+            "Haskell": "ghc -ferror-spans -threaded -rtsopts @f -o @p",
         },
         "Naming": {
             "Java": "Pascal",

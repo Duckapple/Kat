@@ -85,6 +85,7 @@ def formatCommand(cmd, file):
     if className == -1:
         return -1
 
+    cmd = cmd.replace("@p", file["name"][:-(len(file["extension"]))])
     cmd = cmd.replace("@f", file["name"])
     cmd = cmd.replace("@c", className)
     cmd = cmd.replace("@d", file["relativePath"].replace("\\" + file["name"], ""))
