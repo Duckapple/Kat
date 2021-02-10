@@ -3,6 +3,8 @@ from commands.test import testFlags
 from commands.list import listFlags
 from commands.get import getFlags
 from commands.read import readFlags
+from helpers.config import getConfig
+
 
 def defineFlags(args):
     flags = {}
@@ -43,6 +45,15 @@ def divideArgs(args):
                 options.update(option)
         else:
             arg.append(word)
+
+    # change options according to preferences
+    cfg = getConfig()
+    prefOptions = cfg.get("preferences", arg[0]).split()
+    for o in prefOptions:
+        if o in options:
+            options.pop(o)
+        else:
+            options[o] = None
     return arg, options
 
 

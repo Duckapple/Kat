@@ -16,6 +16,7 @@ from helpers.flags import divideArgs
 from commands.unarchive import unarchiveCommand
 from commands.config import configCommand
 from helpers.config import commandConvert
+from helpers.config import getConfig
 
 execCommand = {
     "archive": archiveCommand,
