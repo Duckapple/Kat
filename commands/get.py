@@ -3,20 +3,29 @@ from argparse import ArgumentParser
 from commands.web import webCommand
 
 from commands.unarchive import unarchive
+from helpers.exceptions import InvalidProblemException
 from helpers.fileutils import findProblemLocation
 from helpers.webutils import fetchProblem
 
+
 def getCommand(data):
     for problem in data['problem']:
-        get(problem, data)
+        try:
+            get(problem, data)
+        except InvalidProblemException:
+            print("")
+            print(f"Error: Problem '{problem}' does not exist")
+            print("")
 
-def get(problemName, data):
+
+def get(problemName: str, data: dict):
     message = ""
     folder = findProblemLocation(problemName)
     if folder is None:
         overrideLanguage = data['language']
         fetchProblem(problemName, overrideLanguage)
         message = "👍 Successfully initialized exercise " + problemName + "!"
+
     elif folder != "":
         unarchive(problemName)
         message = "👍 Successfully unarchived exercise " + problemName + "!"
