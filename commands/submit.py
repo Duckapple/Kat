@@ -14,7 +14,7 @@ from helpers.programSelector import (
     detectClassName,
 )
 from helpers.auth import login
-from helpers.config import getConfigUrl
+from helpers.config import getConfig, getConfigUrl
 from commands.archive import archive
 from helpers.sound import losesound, winsound
 from helpers.fileutils import undoBOM
@@ -147,6 +147,7 @@ def postSubmission(session, problemName, programFile):
 def printUntilDone(id, problemName, session):
     lastCount = 0
     spinnerParts = ["-", "\\", "|", "/"]
+    runtime = None
 
     print("⚖️  Submission Status:")
 
@@ -161,6 +162,7 @@ def printUntilDone(id, problemName, session):
             print(status, spinnerParts[lastCount % 4], end="\r")
             sys.stdout.flush()
             if status == "Accepted":
+                runtime = data["runtime"]
                 print("\r💚                ") # clear line
                 break
         else:
@@ -169,18 +171,21 @@ def printUntilDone(id, problemName, session):
             sys.stdout.flush()
 
             if data["testTotal"] != 0 and data["testCount"] == data["testTotal"]:
+                runtime = data["runtime"]
                 break
 
             lastCount = data["testCount"]
 
         time.sleep(1)
+    
+    if not runtime:
+        runtime = getRuntime(id, problemName, session)
 
     print()
     print(
         "🎉 Congratulations! You completed all",
-        (str(data["testTotal"]) if "testTotal" in data else ""),
-        "tests for",
-        problemName
+        f"{str(data['testTotal']) + ' ' if 'testTotal' in data else ''}tests for",
+        f"{problemName}{f' in {runtime}' if runtime else ''}!"
     )
     return Response.Success
 
@@ -197,13 +202,15 @@ def fetchNewSubmissionStatus(id, session):
     testcases = data[1] if len(data) > 1 else None
 
     status = info.select_one("td.status").text
+    runtime = info.select("td.runtime")
+    runtime = runtime[0].text if len(runtime) >= 1 else None
 
     if status == "Compile Error":
         print(_ERROR_MESSAGES["Compile Error"])
         raise Exception(_ERROR_MESSAGES["Compile Error"])
 
     if not testcases:
-        return Response.Success, {"status": status}
+        return Response.Success, {"status": status, "runtime": runtime}
 
     successCount = 0
     testTotal = 0
@@ -240,8 +247,19 @@ def fetchNewSubmissionStatus(id, session):
             )
             raise Exception("Unknown Error")
 
-    return Response.Success, {"testCount": successCount, "testTotal": int(testTotal)}
+    return Response.Success, {"testCount": successCount, "testTotal": int(testTotal), "runtime": runtime}
 
+def getRuntime(id, problemName, session):
+    user = getConfig().get("user", "username")
+    url = f"{getConfigUrl('usersurl', 'users')}/{user}/submissions/{problemName}"
+    response = session.get(
+        url, headers=_HEADERS
+    )
+    body = response.content.decode("utf-8")
+    soup = BeautifulSoup(body, "html.parser")
+    data = soup.select(f'table.table-kattis tbody tr[data-submission-id="{id}"] td.runtime')
+    if len(data) > 0:
+        return data[0].text
 
 def formatLanguage(language):
     if language == "Python":

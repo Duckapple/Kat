@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 from commands.submit import submitCommand
-import os, re, subprocess
+import os, re, subprocess, time
 
 from helpers.programSelector import (
     selectProgramFile,
@@ -35,7 +35,6 @@ def testCommand(data):
         if compile(programFile, directory) == -1:
             return
     inFiles, ansFiles = getTestFiles(problemName)
-    passed = True
 
     command = getRunCommand(programFile)
 
@@ -43,13 +42,24 @@ def testCommand(data):
         return
 
     testsToRun = data['interval'] or None
+    passed = True
+    times = []
 
     for i, (inF, ansF) in enumerate(zip(inFiles, ansFiles)):
         if testsToRun and i not in testsToRun:
             continue
-        result = runSingleTest(command, directory, inF, ansF)
+        result, time = runSingleTest(command, directory, inF, ansF)
         if not result:
             passed = False
+        else:
+            times.append(time)
+
+    times.sort()
+    if passed:
+        if len(times) == 1:
+            print(f"🕑 Test took {times[0]:0.2f} seconds")
+        else:
+            print(f"🕑 Tests took from {times[0]:0.2f} to {times[-1]:0.2f} seconds")
 
     shouldEnd = None
 
@@ -81,22 +91,24 @@ def getTestFiles(problemName):
 def runSingleTest(command, directory, inFile, answerFile):
     inp = getBytesFromFile(inFile)
     answer = getBytesFromFile(answerFile).decode("utf-8")
+    t1 = time.perf_counter()
     result = (
         subprocess.run(command, stdout=subprocess.PIPE, input=inp, cwd=directory)
         .stdout.decode("utf-8")
         .replace("\r\n", "\n")
     )
+    t2 = time.perf_counter()
 
     if answer == result:
         print("\U0001F49A", inFile, "succeeded")
-        return True
+        return True, t2 - t1
     else:
         print("\U0000274C", inFile, "failed")
         print("expected:")
         print(answer)
         print("actual:")
         print(result)
-        return False
+        return False, t2 - t1
 
 def getInterval(inp):
     intervals = [intvl.strip() for intvl in inp.split(',')]
