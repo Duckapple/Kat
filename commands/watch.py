@@ -1,35 +1,36 @@
+from argparse import ArgumentParser
 import os, time
 from helpers.debounce import debounce
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, FileModifiedEvent
 
 from helpers.webutils import promptToFetch
-from commands.test import testCommand
+from commands.test import testCommand, testFlags
 from helpers.programSelector import selectProgramFile, formatProgramFile
 
 
-def watchCommand(args, options):
-    problemName = args[0]
+def watchCommand(data):
+    problemName = data["problem"]
     directory = os.path.join(os.getcwd(), problemName)
 
     if not os.path.exists(problemName):
-        promptToFetch(args, options)
+        promptToFetch(problemName)
         return
 
     # if programFile is not given, we will attempt to guess it
     programFile = (
-        formatProgramFile(args[1]) if args[1:] else selectProgramFile(problemName)
+        formatProgramFile(data["file"]) if "file" in data and data['file'] else selectProgramFile(problemName)
     )
-    if programFile == -1:
+    if not programFile:
         return
 
-    event_handler = KatWatchEventHandler(problemName, programFile)
-
     observer = Observer()
+    event_handler = KatWatchEventHandler({**data, "file": programFile["relativePath"]}, observer)
+
     observer.schedule(event_handler, directory)
     observer.start()
 
-    print("🕵️  Watching " + programFile["relativePath"] + " for changes")
+    print("🕵️  Watching " + programFile["relativePath"] + " for changes. Press Ctrl+C to terminate.")
 
     try:
         while True:
@@ -40,15 +41,27 @@ def watchCommand(args, options):
 
 
 class KatWatchEventHandler(FileSystemEventHandler):
-    def __init__(self, problemName, programFile):
-        self.problemName = problemName
-        self.programFile = programFile
+    def __init__(self, data, observer):
+        self.data = data
+        self.observer = observer
+        self.fileType = self.data["file"].split('.')[-1]
         FileSystemEventHandler.__init__(self)
 
     def on_modified(self, event):
         if isinstance(event, FileModifiedEvent):
-            self.runTests()
+            isLangType = event.src_path.endswith(self.fileType)
+            if isLangType:
+                self.runTests()
 
     @debounce(1)
     def runTests(self):
-        testCommand([self.problemName, self.programFile["relativePath"]], [])
+        shouldEnd = testCommand(self.data)
+        if shouldEnd:
+            print('Done testing, stopping due to successful end.')
+            os._exit(0)
+        print('Done testing, still watching...')
+
+def watchParser(parsers: ArgumentParser):
+    helpText = 'Watch a problem, running tests on updates.'
+    parser = parsers.add_parser('watch', description=helpText, help=helpText)
+    testFlags(parser)

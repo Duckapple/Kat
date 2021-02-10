@@ -1,11 +1,12 @@
-from helpers.config import getUrl
+from helpers.config import getConfig, getConfigUrl
 
 _HEADERS = {"User-Agent": "Kat"}
 
-def login(config, session):
+def login(session):
+    config = getConfig()
     username = config.get("user", "username")
     token = config.get("user", "token")
-    login_url = getUrl(config, "loginurl", "login")
+    login_url = getConfigUrl("loginurl", "login")
 
     session.post(
         login_url,

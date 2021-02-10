@@ -1,39 +1,37 @@
+from argparse import ArgumentParser
 import requests, sys, os
 from helpers.auth import login
-from helpers.config import getConfig, getUrl
+from helpers.config import getConfigUrl
 from bs4 import BeautifulSoup
 from tabulate import tabulate
 
 
-def listCommand(args, options):
-    problems = collectProblems(args, options)
+def listCommand(data):
+    problems = collectProblems(data)
 
-    if "-c" in options:
+    if "compact" in data and data['compact']:
         print(" ".join([x[0] for x in problems]))
     else:
         tableHeaders = ["Id", "Name", "Difficulty"]
         print(tabulate(problems, tableHeaders, tablefmt="psql"))
 
 
-def collectProblems(args, options):
+def collectProblems(data):
     session = requests.Session()
-    config = getConfig()
-    url = getUrl(config, "problemsurl", "problems")
-    parameters = buildParameters(args, options)
-    login(config, session)
-    problems = fetchProblems(url, parameters, args, session)
+    url = getConfigUrl("problemsurl", "problems")
+    parameters = buildParameters(data)
+    login(session)
+    problems = fetchProblems(url, parameters, data, session)
     return problems
 
 
-def buildParameters(args, options):
+def buildParameters(data):
     parameters = {}
+    args = data['args']
 
-    # Order
-    order = selectOne(args, {"easiest", "hardest"})
-
-    if order == "easiest":
+    if "easiest" in args:
         parameters["order"] = "problem_difficulty"
-    elif order == "hardest":
+    elif "hardest" in args:
         parameters["order"] = "problem_difficulty"
         parameters["dir"] = "desc"
 
@@ -58,8 +56,10 @@ def buildParameters(args, options):
     return parameters
 
 
-def fetchProblems(url, parameters, args, session):
+def fetchProblems(url, parameters, data, session):
     response = session.get(url, params=parameters)
+    args = data["args"]
+    args = args if args else []
 
     body = response.content.decode("utf-8")
     soup = BeautifulSoup(body, "html.parser")
@@ -92,7 +92,7 @@ def selectOne(needles, haystack, default=None):
     if size == 1:
         return list(intersection)[0]
     elif size > 1:
-        print("Can only select on of: '" + (", ".join(haystack)) + "'")
+        print("Can only select one of: '" + (", ".join(haystack)) + "'")
         sys.exit(1)
     else:
         return default
@@ -101,7 +101,17 @@ def selectOne(needles, haystack, default=None):
 def intersect(list1, list2):
     return set(list1).intersection(set(list2))
 
-listFlags = [
-    ("page", True, "1"),
-    ("limit", True, "50"),
+choices = [
+    'easiest', 'hardest', 'unarchived', 'unsolved', 'solved', 'untried', 'tried', 'None'
 ]
+
+def listParser(parsers: ArgumentParser):
+    helpText = 'Get a list of problems from the Kattis instance.'
+    parser = parsers.add_parser('list', description=helpText, help=helpText)
+    parser.add_argument('-p', '--page', type=int, help='Choose which page of results to show')
+    parser.add_argument('-l', '--limit', type=int, help='Choose the length of the list/page to show')
+    parser.add_argument('-c', '--compact', action='store_true',  help='Print only a space-seperated list of problems')
+    listFlags(parser)
+
+def listFlags(parser):
+    parser.add_argument('args', metavar='sorting/filter', help='Define which sorting direction and filters to use. Choices for sorting are "easiest" or "hardest", and choices for filters are "unarchived", "unsolved", "solved", "untried" or "tried"', choices=choices, nargs='*', default='None')

@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 import os, requests, sys, re, time
 from enum import Enum, auto
 
@@ -13,8 +14,8 @@ from helpers.programSelector import (
     detectClassName,
 )
 from helpers.auth import login
-from helpers.config import getConfig, getUrl
-from commands.archive import archiveCommand
+from helpers.config import getConfigUrl
+from commands.archive import archive
 from helpers.sound import losesound, winsound
 from helpers.fileutils import undoBOM
 
@@ -39,36 +40,33 @@ _ERROR_MESSAGES = {
 }
 
 
-def submitCommand(args, options):
-    problemName = args[0]
-    directory = os.path.join(os.getcwd(), problemName)
+def submitCommand(data):
+    problemName = data["problem"]
 
     if not os.path.exists(problemName):
-        promptToFetch(args, options)
+        promptToFetch(problemName)
         return Response.Error
 
     # if programFile is not given, we will attempt to guess it
     programFile = (
-        formatProgramFile(args[1]) if args[1:] else selectProgramFile(problemName)
+        formatProgramFile(data["file"]) if "file" in data and data["file"] else selectProgramFile(problemName)
     )
 
     if programFile == -1:
         raise Exception("Could not guess programFile")
 
-    if "force" not in options:
+    if "force" not in data or not data['force']:
         response = confirm(problemName, programFile)
         if not response: return Response.Aborted
-
-    config = getConfig()
 
     session = requests.Session()
 
     print("📨 Submitting " + problemName + "...")
 
-    id = postSubmission(config, session, problemName, programFile)
+    id = postSubmission(session, problemName, programFile)
 
     print(
-        "📬 Submission Successful (url " + getUrl(config, "submissionsurl", "submissions") + "/" + id + ")"
+        "📬 Submission Successful (url " + getConfigUrl("submissionsurl", "submissions") + "/" + id + ")"
     )
 
     if id == -1:
@@ -76,19 +74,18 @@ def submitCommand(args, options):
 
     response = Response.Failure
     try:
-        response = printUntilDone(id, problemName, config, session, options)
+        response = printUntilDone(id, problemName, session)
     except:
         pass
-    if "sound" in options:
+    if "sound" in data and data['sound']:
         if response == Response.Success:
             winsound()
         elif response == Response.Failure:
             losesound()
     if response == Response.Success:
-        if "archive" in options:
-            archiveCommand(problemName, options, ".solved/")
+        if "archive" in data and data['archive']:
+            archive(problemName, ".solved/")
     return response
-
 
 
 def confirm(problemName, programFile):
@@ -100,10 +97,10 @@ def confirm(problemName, programFile):
     return yes()
 
 
-def postSubmission(config, session, problemName, programFile):
-    login(config, session)
+def postSubmission(session, problemName, programFile):
+    login(session)
 
-    url = getUrl(config, "submissionurl", "submit")
+    url = getConfigUrl("submissionurl", "submit")
     language = guessLanguage(programFile)
 
     if language == -1:
@@ -147,50 +144,66 @@ def postSubmission(config, session, problemName, programFile):
     return match.group(1).strip()
 
 
-def printUntilDone(id, problemName, config, session, options):
+def printUntilDone(id, problemName, session):
     lastCount = 0
+    spinnerParts = ["-", "\\", "|", "/"]
 
     print("⚖️  Submission Status:")
 
     while True:
-        login(config, session)
-        response, testCount, testTotal = fetchNewSubmissionStatus(id, session, config, options)
+        login(session)
+        response, data = fetchNewSubmissionStatus(id, session)
         if response != Response.Success:
             return response
-        for i in range(0, abs(lastCount - testCount)):
-            sys.stdout.write("💚")
-        sys.stdout.flush()
+        if "status" in data and data['status']:
+            status = data["status"]
+            lastCount += 1
+            print(status, spinnerParts[lastCount % 4], end="\r")
+            sys.stdout.flush()
+            if status == "Accepted":
+                print("\r💚                ") # clear line
+                break
+        else:
+            for _ in range(0, abs(lastCount - data["testCount"])):
+                sys.stdout.write("💚")
+            sys.stdout.flush()
 
-        if testTotal != 0 and testCount == testTotal:
-            break
+            if data["testTotal"] != 0 and data["testCount"] == data["testTotal"]:
+                break
 
-        lastCount = testCount
+            lastCount = data["testCount"]
+
         time.sleep(1)
 
     print()
     print(
-        "🎉 Congratulations! You completed all "
-        + str(testTotal)
-        + " tests for "
-        + problemName
+        "🎉 Congratulations! You completed all",
+        (str(data["testTotal"]) if "testTotal" in data else ""),
+        "tests for",
+        problemName
     )
     return Response.Success
 
 
-def fetchNewSubmissionStatus(id, session, cfg, options):
+def fetchNewSubmissionStatus(id, session):
     response = session.get(
-        getUrl(cfg, "submissionsurl", "submissions") + "/" + id, headers=_HEADERS
+        getConfigUrl("submissionsurl", "submissions") + "/" + id, headers=_HEADERS
     )
 
     body = response.content.decode("utf-8")
     soup = BeautifulSoup(body, "html.parser")
-    [info, testcases] = soup.select("#judge_table tbody tr")
+    data = soup.select("#judge_table tbody tr")
+    info = data[0]
+    testcases = data[1] if len(data) > 1 else None
 
-    status = info.select_one("td.status")
+    status = info.select_one("td.status").text
 
-    if status.text == "Compile Error":
+    if status == "Compile Error":
         print(_ERROR_MESSAGES["Compile Error"])
         raise Exception(_ERROR_MESSAGES["Compile Error"])
+
+    if not testcases:
+        return Response.Success, {"status": status}
 
     successCount = 0
     testTotal = 0
@@ -227,7 +240,7 @@ def fetchNewSubmissionStatus(id, session, cfg, options):
             )
             raise Exception("Unknown Error")
 
-    return Response.Success, successCount, int(testTotal)
+    return Response.Success, {"testCount": successCount, "testTotal": int(testTotal)}
 
 
 def formatLanguage(language):
@@ -246,9 +259,14 @@ def formatPythonLanguage(language):
 
     return "Python " + python_version
 
+def submitParser(parsers: ArgumentParser):
+    helptext = 'Submit a problem for evaluation.'
+    parser = parsers.add_parser('submit', description=helptext, help=helptext)
+    parser.add_argument('problem', help='Name of problem to submit')
+    parser.add_argument('file', nargs='?', help='Name of the specific file to submit')
+    submitFlags(parser)
 
-submitFlags = [
-    ("archive", False),
-    ("force", False),
-    ("sound", False),
-]
+def submitFlags(parser):
+    parser.add_argument('-a', '--archive', action='store_true', help='Archive the problem on a successful submittion.')
+    parser.add_argument('-f', '--force', action='store_true', help='Force a submit of the first detected program file.')
+    parser.add_argument('-s', '--sound', action='store_true', help='Play a sound on successful submittion.')

@@ -1,31 +1,36 @@
-import os
+from argparse import ArgumentParser
 
 from commands.web import webCommand
-from enum import Enum, auto
 
-from commands.unarchive import unarchiveCommand
+from commands.unarchive import unarchive
 from helpers.fileutils import findProblemLocation
 from helpers.webutils import fetchProblem
-from helpers.config import getConfig
 
+def getCommand(data):
+    for problem in data['problem']:
+        get(problem, data)
 
-def getCommand(problemName, options):
+def get(problemName, data):
     message = ""
-    config = getConfig()
     folder = findProblemLocation(problemName)
     if folder is None:
-        fetchProblem(config, problemName)
+        overrideLanguage = data['language']
+        fetchProblem(problemName, overrideLanguage)
         message = "👍 Successfully initialized exercise " + problemName + "!"
     elif folder != "":
-        unarchiveCommand(problemName, [])
+        unarchive(problemName)
         message = "👍 Successfully unarchived exercise " + problemName + "!"
-
     if message != "":
         print(message)
-    if "open" in options:
+    if "open" in data and data['open']:
         webCommand(problemName)
 
+def getParser(parsers: ArgumentParser):
+    helpText = 'Get a problem and its tests from the Kattis instance.'
+    parser = parsers.add_parser('get', help=helpText, description=helpText)
+    parser.add_argument('problem', help='Name of problem to get', nargs='+')
+    getFlags(parser)
 
-getFlags = [
-    ("open", False),
-]
+def getFlags(parser):
+    parser.add_argument('-o', '--open', action='store_true', help='Open the problem in your web-browser.')
+    parser.add_argument('-l', '--language', type=str, help='Choose the language to initialize the problem in')

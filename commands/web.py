@@ -1,12 +1,12 @@
 import webbrowser
-from helpers.config import getConfig, getUrl
+from helpers.config import getConfigUrl
 
 def webCommand(problemName):
-    url = getUrl(getConfig(), "problemsurl", "problems") + "/" + problemName
+    url = getConfigUrl("problemsurl", "problems") + "/" + problemName
     webbrowser.open(url)
 
 
 def openSubmission(submissionId):
-    url = getUrl(getConfig(), "submissionsurl", "submissions") + "/" + submissionId
+    url = getConfigUrl("submissionsurl", "submissions") + "/" + submissionId
     webbrowser.open(url)
 

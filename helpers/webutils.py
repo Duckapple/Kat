@@ -6,31 +6,33 @@ import requests
 
 from helpers.fileutils import createBoilerplate
 from helpers.cli import yes
-from helpers.config import getUrl
+from helpers.config import getConfigUrl
 
+class InvalidProblemException(Exception):
+    pass
 
-def checkProblemExistence(config, problemName):
-    problemUrl = getUrl(config, "problemsurl", "problems") + "/" + problemName
+def checkProblemExistence(problemName):
+    problemUrl = getConfigUrl("problemsurl", "problems") + "/" + problemName
     existenceTest = requests.get(problemUrl)
     if existenceTest.status_code != 200:
         raise InvalidProblemException("⚠️ Problem '" + problemName + "' does not exist!")
 
 
-def fetchProblem(config, problemName):
-    problemUrl = getUrl(config, "problemsurl", "problems") + "/" + problemName
-    checkProblemExistence(config, problemName)
+def fetchProblem(problemName, overrideLanguage = None):
+    problemUrl = getConfigUrl("problemsurl", "problems") + "/" + problemName
+    checkProblemExistence(problemName)
     print("🧰  Initializing problem " + problemName)
     os.makedirs(problemName)
     downloadSampleFiles(problemName, problemUrl)
-    createBoilerplate(problemName)
+    createBoilerplate(problemName, overrideLanguage)
 
 
-def promptToFetch(arg, options):
+def promptToFetch(problemName):
     print("This problem is not present...")
     print("Do you want to get it?")
     if yes():
         print("Getting problem...")
-        fetchProblem(arg)
+        fetchProblem(problemName)
 
 
 def downloadSampleFiles(problemName, problemUrl):
