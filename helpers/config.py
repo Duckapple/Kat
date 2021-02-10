@@ -3,6 +3,25 @@ from pathlib import Path
 
 _DEFAULT_CONFIG = "/etc/kattis/submit/kattisrc"
 
+def configLocations():
+    return [
+        _DEFAULT_CONFIG,
+        os.path.join(str(Path.home()), ".kattisrc"),
+        os.path.join(os.path.dirname(sys.argv[0]), ".kattisrc"),
+        os.path.join(os.getcwd(), ".kattisrc")
+    ]
+
+def findConfig(config = None):
+    locations = configLocations()
+
+    found = []
+    for location in locations:
+        if os.path.exists(location):
+            if config:
+                config.read(location)
+            found.append(location)
+    return found
+
 _CONFIG_NOT_FOUND_MSG = """\
 I failed to read in a config file from your home directory or from the
 same directory as this script. Please go to your Kattis installation
@@ -40,27 +59,16 @@ class Config:
         else:
             _config = configparser.ConfigParser(converters={"array": strToArr, "command": toCommandArray})
 
-            alternativeLocations = [
-                _DEFAULT_CONFIG,
-                os.path.join(str(Path.home()), ".kattisrc"),
-                os.path.join(os.path.dirname(sys.argv[0]), ".kattisrc"),
-                os.path.join(os.getcwd(), ".kattisrc")
-            ]
-
-            found = None
-            for location in alternativeLocations:
-                if os.path.exists(location):
-                    _config.read(location)
-                    found = location
+            found = findConfig(_config)
 
             if not found:
-                print("Config locations searched:", alternativeLocations, "\n")
+                print("Config locations searched:", configLocations(), "\n")
                 print(_CONFIG_NOT_FOUND_MSG)
                 sys.exit()
 
-            self = preconfigure(_config, found)
+            self = preconfigure(_config, found[-1])
             Config.__instance = self
-            Config.__location = found
+            Config.__location = found[-1]
 
 def getConfig(shouldReturnLocation = False):
     return Config.getInstance(shouldReturnLocation)

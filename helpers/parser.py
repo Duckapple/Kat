@@ -25,13 +25,13 @@ parsers = [
     workParser,
 ]
 
-def parse():
+def parse(args = None):
     parser = ArgumentParser(
         description='Get, test and submit Kattis problems.',
     )
-    sub_parsers = parser.add_subparsers(dest='command', required=True, metavar='command')
+    sub_parsers = parser.add_subparsers(dest='command', metavar='command')
 
     for p in parsers:
         p(sub_parsers)
 
-    return parser.parse_args()
+    return parser.parse_args(args)
