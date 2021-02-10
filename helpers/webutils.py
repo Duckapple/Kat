@@ -4,12 +4,10 @@ import zipfile
 
 import requests
 
+from helpers.exceptions import InvalidProblemException
 from helpers.fileutils import createBoilerplate
 from helpers.cli import yes
 from helpers.config import getConfigUrl
-
-class InvalidProblemException(Exception):
-    pass
 
 def checkProblemExistence(problemName):
     problemUrl = getConfigUrl("problemsurl", "problems") + "/" + problemName
