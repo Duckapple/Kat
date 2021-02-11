@@ -29,7 +29,7 @@ execCommand = {
 
 def main():
     data = vars(parse())
-    command = data["command"]
+    command = data.get("command")
 
     if command in execCommand:
         try:

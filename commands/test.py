@@ -14,7 +14,7 @@ from helpers.webutils import promptToFetch
 from commands.archive import archive
 
 
-def testCommand(data):
+def testCommand(data: dict):
     problemName = data['problem']
     directory = os.path.join(os.getcwd(), problemName)
 
@@ -24,7 +24,7 @@ def testCommand(data):
 
     # if programFile is not given, we will attempt to guess it
     programFile = (
-        formatProgramFile(data["file"]) if "file" in data and data['file'] else selectProgramFile(problemName)
+        formatProgramFile(data["file"]) if data.get('file') else selectProgramFile(problemName)
     )
     if not programFile:
         return
@@ -41,7 +41,7 @@ def testCommand(data):
     if command == -1:
         return
 
-    testsToRun = data['interval'] or None
+    testsToRun = data.get('interval')
     passed = True
     times = []
 
@@ -64,10 +64,10 @@ def testCommand(data):
     shouldEnd = None
 
     if passed:
-        if "submit" in data and data['submit']:
+        if data.get('submit'):
             submitCommand({"problem": problemName, "file": programFile['relativePath']})
             shouldEnd = True
-        if "archive" in data and data['archive']:
+        if data.get('archive'):
             archive(problemName)
             shouldEnd = True
     if shouldEnd:

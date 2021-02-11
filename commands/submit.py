@@ -49,7 +49,7 @@ def submitCommand(data):
 
     # if programFile is not given, we will attempt to guess it
     programFile = (
-        formatProgramFile(data["file"]) if "file" in data and data["file"] else selectProgramFile(problemName)
+        formatProgramFile(data.get("file")) if data.get("file") else selectProgramFile(problemName)
     )
 
     if programFile == -1:
@@ -77,13 +77,13 @@ def submitCommand(data):
         response = printUntilDone(id, problemName, session)
     except:
         pass
-    if "sound" in data and data['sound']:
+    if data.get('sound'):
         if response == Response.Success:
             winsound()
         elif response == Response.Failure:
             losesound()
     if response == Response.Success:
-        if "archive" in data and data['archive']:
+        if data.get('archive'):
             archive(problemName, ".solved/")
     return response
 
@@ -156,13 +156,13 @@ def printUntilDone(id, problemName, session):
         response, data = fetchNewSubmissionStatus(id, session)
         if response != Response.Success:
             return response
-        if "status" in data and data['status']:
-            status = data["status"]
+        if data.get('status'):
+            status = data.get('status')
             lastCount += 1
             print(status, spinnerParts[lastCount % 4], end="\r")
             sys.stdout.flush()
             if status == "Accepted":
-                runtime = data["runtime"]
+                runtime = data.get("runtime")
                 print("\r💚                ") # clear line
                 break
         else:
@@ -171,7 +171,7 @@ def printUntilDone(id, problemName, session):
             sys.stdout.flush()
 
             if data["testTotal"] != 0 and data["testCount"] == data["testTotal"]:
-                runtime = data["runtime"]
+                runtime = data.get("runtime")
                 break
 
             lastCount = data["testCount"]
