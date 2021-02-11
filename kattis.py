@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from helpers.webutils import submitError
+from helpers.cli import yes
 from commands.startup import startupCommand
 from commands.work import workCommand
 from commands.archive import archiveCommand
@@ -33,10 +35,14 @@ def main():
 
     if command in execCommand:
         try:
+            raise Exception('AAAAAAa')
             execCommand[command](data)
-        except (RedundantCommandException, InvalidProblemException) as error:
+        except (Exception) as error:
             print()
             print(error)
             print()
+            print("The program ran into a problem while running, do you want to create an issue?")
+            if yes():
+                submitError(error)
 
 main()

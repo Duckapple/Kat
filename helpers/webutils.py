@@ -1,6 +1,5 @@
-import io
-import os
-import zipfile
+import io, os, traceback, webbrowser, zipfile
+from urllib import parse
 
 import requests
 
@@ -41,3 +40,7 @@ def downloadSampleFiles(problemName, problemUrl):
     print("⬇️  Attempting to download sample files from kattis...")
     z = zipfile.ZipFile(io.BytesIO(r.content))
     z.extractall(problemName + "/test")
+
+def submitError(e: Exception):
+    body = parse.quote_plus('\n\n```\n' + ''.join(traceback.format_exception(None, e, e.__traceback__)) + '\n```')
+    webbrowser.open(f"https://github.com/Duckapple/Kat/issues/new?body={body}&title=Exception%3A%20%22{str(e)}%22")
