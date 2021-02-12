@@ -4,6 +4,8 @@ This is a command-line program for getting, testing, and submitting Kattis probl
 
 Credit goes to Kattis and their python script for submitting files [found here](https://open.kattis.com/help/submit). Our submission script is heavily inspired by theirs.
 
+Logo provided by [@CptF1nn](https://github.com/CptF1nn)
+
 ## Installing
 
 1. First of all, download this repository (either by .zip or via git) and make sure to extract it to a known location.
