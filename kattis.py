@@ -35,12 +35,9 @@ def main():
 
     if command in execCommand:
         try:
-            raise Exception('AAAAAAa')
             execCommand[command](data)
         except (Exception) as error:
-            print()
-            print(error)
-            print()
+            print(f"Error occurred:\n {error}\n")
             print("The program ran into a problem while running, do you want to create an issue?")
             if yes():
                 submitError(error)
