@@ -90,7 +90,7 @@ def getTestFiles(problemName):
 
 def runSingleTest(command, directory, inFile, answerFile):
     inp = getBytesFromFile(inFile)
-    answer = getBytesFromFile(answerFile).decode("utf-8")
+    answer = getBytesFromFile(answerFile).decode("utf-8").replace("\r\n", "\n")
     t1 = time.perf_counter()
     result = (
         subprocess.run(command, stdout=subprocess.PIPE, input=inp, cwd=directory)

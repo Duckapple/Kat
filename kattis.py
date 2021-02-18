@@ -40,9 +40,8 @@ def main():
             execCommand[command](data)
     except (Exception) as error:
         print()
-        print(error)
         print(*traceback.format_exception(None, error, error.__traceback__))
-        print()
+        print(f"Error occurred:\n {error}\n")
         print("The program ran into a problem while running, do you want to create an issue on github?")
         if yes():
             submitError(error)
