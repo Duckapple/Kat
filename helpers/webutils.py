@@ -8,6 +8,8 @@ from helpers.fileutils import createBoilerplate
 from helpers.cli import yes
 from helpers.config import getConfigUrl
 
+HEADERS = {"User-Agent": "Kat"}
+
 def checkProblemExistence(problemName):
     problemUrl = getConfigUrl("problemsurl", "problems") + "/" + problemName
     existenceTest = requests.get(problemUrl)

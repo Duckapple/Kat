@@ -1,19 +1,22 @@
 from argparse import ArgumentParser
-from commands.startup import startupParser
-from commands.work import workParser
-from commands.watch import watchParser
-from commands.unarchive import unarchiveParser
-from commands.test import testParser
-from commands.read import readParser
-from commands.list import listParser
-from commands.config import configParser
-from commands.submit import submitParser
-from commands.get import getParser
+
 from commands.archive import archiveParser
+from commands.config import configParser
+from commands.contest import contestParser
+from commands.get import getParser
+from commands.list import listParser
+from commands.read import readParser
+from commands.startup import startupParser
+from commands.submit import submitParser
+from commands.test import testParser
+from commands.unarchive import unarchiveParser
+from commands.watch import watchParser
+from commands.work import workParser
 
 parsers = [
     archiveParser,
     configParser,
+    contestParser,
     getParser,
     listParser,
     readParser,
@@ -28,6 +31,7 @@ parsers = [
 def parse(args = None):
     parser = ArgumentParser(
         description='Get, test and submit Kattis problems.',
+        conflict_handler='resolve'
     )
     sub_parsers = parser.add_subparsers(dest='command', metavar='command')
 

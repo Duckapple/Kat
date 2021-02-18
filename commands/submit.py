@@ -5,7 +5,7 @@ from enum import Enum, auto
 from bs4 import BeautifulSoup
 from helpers.cli import yes
 from commands.web import openSubmission
-from helpers.webutils import promptToFetch
+from helpers.webutils import HEADERS, promptToFetch
 from helpers.programSelector import (
     formatProgramFile,
     selectProgramFile,
@@ -25,9 +25,6 @@ class Response(Enum):
     Failure = auto()
     Error = auto()
     Aborted = auto()
-
-
-_HEADERS = {"User-Agent": "Kat"}
 
 _ERROR_MESSAGES = {
     "Wrong Answer": "💔 Wrong Answer on @test of @total",
@@ -129,7 +126,7 @@ def postSubmission(session, problemName, programFile):
             )
         )
 
-    response = session.post(url, data=data, files=sub_files, headers=_HEADERS)
+    response = session.post(url, data=data, files=sub_files, headers=HEADERS)
 
     body = response.content.decode("utf-8").replace("<br />", "\n")
     match = re.search(r"Submission ID: ([0-9]+)", body)
@@ -192,7 +189,7 @@ def printUntilDone(id, problemName, session):
 
 def fetchNewSubmissionStatus(id, session):
     response = session.get(
-        getConfigUrl("submissionsurl", "submissions") + "/" + id, headers=_HEADERS
+        getConfigUrl("submissionsurl", "submissions") + "/" + id, headers=HEADERS
     )
 
     body = response.content.decode("utf-8")
@@ -253,7 +250,7 @@ def getRuntime(id, problemName, session):
     user = getConfig().get("user", "username")
     url = f"{getConfigUrl('usersurl', 'users')}/{user}/submissions/{problemName}"
     response = session.get(
-        url, headers=_HEADERS
+        url, headers=HEADERS
     )
     body = response.content.decode("utf-8")
     soup = BeautifulSoup(body, "html.parser")

@@ -61,7 +61,7 @@ def findProblemLocation(problemName):
 
 
 def undoBOM(path):
-    import sys, codecs
+    import codecs
     BUFSIZE = 4096
     BOMLEN = len(codecs.BOM_UTF8)
 

@@ -42,10 +42,7 @@ def workCommand(data):
                 testCommand({'problem': currentProblem})
             elif command == "submit":
                 response = False
-                try:
-                    response = submitCommand({**data, 'problem': currentProblem})
-                except Exception as error:
-                    print(error)
+                response = submitCommand({**data, 'problem': currentProblem})
 
                 if response == Response.Success:
                     currentIndex += 1
@@ -56,10 +53,6 @@ def workCommand(data):
                 currentProblem = getProblem(currentIndex, data, problems)
             elif command == "help":
                 print(_HELP_TEXT)
-        except (InvalidProblemException, RedundantCommandException) as error:
-            print()
-            print(error)
-            print()
         except KeyboardInterrupt:
             print('Shutdown by keyboard interrupt')
             return
