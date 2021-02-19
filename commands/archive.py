@@ -5,7 +5,10 @@ from helpers.webutils import promptToFetch
 
 def archiveCommand(data):
     for problem in data['problem']:
-        archive(problem)
+        if data.get("solved"):
+            archive(problem, ".solved/")
+        else:
+            archive(problem)
 
 def archive(problemName, folder=".archive/"):
     if os.path.exists(folder + problemName):
@@ -20,3 +23,4 @@ def archiveParser(parsers: ArgumentParser):
     helpText = 'Move problem to archive folder.'
     parser = parsers.add_parser('archive', description=helpText, help=helpText)
     parser.add_argument('problem', help='Name of problem to archive', nargs='+')
+    parser.add_argument('-s', '--solved', help='This flag denotes to archive into the .solved folder', action='store_true')

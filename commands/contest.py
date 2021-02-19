@@ -1,4 +1,6 @@
 from argparse import ArgumentParser
+from commands.submit import submitCommand
+from helpers.cli import yes
 
 from bs4 import BeautifulSoup
 from helpers.config import getConfig, getConfigUrl
@@ -13,11 +15,20 @@ def contestCommand(data):
 
     if command == 'get':
         read = readContest(data.get('contest'), session)
-        getCommand({ 
+        solved = getCommand({ 
             **data,
             'command': 'get',
             'problem': read.get('problems'),
         })
+        if solved:
+            if not data.get('submit'):
+                print("Some problems were unarchived from the .solved folder:")
+                print(", ".join(solved))
+                print("Do you want to submit them?")
+                if not yes():
+                    return
+            for problem in solved:
+                submitCommand({"problem": problem})
 
 def readContest(contest, session):
     problems = []
@@ -66,6 +77,7 @@ def contestParser(parsers):
     getText = 'Get the problems associated with the contest.'
     get = subs.add_parser('get', description=getText, help=getText)
     getFlags(get)
+    parser.add_argument('-s', '--submit', action='store_true', help='Automatically submit pre-solved problems.')
     # get.add_argument('-s', '--submit', action='store_true', help='Submit automatically any projects which have been tested before.')
     # ge = subs.add_parser('ge', description=getText, help=getText)
 

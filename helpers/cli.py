@@ -1,3 +1,6 @@
-def yes():
+def yes(defaultToYes = False):
     answer = input("(y/N): ").lower()
-    return answer == "y" or answer == "yes"
+    if defaultToYes:
+        return answer == "n" or answer == "no"
+    else:
+        return answer == "y" or answer == "yes"

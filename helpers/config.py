@@ -157,7 +157,7 @@ def _set(cfgForSection, key, value):
 def strToArr(string):
     string = string.replace("[","").replace("]","")
     string = string.replace("'","").replace('"',"")
-    return string.split(", ")
+    return [item.strip() for item in string.split(",")]
 
 def toCommandArray(string: str):
     splitString = string.split(" ")

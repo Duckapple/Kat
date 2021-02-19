@@ -9,14 +9,17 @@ from helpers.webutils import fetchProblem
 
 
 def getCommand(data):
+    solved = []
     for problem in data['problem']:
         try:
-            get(problem, data)
+            folder = get(problem, data)
+            if folder == ".solved/":
+                solved.append(problem)
         except InvalidProblemException:
             print("")
             print(f"Error: Problem '{problem}' does not exist")
             print("")
-
+    return solved
 
 def get(problemName: str, data: dict):
     message = ""
@@ -33,6 +36,7 @@ def get(problemName: str, data: dict):
         print(message)
     if "open" in data and data['open']:
         webCommand(problemName)
+    return folder
 
 def getParser(parsers: ArgumentParser):
     helpText = 'Get a problem and its tests from the Kattis instance.'

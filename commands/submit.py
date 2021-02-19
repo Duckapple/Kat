@@ -52,7 +52,7 @@ def submitCommand(data):
     if programFile == -1:
         raise Exception("Could not guess programFile")
 
-    if "force" not in data or not data['force']:
+    if "force" not in data or not data.get('force'):
         response = confirm(problemName, programFile)
         if not response: return Response.Aborted
 
@@ -133,7 +133,8 @@ def postSubmission(session, problemName, programFile):
 
     if match is None:
         print(
-            "Submission was received, but could not read ID from response. Visit the submission manually in the browser."
+            "Submission was received, but could not read ID from response.",
+            "Visit the submission manually in the browser.",
         )
         print("Response was: " + body)
         return -1
