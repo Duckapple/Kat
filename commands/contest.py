@@ -28,6 +28,7 @@ def readContest(contest, session):
     soup = BeautifulSoup(body, "html.parser")
     info = soup.select("#standings thead tr")
     if len(info) != 1:
+        print(contest)
         raise Exception("This contest somehow doesn't have a table with a header")
 
     timeTo = soup.select_one(".notstarted .countdown").text
@@ -49,7 +50,7 @@ def readContest(contest, session):
     }
 
 def definedContest(contest_id):
-    if re.search('https://.+/contests/\w+', contest_id):
+    if re.search('https://.+/(contests|sessions)/\w+', contest_id):
         return contest_id
     id = contest_id.split('/')[-1]
     contestsUrl = getConfigUrl("contestsurl", "contests")
