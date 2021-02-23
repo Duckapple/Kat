@@ -9,4 +9,4 @@ def winsound():
 
 
 def losesound():
-    playsound(playsound(random.choice(glob.glob(prefix + "/lose/*.mp3"))))
+    playsound(random.choice(glob.glob(prefix + "/lose/*.mp3")))
