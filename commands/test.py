@@ -65,9 +65,12 @@ def testCommand(data: dict):
 
     if passed:
         if data.get('submit'):
-            submitCommand({"problem": problemName, "file": programFile['relativePath']})
+            if data.get('archive'):
+                submitCommand({"problem": problemName, "file": programFile['relativePath'], "archive": True})
+            else:
+                submitCommand({"problem": problemName, "file": programFile['relativePath']})
             shouldEnd = True
-        if data.get('archive'):
+        elif data.get('archive'):
             archive(problemName)
             shouldEnd = True
     if shouldEnd:
