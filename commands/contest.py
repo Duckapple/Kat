@@ -77,7 +77,7 @@ def contestParser(parsers):
     getText = 'Get the problems associated with the contest.'
     get = subs.add_parser('get', description=getText, help=getText)
     getFlags(get)
-    parser.add_argument('-s', '--submit', action='store_true', help='Automatically submit pre-solved problems.')
+    get.add_argument('-s', '--submit', action='store_true', help='Automatically submit pre-solved problems.')
     # get.add_argument('-s', '--submit', action='store_true', help='Submit automatically any projects which have been tested before.')
     # ge = subs.add_parser('ge', description=getText, help=getText)
 

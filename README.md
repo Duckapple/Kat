@@ -80,6 +80,16 @@ Possible filters:
  - `tried` allows problems tried before
  - `untried` allows problem never even tried before
 
+### Contest
+
+```
+kattis contest [-c CONTEST_URL] get [-s] [-o] [-l LANGUAGE]
+```
+
+Get all problems from a contest, optionally submitting already completed problems.
+
+You can provide only the ID of a contest if you have the hostname in the config, otherwise the whole URL should be provided.
+
 ### Read
 
 ```
