@@ -22,7 +22,7 @@ def createBoilerplate(problemName, overrideLanguage = None):
     if overrideLanguage:
         lang = overrideLanguage
     else:
-        lang = cfg.get("kat", "language")
+        lang = cfg.get("kat", {}).get("language")
     if lang in cfg["Initialize commands"]:
         cmd = cfg["Initialize commands"].getcommand(lang)
         subprocess.run([p for p in cmd], cwd=problemName)
@@ -36,7 +36,7 @@ def createBoilerplate(problemName, overrideLanguage = None):
 
     fileName = problemName
     if lang in cfg["Naming"]:
-        naming = cfg.get("Naming", lang)
+        naming = cfg.get("Naming").get(lang)
         namingFn = namingSchemeConverters[naming]
         fileName = namingFn(fileName)
 

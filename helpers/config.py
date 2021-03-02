@@ -38,15 +38,17 @@ submissionurl: https://<kattis>/submit"""
 
 class Config:
     """The config singleton, use getConfig to access."""
-    __instance = None
+    __instance: dict = None
     __location = None
     @staticmethod
-    def getInstance(shouldReturnLocation = False):
+    def getInstance():
         if Config.__instance == None:
             Config()
-        if shouldReturnLocation:
-            return Config.__instance, Config.__location
         return Config.__instance
+    def getLocation():
+        if Config.__location == None:
+            Config()
+        return Config.__location
     @staticmethod
     def save():
         if Config.__instance == None:
@@ -62,31 +64,52 @@ class Config:
             found = findConfig(_config)
 
             if not found:
-                print("Config locations searched:", configLocations(), "\n")
-                print(_CONFIG_NOT_FOUND_MSG)
-                sys.exit()
+                print("No config found, consider reading the readme or running 'kattis startup'")
+                _config = preconfigure(_config)
+            else:
+                _config = preconfigure(_config, found[-1])
+                Config.__location = found[-1]
 
-            self = preconfigure(_config, found[-1])
+            self = vars(_config)['_sections']
             Config.__instance = self
-            Config.__location = found[-1]
 
-def getConfig(shouldReturnLocation = False):
-    return Config.getInstance(shouldReturnLocation)
+def getConfig():
+    return Config.getInstance()
+
+def getConfigWithLocation():
+    return Config.getInstance(), Config.getLocation()
 
 def saveConfig():
-    Config.save()
+    _config = configparser.ConfigParser(converters={"array": strToArr, "command": toCommandArray})
+    found = findConfig(_config)
+    if not found:
+        return False
+    location = found[-1]
+
+    cfg = getConfig()
+    for (section, settings) in cfg.items():
+        if section not in _config.sections():
+            _config.add_section(section)
+        for (key, value) in settings.items():
+            _config[section][key] = value
+    if location:
+        with open(location, "w") as configFile:
+            _config.write(configFile)
+    return True
 
 def getConfigUrl(option, default):
     cfg = getConfig()
-    if cfg.has_option("kattis", option):
-        return cfg.get("kattis", option)
+    section = cfg.get("kattis", {})
+    item = section.get(option)
+    if item:
+        return item
     else:
-        return formatUrl(cfg.get("kattis", "hostname"), default)
+        return formatUrl(section.get("hostname", "open.kattis.com"), default)
 
 def formatUrl(hostname, path):
     return "https://%s/%s" % (hostname, path)
 
-def preconfigure(cfg, location):
+def preconfigure(cfg, location = None):
     defaults = {
         "kat": {
             "language": "python",
@@ -138,6 +161,20 @@ def preconfigure(cfg, location):
         "Naming": {
             "Java": "Pascal",
         },
+        "Default options": {
+            "archive": "",
+            "config": "",
+            "contest": "",
+            "get": "",
+            "list": "",
+            "read": "",
+            "startup": "",
+            "submit": "",
+            "test": "",
+            "unarchive": "",
+            "watch": "",
+            "work": "",
+        }
     }
 
     for (section, settings) in defaults.items():
@@ -146,8 +183,9 @@ def preconfigure(cfg, location):
         for (key, value) in settings.items():
             _set(cfg[section], key, value)
 
-    with open(location, "w") as configFile:
-        cfg.write(configFile)
+    if location:
+        with open(location, "w") as configFile:
+            cfg.write(configFile)
     return cfg
 
 def _set(cfgForSection, key, value):

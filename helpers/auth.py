@@ -4,8 +4,9 @@ _HEADERS = {"User-Agent": "Kat"}
 
 def login(session):
     config = getConfig()
-    username = config.get("user", "username")
-    token = config.get("user", "token")
+    user = config.get("user", {})
+    username = user.get("username")
+    token = user.get("token")
     login_url = getConfigUrl("loginurl", "login")
 
     session.post(

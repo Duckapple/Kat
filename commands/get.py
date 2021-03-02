@@ -1,7 +1,5 @@
 from argparse import ArgumentParser
-
 from commands.web import webCommand
-
 from commands.unarchive import unarchive
 from helpers.exceptions import InvalidProblemException
 from helpers.fileutils import findProblemLocation

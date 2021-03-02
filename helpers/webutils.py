@@ -1,8 +1,5 @@
-import io, os, traceback, webbrowser, zipfile
+import io, os, requests, traceback, webbrowser, zipfile
 from urllib import parse
-
-import requests
-
 from helpers.exceptions import InvalidProblemException
 from helpers.fileutils import createBoilerplate
 from helpers.cli import yes

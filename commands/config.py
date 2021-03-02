@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from helpers.config import getConfig, commandConvert
+from helpers.config import getConfig, commandConvert, getConfigWithLocation, saveConfig
 
 def configCommand(data):
     if 'section' not in data:
@@ -13,7 +13,7 @@ README.md for more details.""")
             print("Successfully added default configuration to your .kattisrc!")
 
     elif "value" in data:
-        cfg, location = getConfig(shouldReturnLocation=True)
+        cfg, location = getConfigWithLocation()
         section = data["section"]
         option = data["option"]
         value = data["value"]
@@ -22,13 +22,13 @@ README.md for more details.""")
 Something went wrong in locating the configuration file
 for kattis. Have you fetched the .kattisrc? Consult the 
 README.md for more details.""")
-        elif cfg.has_section(section):
-            if not cfg.has_option(section, option) and section.lower() in ["kat", "kattis", "user"]:
+        elif section in cfg:
+            cfgSection = cfg.get(section)
+            if not option in cfgSection and section.lower() in ["kat", "kattis", "user"]:
                 print("Setting", option, "was not recognized for section [" + section + "]")
             else:
-                cfg.set(section, option, value)
-                with open(location, "w") as configFile:
-                    cfg.write(configFile)
+                cfgSection[option] = value
+                saveConfig()
                 print("The setting", option, "from section [" + section + "]", "was set to", value)
         else:
             print("Section [" + section + "]", "was not found.")

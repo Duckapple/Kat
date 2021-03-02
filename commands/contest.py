@@ -3,7 +3,7 @@ from commands.submit import submitCommand
 from helpers.cli import yes
 
 from bs4 import BeautifulSoup
-from helpers.config import getConfig, getConfigUrl
+from helpers.config import getConfigUrl
 import re
 
 import requests

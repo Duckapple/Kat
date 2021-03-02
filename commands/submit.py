@@ -248,8 +248,9 @@ def fetchNewSubmissionStatus(id, session):
     return Response.Success, {"testCount": successCount, "testTotal": int(testTotal), "runtime": runtime}
 
 def getRuntime(id, problemName, session):
-    user = getConfig().get("user", "username")
-    url = f"{getConfigUrl('usersurl', 'users')}/{user}/submissions/{problemName}"
+    user = getConfig().get("user", {})
+    username = user.get("username")
+    url = f"{getConfigUrl('usersurl', 'users')}/{username}/submissions/{problemName}"
     response = session.get(
         url, headers=HEADERS
     )
@@ -260,13 +261,13 @@ def getRuntime(id, problemName, session):
         return data[0].text
 
 def formatLanguage(language):
-    if language == "Python":
-        return formatPythonLanguage(language)
+    if language == "python":
+        return formatPythonLanguage()
 
     return language
 
 
-def formatPythonLanguage(language):
+def formatPythonLanguage():
     python_version = str(sys.version_info[0])
 
     if python_version not in ["2", "3"]:

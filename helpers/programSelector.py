@@ -1,17 +1,14 @@
 import os, re, subprocess
-
 from helpers.fileutils import getBytesFromFile
-from helpers.config import getConfig
-
-# import os, subprocess, re
+from helpers.config import getConfig, toCommandArray
 
 cfg = getConfig()
 
-_LANGUAGE_GUESS = cfg["File associations"]
+_LANGUAGE_GUESS = cfg.get("File associations", {})
 
-_LANGUAGE_RUN_COMMANDS = cfg["Run commands"]
+_LANGUAGE_RUN_COMMANDS = cfg.get("Run commands", {})
 
-_LANGUAGE_COMPILE_COMMANDS = cfg["Compile commands"]
+_LANGUAGE_COMPILE_COMMANDS = cfg.get("Compile commands", {})
 
 
 def selectProgramFile(problemName):
@@ -48,7 +45,7 @@ def selectProgramFile(problemName):
 def isValidProgramFile(file):
     return (
         os.path.isfile(file["relativePath"])
-        and str(guessLanguage(file)) in _LANGUAGE_RUN_COMMANDS
+        and str(guessLanguage(file)).lower() in _LANGUAGE_RUN_COMMANDS
     )
 
 
@@ -75,7 +72,7 @@ def getRunCommand(programFile):
         print("Unsupported programming language")
         return -1
 
-    cmd = _LANGUAGE_RUN_COMMANDS.getcommand(guessLanguage(programFile))
+    cmd = toCommandArray(_LANGUAGE_RUN_COMMANDS.get(guessLanguage(programFile)))
 
     return [formatCommand(p, programFile) for p in cmd]
 
@@ -100,7 +97,7 @@ def compile(file, directory):
     print("Compiling " + file["name"])
 
     cmd = [
-        formatCommand(p, file) for p in _LANGUAGE_COMPILE_COMMANDS.getcommand(guessLanguage(file))
+        formatCommand(p, file) for p in toCommandArray(_LANGUAGE_COMPILE_COMMANDS.get(guessLanguage(file)))
     ]
     if -1 in cmd:
         print("Error duing compilation")
@@ -118,7 +115,7 @@ def shouldCompile(file):
 
 def guessLanguage(file):
     return (
-        _LANGUAGE_GUESS[file["extension"]]
+        _LANGUAGE_GUESS[file["extension"]].lower()
         if file["extension"] in _LANGUAGE_GUESS
         else -1
     )

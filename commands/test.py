@@ -36,6 +36,11 @@ def testCommand(data: dict):
             return
     inFiles, ansFiles = getTestFiles(problemName)
 
+    if not inFiles and not ansFiles:
+        print("This problem doesn't seem to have any tests...")
+        print("Will not test.")
+        return
+
     command = getRunCommand(programFile)
 
     if command == -1:
@@ -78,6 +83,8 @@ def testCommand(data: dict):
 
 def getTestFiles(problemName):
     testPath = problemName + "/test"
+    if not os.path.exists(testPath):
+        return [], []
     files = [
         f for f in os.listdir(testPath) if os.path.isfile(os.path.join(testPath, f))
     ]

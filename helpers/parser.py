@@ -33,6 +33,7 @@ def parse(args = None):
         description='Get, test and submit Kattis problems.',
         conflict_handler='resolve'
     )
+    parser.add_argument('-n', '--no-override', action='store_true', help='Run the command without any of the overrides set in your config.')
     sub_parsers = parser.add_subparsers(dest='command', metavar='command')
 
     for p in parsers:
