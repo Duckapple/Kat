@@ -122,4 +122,4 @@ def guessLanguage(file):
 
 
 def requiresClass(file):
-    return guessLanguage(file) == "Java"
+    return guessLanguage(file) == "java"
