@@ -18,7 +18,7 @@ README.md for more details.""")
 
 def languageStep():
     cfg = getConfig()
-    lang = cfg.get("kat", "language")
+    lang = cfg.get("kat", {}).get("language")
     allLangs = set(x.lower() for x in cfg["File associations"].values())
     iter(cfg["Run commands"])
     print('Choose your language')
@@ -27,7 +27,11 @@ def languageStep():
     print('(These are', ', '.join(allLangs), ')')
     print('Leave blank for', lang)
     language = input('Your pick: ')
-    cfg.set("kat", "language", language if language.lower() in allLangs else lang)
+    isLanguage = language.lower() in allLangs
+    cfg.get("kat")["language"] = language if isLanguage else lang
+    if not isLanguage:
+        print(language, 'does not seem to be a language, defaulting to', lang)
+    saveConfig()
     return True
 
 steps = [
