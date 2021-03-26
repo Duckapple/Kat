@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import traceback
+import traceback, sys
 from commands.contest import contestCommand
 from helpers.webutils import submitError
 from helpers.cli import yes
@@ -33,7 +33,7 @@ execCommand = {
 
 def main():
     try:
-        data = vars(parse())
+        data = parse(sys.argv[1:])
         command = data.get("command")
 
         if command in execCommand:
@@ -46,4 +46,5 @@ def main():
         if yes():
             submitError(error)
 
-main()
+if __name__ == '__main__':
+    main()

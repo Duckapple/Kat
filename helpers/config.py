@@ -113,7 +113,6 @@ def preconfigure(cfg, location = None):
     defaults = {
         "kat": {
             "language": "python",
-            "openFileCommand": "",
             "workCommand": "",
         },
         "File associations": {
@@ -162,18 +161,19 @@ def preconfigure(cfg, location = None):
             "Java": "Pascal",
         },
         "Default options": {
-            "archive": "",
-            "config": "",
-            "contest": "",
-            "get": "",
-            "list": "",
-            "read": "",
-            "startup": "",
-            "submit": "",
-            "test": "",
-            "unarchive": "",
-            "watch": "",
-            "work": "",
+            "archive": "archive",
+            "config": "config",
+            # We cannot support contest yet as it has subcommands
+            # "contest": "",
+            "get": "get",
+            "list": "list",
+            "read": "read",
+            "startup": "startup",
+            "submit": "submit",
+            "test": "test",
+            "unarchive": "unarchive",
+            "watch": "watch",
+            "work": "work",
         }
     }
 

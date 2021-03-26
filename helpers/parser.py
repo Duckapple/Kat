@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from helpers.config import getConfig
 
 from commands.archive import archiveParser
 from commands.config import configParser
@@ -28,7 +29,7 @@ parsers = [
     workParser,
 ]
 
-def parse(args = None):
+def parse(args: list = None):
     parser = ArgumentParser(
         description='Get, test and submit Kattis problems.',
         conflict_handler='resolve'
@@ -38,5 +39,40 @@ def parse(args = None):
 
     for p in parsers:
         p(sub_parsers)
+    
 
-    return parser.parse_args(args)
+    parsed = vars(parser.parse_args(args))
+
+    noOverride = parsed.get('no_override')
+    if noOverride:
+        return parsed
+    
+    cfg = getConfig()
+    command = parsed.get('command')
+    commandConfig = cfg.get('Default options', {}).get(command, '').strip()
+
+    if commandConfig and args:
+        configArgs = commandConfig.split()
+        newArgs = unify_args(command, args, configArgs)
+        return vars(parser.parse_args(newArgs))
+    else:
+        return parsed
+
+def unify_args(command, args, configArgs):
+    configCommandIndex = configArgs.index(command)
+    commandIndex = args.index(command)
+
+    # Filter in command-defined pre-command args
+    preCommand = args[ : commandIndex]
+    for item in configArgs[ : configCommandIndex]:
+        if item not in preCommand:
+            preCommand.append(item)
+
+    # Filter in command-defined post-command args
+    postCommand = args[commandIndex+1 : ]
+    for item in configArgs[configCommandIndex+1 : ]:
+        if item not in preCommand:
+            postCommand.append(item)
+
+    # Collect them in a single array
+    return [*preCommand, command, *postCommand]
