@@ -1,4 +1,6 @@
 from argparse import ArgumentParser
+from sys import stderr
+from helpers.timeutils import toDatetime, toTimeDelta
 from commands.submit import submitCommand
 from helpers.cli import yes
 
@@ -14,11 +16,23 @@ def contestCommand(data):
     command = data.get('contest_command')
 
     if command == 'get':
-        read = readContest(data.get('contest'), session)
-        solved = getCommand({ 
+        contestData = readContest(data.get('contest'), session)
+        if not contestData.get('inProgress'):
+            timeTo = contestData.get('timeTo')
+            if timeTo and timeTo.total_seconds() > 0:
+                print('Contest is not in progress.')
+                print(f'Contest begins in {timeTo}.')
+                return
+            else:
+                print('The contest seems to be over.')
+                if len(contestData.get('problems')) > 0:
+                    print('Do you want to get the problems from the contest anyways?')
+                    if not yes():
+                        return
+        solved = getCommand({
             **data,
             'command': 'get',
-            'problem': read.get('problems'),
+            'problem': contestData.get('problems'),
         })
         if solved:
             if not data.get('submit'):
@@ -32,7 +46,6 @@ def contestCommand(data):
 
 def readContest(contest, session):
     problems = []
-    inProgress = False
     timeTo, endTime = None, None
     response = session.get(contest)
     body = response.content.decode("utf-8")
@@ -42,22 +55,27 @@ def readContest(contest, session):
         print(contest)
         raise Exception("This contest somehow doesn't have a table with a header")
 
-    timeTo = soup.select_one(".notstarted .countdown").text
-    endTime = soup.select_one(".contest-progress .text-right").text
+    timeTo = toTimeDelta(soup.select_one(".notstarted .countdown").text)
+    remaining = toTimeDelta(soup.select_one(".count_remaining").text)
+
+    # God dammit I hate XML crawling
+    endTime = soup.select_one(".contest-progress .text-right").text.strip().split('\n')[1].strip()
+    startTime = soup.select_one(".contest-progress .text-left").text.strip().split('\n')[1].strip()
 
     problemTags = info[0].select(".problemcolheader-standings a")
     if len(problemTags) > 0:
         problems = []
-        inProgress = True
         for problemTag in problemTags:
             problem = problemTag.get('href').split('/')[-1]
             problems.append(problem)
 
     return {
         'problems': problems,
-        'inProgress': inProgress,
+        'inProgress': ((not timeTo) or timeTo <= toTimeDelta("0:00:00")) and (remaining != toTimeDelta("0:00:00")),
         'timeTo': timeTo,
-        'endTime': endTime,
+        'remaining': remaining,
+        'startTime': toDatetime(startTime),
+        'endTime': toDatetime(endTime),
     }
 
 def definedContest(contest_id):
