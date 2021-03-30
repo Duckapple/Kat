@@ -49,15 +49,18 @@ def testCommand(data: dict):
     testsToRun = data.get('interval')
     passed = True
     times = []
-
-    for i, (inF, ansF) in enumerate(zip(inFiles, ansFiles)):
-        if testsToRun and i not in testsToRun:
-            continue
-        result, time = runSingleTest(command, directory, inF, ansF)
-        if not result:
-            passed = False
-        else:
-            times.append(time)
+    try:
+        for i, (inF, ansF) in enumerate(zip(inFiles, ansFiles)):
+            if testsToRun and i not in testsToRun:
+                continue
+            result, time = runSingleTest(command, directory, inF, ansF)
+            if not result:
+                passed = False
+            else:
+                times.append(time)
+    except KeyboardInterrupt:
+        print('Ending tests due to keyboard interrupt...')
+        return
 
     times.sort()
     if passed:
