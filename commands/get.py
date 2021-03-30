@@ -1,4 +1,7 @@
 from argparse import ArgumentParser
+import subprocess
+from helpers.programSelector import formatCommand, selectProgramFile
+from helpers.config import getConfig
 from commands.web import webCommand
 from commands.unarchive import unarchive
 from helpers.exceptions import InvalidProblemException
@@ -32,8 +35,14 @@ def get(problemName: str, data: dict):
         message = "👍 Successfully unarchived exercise " + problemName + "!"
     if message != "":
         print(message)
+
     if "open" in data and data['open']:
         webCommand(problemName)
+
+    fileOpener = getConfig().get('kat', {}).get('openfilecommand')
+    if fileOpener:
+        file = selectProgramFile(problemName)
+        subprocess.run(formatCommand(fileOpener, file).split())
     return folder
 
 def getParser(parsers: ArgumentParser):
