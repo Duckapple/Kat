@@ -20,9 +20,9 @@ def createBoilerplate(problemName, overrideLanguage = None):
     from helpers.programSelector import guessLanguage, formatProgramFile
     cfg = getConfig()
     if overrideLanguage:
-        lang = overrideLanguage
+        lang = overrideLanguage.lower()
     else:
-        lang = cfg.get("kat", {}).get("language")
+        lang = cfg.get("kat", {}).get("language").lower()
     if lang in cfg["Initialize commands"]:
         cmd = cfg["Initialize commands"].getcommand(lang)
         subprocess.run([p for p in cmd], cwd=problemName)
@@ -40,7 +40,7 @@ def createBoilerplate(problemName, overrideLanguage = None):
         namingFn = namingSchemeConverters[naming]
         fileName = namingFn(fileName)
 
-    if lang in boilerplates:
+    if lang.lower() in boilerplates:
         boilerplate = boilerplates[lang]
         fileType = "." + boilerplates[lang].split(".")[-1]
         shutil.copy2(

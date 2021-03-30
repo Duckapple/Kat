@@ -49,6 +49,7 @@ def testCommand(data: dict):
     testsToRun = data.get('interval')
     passed = True
     times = []
+
     try:
         for i, (inF, ansF) in enumerate(zip(inFiles, ansFiles)):
             if testsToRun and i not in testsToRun:
@@ -73,10 +74,7 @@ def testCommand(data: dict):
 
     if passed:
         if data.get('submit'):
-            if data.get('archive'):
-                submitCommand({"problem": problemName, "file": programFile['relativePath'], "archive": True})
-            else:
-                submitCommand({"problem": problemName, "file": programFile['relativePath']})
+            submitCommand({"problem": problemName, "file": programFile['relativePath'], "archive": data.get('archive')})
             shouldEnd = True
         elif data.get('archive'):
             archive(problemName)
@@ -92,7 +90,7 @@ def getTestFiles(problemName):
         f for f in os.listdir(testPath) if os.path.isfile(os.path.join(testPath, f))
     ]
     inFiles = [testPath + "/" + f for f in files if f.endswith(".in")]
-    ansFiles = [testPath + "/" + f for f in files if f.endswith(".ans")]
+    ansFiles = [testPath + "/" + f for f in files if f.endswith(".ans") or f.endswith(".out")]
 
     # For some reason files aren't alwats given in the correct order, so we must sort the lists first
     inFiles.sort()
