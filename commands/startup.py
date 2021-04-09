@@ -1,8 +1,16 @@
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from helpers.cli import getch
 from helpers.config import getConfig, saveConfig
 
 # returns whether the step errored
 # type step = () -> bool
+
+def getConfigStep():
+    print('You can navigate to https://open.kattis.com/help/submit and click the "download your personal configuration file",')
+    print('or you can (if logged into your browser) just navigate to https://open.kattis.com/download/kattisrc to directly get the file.')
+    print('Press any key to continue.')
+    getch()
+    return True
 
 def copyConfigStep():
     print("💾 Adding/updating configuration to your .kattisrc...")
@@ -35,6 +43,7 @@ def languageStep():
     return True
 
 steps = [
+    { 'fn': getConfigStep, 'desc': 'Provide a way to get the initial .kattisrc' },
     { 'fn': copyConfigStep, 'desc': 'Copy inbuilt configurations into your .kattisrc' },
     { 'fn': languageStep, 'desc': 'Choose the language you want to use' },
 ]
