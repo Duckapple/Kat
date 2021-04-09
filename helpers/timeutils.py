@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta
 import re
 
-def toDatetime(time: str) -> datetime:
+def toDatetime(time: str) -> None:
     # Trim off the time zone ending of the string
     justTime = time.split()[:-1]
-    return datetime.fromisoformat(' '.join(justTime))
+    # return datetime.fromisoformat(' '.join(justTime))
+    return None
 
 
 def toTimeDelta(time: str):
