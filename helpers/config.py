@@ -118,11 +118,11 @@ def preconfigure(cfg, location = None):
         "File associations": {
             ".c": "C",
             ".c#": "C#",
-            ".c++": "C++",
-            ".cc": "C++",
             ".cpp": "C++",
+            ".cc": "C++",
             ".cs": "C#",
             ".cxx": "C++",
+            ".c++": "C++",
             ".go": "Go",
             ".h": "C++",
             ".hs": "Haskell",
@@ -134,6 +134,7 @@ def preconfigure(cfg, location = None):
             ".pl": "Prolog",
             ".py": "Python",
             ".rb": "Ruby",
+            ".rs": "Rust",
             ".fs": "F#",
             ".fsx": "F#",
             ".fsscript": "F#",
@@ -141,6 +142,7 @@ def preconfigure(cfg, location = None):
         "Initialize commands": {
             "F#": "dotnet new console -lang F#",
             "C#": "dotnet new console",
+            "Rust": "cargo init",
         },
         "Run commands": {
             "Python": "python @f",
@@ -148,13 +150,14 @@ def preconfigure(cfg, location = None):
             "Java": "java @c",
             "C#": "dotnet run",
             "F#": "dotnet run",
-            "C++": "@d/@d",
+            "C++": "@p",
+            "Rust": "cargo run",
             "Haskell": "./@p",
             # TODO: Support rest of the languages that kattis supports
         },
         "Compile commands": {
             "Java": "javac @f",
-            "C++" : "g++ @f -o @d",
+            "C++" : "g++ @f -o @p",
             "Haskell": "ghc -ferror-spans -threaded -rtsopts @f -o @p",
         },
         "Naming": {

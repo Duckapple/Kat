@@ -16,6 +16,12 @@ def selectProgramFile(problemName):
     files = [
         formatProgramFile(os.path.join(problemName, f)) for f in os.listdir(problemName)
     ]
+    # If we have a 'src' directory, scan that too
+    for f in files:
+        if f['name'] == 'src' and f['extension'] == '':
+            files.extend([
+                formatProgramFile(os.path.join(f['relativePath'], f2)) for f2 in os.listdir(f['relativePath'])
+            ])
     # ..but only select those which we support
     files = list(filter(isValidProgramFile, files))
 
@@ -85,8 +91,8 @@ def formatCommand(cmd, file):
     cmd = cmd.replace("@p", file["name"][:-(len(file["extension"]))])
     cmd = cmd.replace("@f", file["name"])
     cmd = cmd.replace("@c", className)
-    cmd = cmd.replace("@d", file["relativePath"].replace("\\" + file["name"], ""))
-    
+    cmd = cmd.replace("@d", os.path.split(file["relativePath"])[0])
+    cmd = cmd.replace("@s", file["relativePath"])
     return cmd
 
 

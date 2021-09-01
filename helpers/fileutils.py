@@ -24,7 +24,7 @@ def createBoilerplate(problemName, overrideLanguage = None):
     else:
         lang = cfg.get("kat", {}).get("language").lower()
     if lang in cfg["Initialize commands"]:
-        cmd = cfg["Initialize commands"].getcommand(lang)
+        cmd = cfg["Initialize commands"].get(lang).split()
         subprocess.run([p for p in cmd], cwd=problemName)
         return
     directory = os.path.dirname(os.path.realpath(__file__)) + "/../boilerplate"
