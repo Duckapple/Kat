@@ -153,6 +153,7 @@ def preconfigure(cfg, location = None):
             "C++": "@p",
             "Rust": "cargo run",
             "Haskell": "./@p",
+            "Go": "go run @f",
             # TODO: Support rest of the languages that kattis supports
         },
         "Compile commands": {
