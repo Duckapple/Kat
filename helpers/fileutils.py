@@ -26,6 +26,10 @@ def createBoilerplate(problemName, overrideLanguage = None):
     if lang in cfg["Initialize commands"]:
         cmd = cfg["Initialize commands"].get(lang).split()
         subprocess.run([p for p in cmd], cwd=problemName)
+        if lang.lower() == 'rust':
+            f = open(os.path.join(problemName, 'rust-toolchain'), 'w')
+            f.write('1.26.0')
+            f.close()
         return
     directory = os.path.dirname(os.path.realpath(__file__)) + "/../boilerplate"
     boilerplates = {
