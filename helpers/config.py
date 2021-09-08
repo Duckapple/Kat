@@ -142,7 +142,7 @@ def preconfigure(cfg, location = None):
         "Initialize commands": {
             "F#": "dotnet new console -lang F#",
             "C#": "dotnet new console",
-            "Rust": "cargo init",
+            "Rust": "cargo init --name problem", # Can't spawn problems to call all projects 'problem', right?
         },
         "Run commands": {
             "Python": "python @f",
