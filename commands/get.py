@@ -35,6 +35,8 @@ def get(problemName: str, data: dict):
         message = "👍 Successfully unarchived exercise " + problemName + "!"
     if message != "":
         print(message)
+    else:
+        print("👍 You already have " + problemName)
 
     if "open" in data and data['open']:
         webCommand(problemName)
