@@ -35,7 +35,6 @@ def main():
     try:
         data = parse(sys.argv[1:])
         command = data.get("command")
-
         if command in execCommand:
             execCommand[command](data)
     except (Exception) as error:

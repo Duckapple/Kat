@@ -38,7 +38,9 @@ _ERROR_MESSAGES = {
 
 
 def submitCommand(data):
-    problemName = data["problem"]
+    problemName: str = data["problem"]
+    if problemName.startswith(".\\"):
+        problemName = problemName[2:-1]
 
     if not os.path.exists(problemName):
         promptToFetch(problemName)
