@@ -30,8 +30,8 @@ _ERROR_MESSAGES = {
     "Wrong Answer": "💔 Wrong Answer on @test of @total",
     "Run Time Error": "💥 Run Time Error on @test of @total",
     "Time Limit Exceeded": "⌛ Time Limit Exceeded on @test of @total",
-    "Memory Limit Exceeded": "🙀 Memory Limit Exceeded on  @test of @total",
-    "Output Limit Exceeded": "🙀 Output Limit Exceeded on  @test of @total",
+    "Memory Limit Exceeded": "🙀 Memory Limit Exceeded on @test of @total",
+    "Output Limit Exceeded": "🙀 Output Limit Exceeded on @test of @total",
     "Judge Error": "❗ The near-impossible has happened! Kattis reported a 'Judge Error' while processing your submission. You should probably contact them.",
     "Compile Error": "⛔ Your submission had a 'Compile Error' while being tested.",
 }
@@ -147,6 +147,7 @@ def printFinalStatus(status, icon, runtime):
 def printUntilDone(id, problemName, session):
     lastCount = 0
     spinnerParts = ["-", "\\", "|", "/"]
+    runtime = None
 
     print("⚖️  Submission Status:")
 
@@ -171,8 +172,8 @@ def printUntilDone(id, problemName, session):
                 break
             if status in _ERROR_MESSAGES.keys():
                 runtime = data.get("runtime") or getRuntime(id, problemName, session)
-                printFinalStatus("❌", status, runtime)
-                break
+                print(f"{_ERROR_MESSAGES[status].replace(' on @test of @total', '')} ({runtime})")
+                return Response.Error
         else:
             for _ in range(0, abs(lastCount - data["testCount"])):
                 sys.stdout.write("💚")
@@ -184,7 +185,18 @@ def printUntilDone(id, problemName, session):
 
             lastCount = data["testCount"]
 
-        time.sleep(0.25)
+        time.sleep(0.5)
+
+    if not runtime:
+        runtime = getRuntime(id, problemName, session)
+
+    print()
+    print(
+        "🎉 Congratulations! You completed all",
+        f"{str(data['testTotal']) + ' ' if 'testTotal' in data else ''}tests for",
+        f"{problemName}{f' in {runtime}' if runtime else ''}!"
+    )
+    return Response.Success
 
 def fetchNewSubmissionStatus(id, session):
     response = session.get(
