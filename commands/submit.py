@@ -141,11 +141,12 @@ def postSubmission(session, problemName, programFile):
 
     return match.group(1).strip()
 
+def printFinalStatus(status, icon, runtime):
+    print(f"\r{icon} {status} ({runtime})")
 
 def printUntilDone(id, problemName, session):
     lastCount = 0
     spinnerParts = ["-", "\\", "|", "/"]
-    runtime = None
 
     print("⚖️  Submission Status:")
 
@@ -159,9 +160,18 @@ def printUntilDone(id, problemName, session):
             lastCount += 1
             print(status, spinnerParts[lastCount % 4], end="\r")
             sys.stdout.flush()
-            if status == "Accepted":
-                runtime = data.get("runtime")
-                print("\r💚                ") # clear line
+
+            if status == "Accepted" or status == "Accepted (100)":
+                runtime = data.get("runtime") or getRuntime(id, problemName, session)
+                printFinalStatus("💚", status, runtime)
+                break
+            if status.startswith("Accepted"):
+                runtime = data.get("runtime") or getRuntime(id, problemName, session)
+                printFinalStatus("🟨", status, runtime)
+                break
+            if status in _ERROR_MESSAGES.keys():
+                runtime = data.get("runtime") or getRuntime(id, problemName, session)
+                printFinalStatus("❌", status, runtime)
                 break
         else:
             for _ in range(0, abs(lastCount - data["testCount"])):
@@ -174,19 +184,7 @@ def printUntilDone(id, problemName, session):
 
             lastCount = data["testCount"]
 
-        time.sleep(1)
-    
-    if not runtime:
-        runtime = getRuntime(id, problemName, session)
-
-    print()
-    print(
-        "🎉 Congratulations! You completed all",
-        f"{str(data['testTotal']) + ' ' if 'testTotal' in data else ''}tests for",
-        f"{problemName}{f' in {runtime}' if runtime else ''}!"
-    )
-    return Response.Success
-
+        time.sleep(0.25)
 
 def fetchNewSubmissionStatus(id, session):
     response = session.get(
