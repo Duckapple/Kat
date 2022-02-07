@@ -3,16 +3,9 @@ import os
 import shutil
 from argparse import ArgumentParser
 import subprocess
-from helpers.programSelector import formatCommand, selectProgramFile
-from helpers.config import getConfig
-from commands.web import webCommand
 from commands.unarchive import unarchive
-from helpers.exceptions import InvalidProblemException
 from helpers.fileutils import findProblemLocation
-from helpers.webutils import fetchProblem, promptToFetch
-
-
-
+from helpers.webutils import fetchProblem
 
 
 def debugCommand(data):
@@ -37,10 +30,16 @@ def debugCommand(data):
         initCommand(problemName)
 
     elif subcommand == "rte":
-        RTECommand(problemName, iterations)
+        try:
+            RTECommand(problemName, iterations)
+        except KeyboardInterrupt:
+            print('Interrupted.')
 
     elif subcommand == "wa":
-        WACommand(problemName, iterations)
+        try:
+            WACommand(problemName, iterations)
+        except KeyboardInterrupt:
+            print('Interrupted.')
 
 
 
@@ -54,16 +53,17 @@ def RTECommand(problemName, iterations):
     generator = f"{problemName}/debug/generator.py"
     solution = f"{problemName}/{problemName}.py"
     testIn = f"{problemName}/debug/test.in"
-    solutionOut = f"{problemName}/debug/RTE.ans"
 
     print(f"Running {iterations} iterations")
     for i in range(1, iterations + 1):
         print(i)
-        os.system(f"python {generator} > {testIn}")
-        code = os.system(f"python {solution} < {testIn} > {solutionOut}")
-        if code != 0:
-            print("Error found")
-            break
+        with open(testIn, 'w') as testInFile:
+            subprocess.run(['python', generator], stdout=testInFile)
+        with open(testIn, 'r') as testInFile:
+            res = subprocess.run(['python', solution], stdin=testInFile, stdout=subprocess.DEVNULL)
+            if res.returncode != 0:
+                print("Error found")
+                break
 
 def WACommand(problemName, iterations):
     generator = f"{problemName}/debug/generator.py"
@@ -77,14 +77,18 @@ def WACommand(problemName, iterations):
     print(f"Running {iterations} iterations")
     for i in range(1, iterations + 1):
         print(i)
-        os.system(f"python {generator} > {testIn}")
-        os.system(f"python {solution} < {testIn} > {solutionOut}")
-        os.system(f"python {bruteForce} < {testIn} > {bruteOut}")
+        with open(testIn, 'w') as testInFile:
+            subprocess.run(['python', generator], stdout=testInFile)
+        with open(testIn, 'r') as testInFile:
+            with open(solutionOut, 'w') as solutionOutFile:
+                subprocess.run(['python', solution], stdin=testInFile, stdout=solutionOutFile)
+        with open(testIn, 'r') as testInFile:
+            with open(bruteOut, 'w') as bruteOutFile:
+                subprocess.run(['python', bruteForce], stdin=testInFile, stdout=bruteOutFile)
+
         if not filecmp.cmp(solutionOut, bruteOut):
             print("Error found")
             break
-
-
 
 
 choices = [
@@ -97,9 +101,3 @@ def debugParser(parsers: ArgumentParser):
     parser.add_argument('problem', help='Name of problem to debug')
     parser.add_argument('subcommand', help='Name of subcommand you want to run', choices=choices)
     parser.add_argument('iterations', help='Number of iterations that RTEValidator and WAValidator should run.', nargs='?', type=int)
-
-
-def debugFlags(parser):
-    pass
-    #parser.add_argument('-o', '--open', action='store_true', help='Open the problem in your web-browser.')
-    #parser.add_argument('-l', '--language', type=str, help='Choose the language to initialize the problem in')
