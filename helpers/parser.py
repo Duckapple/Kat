@@ -4,6 +4,7 @@ from helpers.config import getConfig
 from commands.archive import archiveParser
 from commands.config import configParser
 from commands.contest import contestParser
+from commands.debug import debugParser
 from commands.get import getParser
 from commands.list import listParser
 from commands.read import readParser
@@ -18,6 +19,7 @@ parsers = [
     archiveParser,
     configParser,
     contestParser,
+    debugParser,
     getParser,
     listParser,
     readParser,

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import traceback, sys
 from commands.contest import contestCommand
+from commands.debug import debugCommand
 from helpers.webutils import submitError
 from helpers.cli import yes
 from commands.startup import startupCommand
@@ -20,6 +21,7 @@ execCommand = {
     "archive":   archiveCommand,
     "config":    configCommand,
     "contest":   contestCommand,
+    "debug":     debugCommand,
     "get":       getCommand,
     "list":      listCommand,
     "read":      readCommand,
