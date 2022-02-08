@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 import subprocess
 from commands.unarchive import unarchive
 from helpers.fileutils import findProblemLocation
+from helpers.programSelector import getRunCommand
 from helpers.webutils import fetchProblem
 
 
@@ -49,10 +50,10 @@ def initCommand(problemName):
     print("👍 Initialized debug folder")
 
 def RTECommand(problemName, iterations):
-    print("getting here")
     generator = f"{problemName}/debug/generator.py"
-    solution = f"{problemName}/{problemName}.py"
     testIn = f"{problemName}/debug/test.in"
+
+    solutionCommand = getRunCommand(problemName)
 
     print(f"Running {iterations} iterations")
     for i in range(1, iterations + 1):
@@ -60,19 +61,19 @@ def RTECommand(problemName, iterations):
         with open(testIn, 'w') as testInFile:
             subprocess.run(['python', generator], stdout=testInFile)
         with open(testIn, 'r') as testInFile:
-            res = subprocess.run(['python', solution], stdin=testInFile, stdout=subprocess.DEVNULL)
+            res = subprocess.run(solutionCommand, stdin=testInFile, stdout=subprocess.DEVNULL)
             if res.returncode != 0:
                 print("Error found")
                 break
 
 def WACommand(problemName, iterations):
     generator = f"{problemName}/debug/generator.py"
-    solution = f"{problemName}/{problemName}.py"
     bruteForce = f"{problemName}/debug/bruteforce.py"
     testIn = f"{problemName}/debug/test.in"
     solutionOut = f"{problemName}/debug/WA.ans"
     bruteOut = f"{problemName}/debug/test.ans"
 
+    solutionCommand = getRunCommand(problemName)
 
     print(f"Running {iterations} iterations")
     for i in range(1, iterations + 1):
@@ -81,7 +82,7 @@ def WACommand(problemName, iterations):
             subprocess.run(['python', generator], stdout=testInFile)
         with open(testIn, 'r') as testInFile:
             with open(solutionOut, 'w') as solutionOutFile:
-                subprocess.run(['python', solution], stdin=testInFile, stdout=solutionOutFile)
+                subprocess.run(solutionCommand, stdin=testInFile, stdout=solutionOutFile)
         with open(testIn, 'r') as testInFile:
             with open(bruteOut, 'w') as bruteOutFile:
                 subprocess.run(['python', bruteForce], stdin=testInFile, stdout=bruteOutFile)
