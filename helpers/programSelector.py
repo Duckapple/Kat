@@ -11,6 +11,14 @@ _LANGUAGE_RUN_COMMANDS = cfg.get("Run commands", {})
 _LANGUAGE_COMPILE_COMMANDS = cfg.get("Compile commands", {})
 
 
+def getAndPrepareRunCommand(programFile):
+    directory = os.path.dirname(programFile['relativePath'])
+    if shouldCompile(programFile):
+        if compile(programFile, directory) == None:
+            return
+    return getRunCommand(programFile)
+
+
 def selectProgramFile(problemName):
     # Get all files, and format them
     files = [
@@ -33,7 +41,7 @@ def selectProgramFile(problemName):
             + problemName
             + "/answer.py')"
         )
-        return -1
+        return None
 
     if len(files) == 1:
         return files[0]
@@ -68,7 +76,7 @@ def detectClassName(file):
     match = re.search("class (\\w+)", content)
     if match is None:
         print("Could not detect class in file '" + file["name"] + "'")
-        return -1
+        return None
 
     return match.group(1).strip()
 
@@ -76,17 +84,20 @@ def detectClassName(file):
 def getRunCommand(programFile):
     if guessLanguage(programFile) not in _LANGUAGE_RUN_COMMANDS:
         print("Unsupported programming language")
-        return -1
+        return None
 
     cmd = toCommandArray(_LANGUAGE_RUN_COMMANDS.get(guessLanguage(programFile)))
 
-    return [formatCommand(p, programFile) for p in cmd]
+    formattedCommand = [formatCommand(p, programFile) for p in cmd]
+    if None in formattedCommand:
+        return None
+    return formattedCommand
 
 
 def formatCommand(cmd, file):
     className = "" if not requiresClass(file) else detectClassName(file)
-    if className == -1:
-        return -1
+    if className == None:
+        return None
 
     cmd = cmd.replace("@p", file["name"][:-(len(file["extension"]))])
     cmd = cmd.replace("@f", file["name"])
@@ -99,20 +110,22 @@ def formatCommand(cmd, file):
 def compile(file, directory):
     if guessLanguage(file) not in _LANGUAGE_COMPILE_COMMANDS:
         print("Files of this type should not be compiled")
-        return -1
+        return None
     print("Compiling " + file["name"])
 
     cmd = [
         formatCommand(p, file) for p in toCommandArray(_LANGUAGE_COMPILE_COMMANDS.get(guessLanguage(file)))
     ]
-    if -1 in cmd:
+    if None in cmd:
         print("Error duing compilation")
-        return -1
+        return None
 
     compileResult = subprocess.run(cmd, cwd=directory)
     if compileResult.returncode != 0:
         print('Compilation failed.')
-        return -1
+        return None
+
+    return True
 
 
 def shouldCompile(file):
@@ -123,7 +136,7 @@ def guessLanguage(file):
     return (
         _LANGUAGE_GUESS[file["extension"]].lower()
         if file["extension"] in _LANGUAGE_GUESS
-        else -1
+        else None
     )
 
 

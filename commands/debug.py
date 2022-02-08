@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 import subprocess
 from commands.unarchive import unarchive
 from helpers.fileutils import findProblemLocation
+from helpers.programSelector import getAndPrepareRunCommand, selectProgramFile
 from helpers.webutils import fetchProblem
 
 
@@ -30,16 +31,10 @@ def debugCommand(data):
         initCommand(problemName)
 
     elif subcommand == "rte":
-        try:
-            RTECommand(problemName, iterations)
-        except KeyboardInterrupt:
-            print('Interrupted.')
+        RTECommand(problemName, iterations)
 
     elif subcommand == "wa":
-        try:
-            WACommand(problemName, iterations)
-        except KeyboardInterrupt:
-            print('Interrupted.')
+        WACommand(problemName, iterations)
 
 
 
@@ -49,47 +44,71 @@ def initCommand(problemName):
     print("👍 Initialized debug folder")
 
 def RTECommand(problemName, iterations):
-    print("getting here")
-    generator = f"{problemName}/debug/generator.py"
-    solution = f"{problemName}/{problemName}.py"
-    testIn = f"{problemName}/debug/test.in"
+    generator = "debug/generator.py"
+    testIn = "debug/test.in"
 
-    print(f"Running {iterations} iterations")
-    for i in range(1, iterations + 1):
-        print(i)
-        with open(testIn, 'w') as testInFile:
-            subprocess.run(['python', generator], stdout=testInFile)
-        with open(testIn, 'r') as testInFile:
-            res = subprocess.run(['python', solution], stdin=testInFile, stdout=subprocess.DEVNULL)
-            if res.returncode != 0:
-                print("Error found")
-                break
+    solutionCommand = getSolutionCommand(problemName)
+    if not solutionCommand:
+        print('Could not find solution file')
+        return
+
+    os.chdir(os.path.join(os.curdir, problemName))
+
+    try:
+        print(f"Running {iterations} iterations")
+        for i in range(1, iterations + 1):
+            print(i)
+            with open(testIn, 'w') as testInFile:
+                subprocess.run(['python', generator], stdout=testInFile)
+            with open(testIn, 'r') as testInFile:
+                res = subprocess.run(solutionCommand, stdin=testInFile, stdout=subprocess.DEVNULL)
+                if res.returncode != 0:
+                    print("Error found")
+                    break
+    except KeyboardInterrupt:
+        print('Interrupted.')
+    finally:
+        os.chdir('..')
 
 def WACommand(problemName, iterations):
-    generator = f"{problemName}/debug/generator.py"
-    solution = f"{problemName}/{problemName}.py"
-    bruteForce = f"{problemName}/debug/bruteforce.py"
-    testIn = f"{problemName}/debug/test.in"
-    solutionOut = f"{problemName}/debug/WA.ans"
-    bruteOut = f"{problemName}/debug/test.ans"
+    generator = "debug/generator.py"
+    bruteForce = "debug/bruteforce.py"
+    testIn = "debug/test.in"
+    solutionOut = "debug/WA.ans"
+    bruteOut = "debug/test.ans"
+
+    solutionCommand = getSolutionCommand(problemName)
+    if not solutionCommand:
+        print('Could not find solution file')
+        return
+
+    os.chdir(os.path.join(os.curdir, problemName))
+
+    try:
+        print(f"Running {iterations} iterations")
+        for i in range(1, iterations + 1):
+            print(i)
+            with open(testIn, 'w') as testInFile:
+                subprocess.run(['python', generator], stdout=testInFile)
+            with open(testIn, 'r') as testInFile:
+                with open(solutionOut, 'w') as solutionOutFile:
+                    subprocess.run(solutionCommand, stdin=testInFile, stdout=solutionOutFile)
+            with open(testIn, 'r') as testInFile:
+                with open(bruteOut, 'w') as bruteOutFile:
+                    subprocess.run(['python', bruteForce], stdin=testInFile, stdout=bruteOutFile)
+
+            if not filecmp.cmp(solutionOut, bruteOut):
+                print("Error found: Output doesn't match")
+                break
+    except KeyboardInterrupt:
+        print('Interrupted.')
+    finally:
+        os.chdir('..')
 
 
-    print(f"Running {iterations} iterations")
-    for i in range(1, iterations + 1):
-        print(i)
-        with open(testIn, 'w') as testInFile:
-            subprocess.run(['python', generator], stdout=testInFile)
-        with open(testIn, 'r') as testInFile:
-            with open(solutionOut, 'w') as solutionOutFile:
-                subprocess.run(['python', solution], stdin=testInFile, stdout=solutionOutFile)
-        with open(testIn, 'r') as testInFile:
-            with open(bruteOut, 'w') as bruteOutFile:
-                subprocess.run(['python', bruteForce], stdin=testInFile, stdout=bruteOutFile)
-
-        if not filecmp.cmp(solutionOut, bruteOut):
-            print("Error found")
-            break
-
+def getSolutionCommand(problemName):
+    programFile = selectProgramFile(problemName)
+    return getAndPrepareRunCommand(programFile)
 
 choices = [
     'init', 'rte', 'wa'

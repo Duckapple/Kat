@@ -33,7 +33,7 @@ def createBoilerplate(problemName, overrideLanguage = None):
         return
     directory = os.path.dirname(os.path.realpath(__file__)) + "/../boilerplate" #todo please make this better
     boilerplates = {
-        guessLanguage(formatProgramFile(f)): f for f in 
+        guessLanguage(formatProgramFile(f)): f for f in
             os.listdir(directory) if os.path.isfile(os.path.join(directory, f)
         )
     }

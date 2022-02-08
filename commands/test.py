@@ -3,11 +3,9 @@ from commands.submit import submitCommand
 import os, re, subprocess, time
 
 from helpers.programSelector import (
+    getAndPrepareRunCommand,
     selectProgramFile,
     formatProgramFile,
-    getRunCommand,
-    shouldCompile,
-    compile,
 )
 from helpers.fileutils import getBytesFromFile
 from helpers.webutils import promptToFetch
@@ -29,11 +27,13 @@ def testCommand(data: dict):
     if not programFile:
         return
 
+    command = getAndPrepareRunCommand(programFile)
+
+    if command == None:
+        return
+
     print("🔎 Running tests on " + programFile["name"])
 
-    if shouldCompile(programFile):
-        if compile(programFile, directory) == -1:
-            return
     inFiles, ansFiles = getTestFiles(problemName)
 
     if not inFiles and not ansFiles:
@@ -41,10 +41,6 @@ def testCommand(data: dict):
         print("Will not test.")
         return
 
-    command = getRunCommand(programFile)
-
-    if command == -1:
-        return
 
     testsToRun = data.get('interval')
     passed = True

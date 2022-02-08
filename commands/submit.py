@@ -51,7 +51,7 @@ def submitCommand(data):
         formatProgramFile(data.get("file")) if data.get("file") else selectProgramFile(problemName)
     )
 
-    if programFile == -1:
+    if programFile == None:
         raise Exception("Could not guess programFile")
 
     if "force" not in data or not data.get('force'):
@@ -68,7 +68,7 @@ def submitCommand(data):
         "📬 Submission Successful (url " + getConfigUrl("submissionsurl", "submissions") + "/" + id + ")"
     )
 
-    if id == -1:
+    if id == None:
         return False
 
     response = Response.Failure
@@ -102,7 +102,7 @@ def postSubmission(session, problemName, programFile):
     url = getConfigUrl("submissionurl", "submit")
     language = guessLanguage(programFile)
 
-    if language == -1:
+    if language == None:
         print("Could not guess language for " + programFile)
         raise Exception("Could not guess language for " + programFile)
 
@@ -139,7 +139,7 @@ def postSubmission(session, problemName, programFile):
             "Visit the submission manually in the browser.",
         )
         print("Response was: " + body)
-        return -1
+        return None
 
     return match.group(1).strip()
 
