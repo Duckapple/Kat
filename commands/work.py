@@ -1,7 +1,6 @@
 from argparse import ArgumentParser
 from commands.archive import archive
-from commands.debug import debugCommand
-import commands.debug
+from commands.debug import debugCommand, choices as debugChoices
 from commands.get import getCommand, getFlags
 from commands.list import collectProblems, listFlags
 from commands.read import readCommand
@@ -13,7 +12,6 @@ allowedGetOptions = ["open"]
 
 _HELP_TEXT = """\
 You are in the REPL Kat work environment.
-a list of problems to 
 
 List of commands:
   exit      Quit from the work environment
@@ -47,7 +45,7 @@ def workCommand(data):
                 args = command.split()
                 if len(args) == 1:
                     print("Please add additional debug subcommand. Either init, rte or wa")
-                if args[1] not in commands.debug.choices:
+                if args[1] not in debugChoices:
                     print("Invalid subcommand for debug")
                 else:
                     debugdata = {'problem': currentProblem, 'subcommand': args[1], 'iterations': None}
