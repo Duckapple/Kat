@@ -1,5 +1,7 @@
 from argparse import ArgumentParser
 from commands.archive import archive
+from commands.debug import debugCommand
+import commands.debug
 from commands.get import getCommand, getFlags
 from commands.list import collectProblems, listFlags
 from commands.read import readCommand
@@ -17,6 +19,8 @@ List of commands:
   exit      Quit from the work environment
   help      Show this message
   read      Read the current problem in your browser
+  test      Test your current solution against files in test directory
+  debug     Debug your solution, requires additional argument
   skip      Skip over the current problem
   submit    Submit the current problem
 """
@@ -39,8 +43,20 @@ def workCommand(data):
                 readCommand({'problem': [currentProblem], 'open': True})
             elif command == "test":
                 testCommand({'problem': currentProblem})
+            elif command.startswith("debug"):
+                args = command.split()
+                if len(args) == 1:
+                    print("Please add additional debug subcommand. Either init, rte or wa")
+                if args[1] not in commands.debug.choices:
+                    print("Invalid subcommand for debug")
+                else:
+                    debugdata = {'problem': currentProblem, 'subcommand': args[1], 'iterations': None}
+                    if len(args) == 3:
+                        debugdata['iterations'] = int(args[2])
+                    debugCommand(debugdata)
+
+
             elif command == "submit":
-                response = False
                 response = submitCommand({**data, 'problem': currentProblem})
 
                 if response == Response.Success:
