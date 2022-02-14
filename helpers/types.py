@@ -15,7 +15,9 @@ def problem(problemName: str):
     return problemName
 
 
-def problemList(lst: list[str]):
+def problemList(lst: list[str] | str):
+    if type(lst) == str:
+        return problem(lst)
     return [problem(x) for x in lst]
 
 

@@ -13,6 +13,7 @@ def archiveCommand(data):
             archive(problem)
 
 def archive(problemName, folder=".archive/"):
+    print(problemName)
     if os.path.exists(folder + problemName):
         return
     if not os.path.exists(problemName):
