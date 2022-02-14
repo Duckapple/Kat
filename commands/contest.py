@@ -15,7 +15,7 @@ from helpers.types import definedContest
 
 def contestCommand(data):
     session = requests.Session()
-    contestData = readContest(data.get('contest'), session)
+    contestData = readContest(data.get('contest-id'), session)
     if not contestData.get('inProgress'):
         timeTo = contestData.get('timeTo')
         if timeTo and timeTo.total_seconds() > 0:
