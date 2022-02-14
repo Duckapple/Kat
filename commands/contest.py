@@ -1,3 +1,4 @@
+import time
 from argparse import ArgumentParser
 from helpers.timeutils import toDatetime, toTimeDelta
 from commands.submit import submitCommand
@@ -15,13 +16,27 @@ from helpers.types import definedContest
 
 def contestCommand(data):
     session = requests.Session()
-    contestData = readContest(data.get('contest-id'), session)
+    contest = data.get('contest-id')
+    contestData = readContest(contest, session)
     if not contestData.get('inProgress'):
         timeTo = contestData.get('timeTo')
-        if timeTo and timeTo.total_seconds() > 0:
+        timeToInSeconds = timeTo.total_seconds()
+        if timeTo and timeToInSeconds > 0:
             print('Contest is not in progress.')
             print(f'Contest begins in {timeTo}.')
-            return
+            print("Do you want to run this command again when the contest starts?")
+            if not yes():
+                return
+            print("Waiting for contest to start...")
+            while not contestData.get('inProgress'):
+                timeToInSeconds = contestData.get('timeTo').total_seconds()
+                if timeToInSeconds > 10:
+                    time.sleep(timeToInSeconds - 10)
+                else:
+                    time.sleep(1)
+                contestData = readContest(contest, session)
+
+
         else:
             print('The contest seems to be over.')
             if len(contestData.get('problems')) > 0:
