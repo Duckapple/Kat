@@ -62,7 +62,7 @@ def contestCommand(data):
             if not yes():
                 return
         for problem in solved:
-            submitCommand({"problem": problem})
+            submitCommand({"problem": problem, "force": True, "archive": True})
 
 def readContest(contest, session):
     problems = []
