@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from commands.submit import submitCommand
 import os, re, subprocess, time
 
+from helpers.parser import problem
 from helpers.programSelector import (
     getAndPrepareRunCommand,
     selectProgramFile,
@@ -134,7 +135,7 @@ def testParser(parsers: ArgumentParser):
     testFlags(parser)
 
 def testFlags(parser):
-    parser.add_argument('problem', help='The problem to test.')
+    parser.add_argument('problem', help='The problem to test.', type=problem)
     parser.add_argument('file', nargs='?', help='Name of the specific file to test')
     parser.add_argument('-i', '--interval', help='Determine an interval of tests to run, instead of all tests. Examples are "1", "1-3", "1,3-5".', type=getInterval)
     parser.add_argument('-a', '--archive', action='store_true', help='Archive the problem if all tests succeed.')

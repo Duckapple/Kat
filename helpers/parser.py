@@ -60,6 +60,7 @@ def parse(args: list = None):
     else:
         return parsed
 
+
 def unify_args(command, args, configArgs):
     configCommandIndex = configArgs.index(command)
     commandIndex = args.index(command)
@@ -78,3 +79,18 @@ def unify_args(command, args, configArgs):
 
     # Collect them in a single array
     return [*preCommand, command, *postCommand]
+
+
+def problem(problemName: str):
+    if problemName.startswith(".\\"):
+        problemName = problemName[2:]
+    if problemName.endswith("\\"):
+        problemName = problemName[:-1]
+    if len(problemName) == 1:
+        section = getConfig().get('contest')
+        if problemName in section:
+            return section[problemName]
+    return problemName
+
+def problemList(lst: list[str]):
+    return [problem(x) for x in lst]
