@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 from commands.submit import submitCommand
 import os, re, subprocess, time
 
-from helpers.parser import problem
+from helpers.types import problem
 from helpers.programSelector import (
     getAndPrepareRunCommand,
     selectProgramFile,

@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 import shutil
 
 from helpers.fileutils import findProblemLocation
-from helpers.parser import problemList
+from helpers.types import problemList
 from helpers.webutils import promptToFetch
 
 def unarchiveCommand(data):

@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 import subprocess
 
-from helpers.parser import problem, problemList
+from helpers.types import problem, problemList
 from helpers.programSelector import formatCommand, selectProgramFile
 from helpers.config import getConfig
 from commands.web import webCommand

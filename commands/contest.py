@@ -1,16 +1,17 @@
 from argparse import ArgumentParser
-from sys import stderr
 from helpers.timeutils import toDatetime, toTimeDelta
 from commands.submit import submitCommand
 from helpers.cli import yes
 
 from bs4 import BeautifulSoup
-from helpers.config import getConfigUrl, getConfig, saveConfig
-import re
+from helpers.config import getConfig, saveConfig
 
 import requests
-from commands.get import getCommand, getFlags
+from commands.get import getCommand
 import string
+
+from helpers.types import definedContest
+
 
 def contestCommand(data):
     session = requests.Session()
@@ -82,12 +83,6 @@ def readContest(contest, session):
         'endTime': toDatetime(endTime),
     }
 
-def definedContest(contest_id):
-    if re.search('https://.+/(contests|sessions)/\w+', contest_id):
-        return contest_id
-    id = contest_id.split('/')[-1]
-    contestsUrl = getConfigUrl("contestsurl", "contests")
-    return f'{contestsUrl}/{id}'
 
 def contestParser(parsers):
     helpText = 'Start kattis contest.'

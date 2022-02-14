@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 from bs4 import BeautifulSoup
 from commands.web import webCommand
 from helpers.config import getConfigUrl
-from helpers.parser import problemList
+from helpers.types import problemList
 from helpers.webutils import checkProblemExistence
 
 def readCommand(data):

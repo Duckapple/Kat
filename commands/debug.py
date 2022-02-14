@@ -5,7 +5,7 @@ from argparse import ArgumentParser
 import subprocess
 from commands.unarchive import unarchive
 from helpers.fileutils import findProblemLocation
-from helpers.parser import problem
+from helpers.types import problem
 from helpers.programSelector import getAndPrepareRunCommand, selectProgramFile
 from helpers.webutils import fetchProblem
 

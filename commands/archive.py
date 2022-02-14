@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 import os, shutil
 
-from helpers.parser import problem, problemList
+from helpers.types import problem, problemList
 from helpers.webutils import promptToFetch
 
 
