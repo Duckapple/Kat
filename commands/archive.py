@@ -4,9 +4,13 @@ from helpers.webutils import promptToFetch
 
 
 def archiveCommand(data):
+    if data.get("all"):
+        data["problem"] = [x for x in os.listdir() if not x.startswith(".")]
     for problem in data['problem']:
         if data.get("solved"):
             archive(problem, ".solved/")
+        elif data.get("temp"):
+            archive(problem, ".temp/")
         else:
             archive(problem)
 
@@ -24,3 +28,5 @@ def archiveParser(parsers: ArgumentParser):
     parser = parsers.add_parser('archive', description=helpText, help=helpText)
     parser.add_argument('problem', help='Name of problem to archive', nargs='+')
     parser.add_argument('-s', '--solved', help='This flag denotes to archive into the .solved folder', action='store_true')
+    parser.add_argument('-a', '--all', help='This flag denotes to archive all problems in the current folder. This will not move any directories starting with "."', action='store_true')
+    parser.add_argument('-t', '--temp', help='This flag denotes to archive into the temp folder', action='store_true')
