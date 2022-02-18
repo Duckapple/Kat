@@ -28,7 +28,7 @@ def archive(problemName, folder=".archive/"):
 def archiveParser(parsers: ArgumentParser):
     helpText = 'Move problem to archive folder.'
     parser = parsers.add_parser('archive', description=helpText, help=helpText)
-    parser.add_argument('problem', help='Name of problem to archive', nargs='+', type=problemList)
+    parser.add_argument('problem', help='Name of problem to archive', nargs='*', type=problemList)
     parser.add_argument('-s', '--solved', help='This flag denotes to archive into the .solved folder', action='store_true')
     parser.add_argument('-a', '--all', help='This flag denotes to archive all problems in the current folder. This will not move any directories starting with "."', action='store_true')
     parser.add_argument('-t', '--temp', help='This flag denotes to archive into the temp folder', action='store_true')
