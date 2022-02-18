@@ -21,4 +21,4 @@ def unarchive(problemName):
 def unarchiveParser(parsers: ArgumentParser):
     helpText = 'Move problem from archive folder for active development.'
     parser = parsers.add_parser('unarchive', description=helpText, help=helpText)
-    parser.add_argument('problem', help='Name of problem to unarchive', nargs='+')
+    parser.add_argument('problem', help='Name of problem to unarchive', type=problem, nargs='+')
