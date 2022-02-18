@@ -177,7 +177,8 @@ def preconfigure(cfg, location = None):
             "unarchive": "unarchive",
             "watch": "watch",
             "work": "work",
-        }
+        },
+        "contest": {}
     }
 
     for (section, settings) in defaults.items():
