@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 import shutil
 
 from helpers.fileutils import findProblemLocation
+from helpers.types import problemList
 from helpers.webutils import promptToFetch
 
 def unarchiveCommand(data):
@@ -21,4 +22,4 @@ def unarchive(problemName):
 def unarchiveParser(parsers: ArgumentParser):
     helpText = 'Move problem from archive folder for active development.'
     parser = parsers.add_parser('unarchive', description=helpText, help=helpText)
-    parser.add_argument('problem', help='Name of problem to unarchive', nargs='+')
+    parser.add_argument('problem', help='Name of problem to unarchive', nargs='+', type=problemList)
