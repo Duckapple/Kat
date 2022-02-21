@@ -12,7 +12,6 @@ from helpers.webutils import fetchProblem
 
 
 def getCommand(data):
-    print(data)
     solved = []
     for problem in data['problem']:
         try:
