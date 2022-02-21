@@ -29,7 +29,8 @@ def contestCommand(data):
             return
         print("Waiting for contest to start...")
         while contestData.get('timeState') == TimeState.NotStarted:
-            timeToInSeconds = contestData.get('timeTo').total_seconds()
+            timeTo = contestData.get('timeTo')
+            timeToInSeconds = timeTo.total_seconds() if timeTo is not None else -1 # the -1 denotes that we don't know how long it is to contest start, and will result in the code checking every second
             if timeToInSeconds > 10:
                 time.sleep(timeToInSeconds - 10)
             else:
