@@ -47,6 +47,7 @@ def contestCommand(data):
         **data,
         'command': 'get',
         'problem': contestData.get('problems'),
+        'language': None,
     })
     #update config with new problems
     config = getConfig()
