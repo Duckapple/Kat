@@ -6,6 +6,7 @@ from commands.list import collectProblems, listFlags
 from commands.read import readCommand
 from commands.submit import submitCommand, Response, submitFlags
 from commands.test import testCommand
+from helpers.types import problem
 
 allowedSubmitOptions = ["archive", "force", "sound"]
 allowedGetOptions = ["open"]
@@ -15,6 +16,7 @@ You are in the REPL Kat work environment.
 
 List of commands:
   exit      Quit from the work environment
+  quit      Same as exit
   help      Show this message
   read      Read the current problem in your browser
   test      Test your current solution against files in test directory
@@ -25,7 +27,10 @@ List of commands:
 
 def workCommand(data):
     print('Running the Kat work REPL. Run command "help" for more info.')
-    problems = [x[0] for x in collectProblems(data)]
+    if data["problem"] is not None:
+        problems = [data["problem"]]
+    else:
+        problems = [x[0] for x in collectProblems(data)]
     currentIndex = 0
     previousProblem = None
     currentProblem = getProblem(currentIndex, data, problems)
@@ -35,7 +40,7 @@ def workCommand(data):
         previousProblem = currentProblem
         try:
             command = input('> ')
-            if command == "exit":
+            if command == "exit" or command == "quit":
                 break
             if command == "read":
                 readCommand({'problem': [currentProblem], 'open': True})
@@ -60,26 +65,34 @@ def workCommand(data):
                 if response == Response.Success:
                     currentIndex += 1
                     currentProblem = getProblem(currentIndex, data, problems)
+                    if currentProblem is None:
+                        break
             elif command == "skip":
                 archive(currentProblem)
                 currentIndex += 1
                 currentProblem = getProblem(currentIndex, data, problems)
+                if currentProblem is None:
+                    break
             elif command == "help":
                 print(_HELP_TEXT)
+            else:
+                print('Unrecognized command. For help, write "help"')
         except KeyboardInterrupt:
             print('Shutdown by keyboard interrupt')
             return
 
 def getProblem(currentIndex, data, problems):
+    if currentIndex >= len(problems):
+        print("No more problems to solve, well done.")
+        return
     currentProblem = problems[currentIndex]
-
     getCommand({**data, 'problem': [currentProblem]})
-
     return currentProblem
 
 def workParser(parsers: ArgumentParser):
     helpText = 'Initiate a loop of running a subset of Kat commands interactively, on a list of problems retrieved from the Kattis instance. Options given to this command will be applied to the relevant commands called in the environment.'
     parser = parsers.add_parser('work', help=helpText, description=helpText)
+    parser.add_argument('-p', '--problem', help='Work on only 1 problem (this will ignore all list flags)', type=problem)
     getFlags(parser)
     submitFlags(parser)
     listFlags(parser)
