@@ -57,7 +57,7 @@ def createBoilerplate(problemName, overrideLanguage = None):
 
 
 def findProblemLocation(problemName):
-    folders = [".solved/", ".archive/", ""]
+    folders = [".solved/", ".archive/", ".temp/", ""]
     for folder in folders:
         if os.path.exists(folder + problemName):
             return folder
