@@ -56,34 +56,38 @@ def submitCommand(data):
     if "force" not in data or not data.get('force'):
         response = confirm(problemName, programFile)
         if not response: return Response.Aborted
-
-    session = requests.Session()
-
-    print("📨 Submitting " + problemName + "...")
-
-    id = postSubmission(session, problemName, programFile)
-
-    print(
-        "📬 Submission Successful (url " + getConfigUrl("submissionsurl", "submissions") + "/" + id + ")"
-    )
-
-    if id == None:
-        return False
-
-    response = Response.Failure
     try:
-        response = printUntilDone(id, problemName, session)
-    except:
-        pass
-    if data.get('sound'):
+        session = requests.Session()
+
+        print("📨 Submitting " + problemName + "...")
+
+        id = postSubmission(session, problemName, programFile)
+
+        print(
+            "📬 Submission Successful (url " + getConfigUrl("submissionsurl", "submissions") + "/" + id + ")"
+        )
+
+        if id == None:
+            return False
+
+        response = Response.Failure
+        try:
+            response = printUntilDone(id, problemName, session)
+        except:
+            pass
+        if data.get('sound'):
+            if response == Response.Success:
+                winsound()
+            elif response == Response.Failure:
+                losesound()
         if response == Response.Success:
-            winsound()
-        elif response == Response.Failure:
-            losesound()
-    if response == Response.Success:
-        if data.get('archive'):
-            archive(problemName, ".solved/")
-    return response
+            if data.get('archive'):
+                archive(problemName, ".solved/")
+        return response
+
+    except requests.exceptions.ConnectionError:
+        print("Connection error: Please check your connection")
+        return Response.Error
 
 
 def confirm(problemName, programFile):

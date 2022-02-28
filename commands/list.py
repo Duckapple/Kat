@@ -7,8 +7,11 @@ from tabulate import tabulate
 
 
 def listCommand(data):
-    problems = collectProblems(data)
-
+    try:
+        problems = collectProblems(data)
+    except requests.exceptions.ConnectionError:
+        print("Connection error: Please check your connection")
+        return
     if "compact" in data and data['compact']:
         print(" ".join([x[0] for x in problems]))
     else:
