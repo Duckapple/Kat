@@ -60,6 +60,7 @@ def parse(args: list = None):
     else:
         return parsed
 
+
 def unify_args(command, args, configArgs):
     configCommandIndex = configArgs.index(command)
     commandIndex = args.index(command)
@@ -78,3 +79,5 @@ def unify_args(command, args, configArgs):
 
     # Collect them in a single array
     return [*preCommand, command, *postCommand]
+
+

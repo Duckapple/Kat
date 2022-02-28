@@ -5,6 +5,7 @@ from enum import Enum, auto
 from bs4 import BeautifulSoup
 from helpers.cli import yes
 from commands.web import openSubmission
+from helpers.types import problem
 from helpers.webutils import HEADERS, promptToFetch
 from helpers.programSelector import (
     formatProgramFile,
@@ -39,8 +40,6 @@ _ERROR_MESSAGES = {
 
 def submitCommand(data):
     problemName: str = data["problem"]
-    if problemName.startswith(".\\"):
-        problemName = problemName[2:-1]
 
     if not os.path.exists(problemName):
         promptToFetch(problemName)
@@ -291,7 +290,7 @@ def formatPythonLanguage():
 def submitParser(parsers: ArgumentParser):
     helptext = 'Submit a problem for evaluation.'
     parser = parsers.add_parser('submit', description=helptext, help=helptext)
-    parser.add_argument('problem', help='Name of problem to submit')
+    parser.add_argument('problem', help='Name of problem to submit', type=problem)
     parser.add_argument('file', nargs='?', help='Name of the specific file to submit')
     submitFlags(parser)
 

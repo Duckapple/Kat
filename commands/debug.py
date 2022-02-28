@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 import subprocess
 from commands.unarchive import unarchive
 from helpers.fileutils import findProblemLocation
+from helpers.types import problem
 from helpers.programSelector import getAndPrepareRunCommand, selectProgramFile
 from helpers.webutils import fetchProblem
 
@@ -117,6 +118,6 @@ choices = [
 def debugParser(parsers: ArgumentParser):
     helpText = 'Use on of several functions to help debug a solution.'
     parser = parsers.add_parser('debug', help=helpText, description=helpText)
-    parser.add_argument('problem', help='Name of problem to debug')
+    parser.add_argument('problem', help='Name of problem to debug', type=problem)
     parser.add_argument('subcommand', help='Name of subcommand you want to run', choices=choices)
     parser.add_argument('iterations', help='Number of iterations that RTEValidator and WAValidator should run.', nargs='?', type=int)

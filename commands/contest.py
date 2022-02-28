@@ -1,52 +1,81 @@
+import time
 from argparse import ArgumentParser
-from sys import stderr
 from helpers.timeutils import toDatetime, toTimeDelta
 from commands.submit import submitCommand
 from helpers.cli import yes
 
 from bs4 import BeautifulSoup
-from helpers.config import getConfigUrl
-import re
+from helpers.config import getConfig, saveConfig
 
 import requests
-from commands.get import getCommand, getFlags
+from commands.get import getCommand
+import string
+from enum import Enum
+
+
+from helpers.types import definedContest
+
 
 def contestCommand(data):
     session = requests.Session()
-    command = data.get('contest_command')
-
-    if command == 'get':
-        contestData = readContest(data.get('contest'), session)
-        if not contestData.get('inProgress'):
+    contest = data.get('contest-id')
+    contestData = readContest(contest, session)
+    if contestData.get('timeState') == TimeState.NotStarted:
+        timeTo = contestData.get('timeTo')
+        print('Contest has not started yet.')
+        print(f'Contest begins in {timeTo}.')
+        print("Do you want to run this command again when the contest starts?")
+        if not yes():
+            return
+        print("Waiting for contest to start...")
+        while contestData.get('timeState') == TimeState.NotStarted:
             timeTo = contestData.get('timeTo')
-            if timeTo and timeTo.total_seconds() > 0:
-                print('Contest is not in progress.')
-                print(f'Contest begins in {timeTo}.')
-                return
+            timeToInSeconds = timeTo.total_seconds() if timeTo is not None else -1 # the -1 denotes that we don't know how long it is to contest start, and will result in the code checking every second
+            if timeToInSeconds > 10:
+                time.sleep(timeToInSeconds - 10)
             else:
-                print('The contest seems to be over.')
-                if len(contestData.get('problems')) > 0:
-                    print('Do you want to get the problems from the contest anyways?')
-                    if not yes():
-                        return
-        solved = getCommand({
-            **data,
-            'command': 'get',
-            'problem': contestData.get('problems'),
-        })
-        if solved:
-            if not data.get('submit'):
-                print("Some problems were unarchived from the .solved folder:")
-                print(", ".join(solved))
-                print("Do you want to submit them?")
-                if not yes():
-                    return
-            for problem in solved:
-                submitCommand({"problem": problem})
+                time.sleep(1)
+            contestData = readContest(contest, session)
+
+
+    elif contestData.get('timeState') == TimeState.Ended:
+        print('The contest seems to be over.')
+        if len(contestData.get('problems')) > 0:
+            print('Do you want to get the problems from the contest anyways?')
+            if not yes():
+                return
+    solved = getCommand({
+        **data,
+        'command': 'get',
+        'problem': contestData.get('problems'),
+        'language': None,
+    })
+    #update config with new problems
+    config = getConfig()
+    config['contest'] = contestData['problemMap']
+    saveConfig()
+
+
+    if solved:
+        if not data.get('submit'):
+            print("Some problems were unarchived from the .solved folder:")
+            print(", ".join(solved))
+            print("Do you want to submit them?")
+            if not yes():
+                return
+        for problem in solved:
+            submitCommand({"problem": problem, "force": True, "archive": True})
+
+
+
+class TimeState(Enum):
+    NotStarted = 1
+    InProgress = 2
+    Ended = 3
+
 
 def readContest(contest, session):
     problems = []
-    timeTo, endTime = None, None
     response = session.get(contest)
     body = response.content.decode("utf-8")
     soup = BeautifulSoup(body, "html.parser")
@@ -55,8 +84,22 @@ def readContest(contest, session):
         print(contest)
         raise Exception("This contest somehow doesn't have a table with a header")
 
-    timeTo = toTimeDelta(soup.select_one(".notstarted .countdown").text)
+    #check when the contest is/was
+    timeState = TimeState.Ended
+    timeToText = soup.select_one(".notstarted .countdown").text
+    while len(timeToText.split(":")) < 3:
+        timeToText = "00:" + timeToText
+    timeTo = toTimeDelta(timeToText)
     remaining = toTimeDelta(soup.select_one(".count_remaining").text)
+    sessionHasNotStarted = soup.select_one(".count_elapsed").text == "0:00:00"
+    sessionHasEnded = soup.select_one(".count_remaining").text == "0:00:00"
+
+    if (timeTo is not None and timeTo > toTimeDelta("0:00:00")) or sessionHasNotStarted:
+        timeState = TimeState.NotStarted
+    elif (remaining is not None and remaining != toTimeDelta('0:00:00')) or not sessionHasNotStarted:
+        timeState = TimeState.InProgress
+    if sessionHasEnded:
+        timeState = TimeState.Ended
 
     # God dammit I hate XML crawling
     endTime = soup.select_one(".contest-progress .text-right").text.strip().split('\n')[1].strip()
@@ -71,34 +114,21 @@ def readContest(contest, session):
 
     return {
         'problems': problems,
-        'inProgress': ((not timeTo) or timeTo <= toTimeDelta("0:00:00")) and (remaining != toTimeDelta("0:00:00")),
+        'problemMap': {string.ascii_lowercase[i]: x for i, x in enumerate(problems)},
+        'timeState': timeState,
+
         'timeTo': timeTo,
         'remaining': remaining,
         'startTime': toDatetime(startTime),
         'endTime': toDatetime(endTime),
     }
 
-def definedContest(contest_id):
-    if re.search('https://.+/(contests|sessions)/\w+', contest_id):
-        return contest_id
-    id = contest_id.split('/')[-1]
-    contestsUrl = getConfigUrl("contestsurl", "contests")
-    return f'{contestsUrl}/{id}'
 
 def contestParser(parsers):
-    helpText = 'Run commands specific to Kattis contests.'
-    description = f"{helpText} Use `kattis contest set <contest-id> to "
+    helpText = 'Start kattis contest.'
+    description = f"""{helpText} Download all problems from kattis contest, optionally submit any that you have already
+                      solved, and allow submitting by using the contest letters as IDs. If contest has not started yet
+                      wait until it starts."""
     parser: ArgumentParser = parsers.add_parser('contest', description=description, help=helpText)
-    parser.add_argument('-c', '--contest', help='Override the contest to operate on.', type=definedContest)
-    subs = parser.add_subparsers(dest='contest_command', metavar='command')
-
-    getText = 'Get the problems associated with the contest.'
-    get = subs.add_parser('get', description=getText, help=getText)
-    getFlags(get)
-    get.add_argument('-s', '--submit', action='store_true', help='Automatically submit pre-solved problems.')
-    # get.add_argument('-s', '--submit', action='store_true', help='Submit automatically any projects which have been tested before.')
-    # ge = subs.add_parser('ge', description=getText, help=getText)
-
-    # autoSubmitText = 'Automatically submit any problems which match the contest and has passed tests before.'
-    # setText = 'Set the contest in which to compete.'
-    # set = subparsers.add_parser('set', description=setText, help=setText)
+    parser.add_argument('contest-id', help='Override the contest to operate on.', type=definedContest)
+    parser.add_argument('-s', '--submit', action='store_true', help='Automatically submit pre-solved problems.')

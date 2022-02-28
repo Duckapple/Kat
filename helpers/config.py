@@ -62,7 +62,6 @@ class Config:
             _config = configparser.ConfigParser(converters={"array": strToArr, "command": toCommandArray})
 
             found = findConfig(_config)
-
             if not found:
                 print("No config found, consider reading the readme or running 'kattis startup'")
                 _config = preconfigure(_config)
@@ -178,7 +177,8 @@ def preconfigure(cfg, location = None):
             "unarchive": "unarchive",
             "watch": "watch",
             "work": "work",
-        }
+        },
+        "contest": {}
     }
 
     for (section, settings) in defaults.items():

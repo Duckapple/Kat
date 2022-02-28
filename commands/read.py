@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 from bs4 import BeautifulSoup
 from commands.web import webCommand
 from helpers.config import getConfigUrl
+from helpers.types import problemList
 from helpers.webutils import checkProblemExistence
 
 def readCommand(data):
@@ -49,7 +50,7 @@ def fetchProblemText(url, session):
 def readParser(parsers: ArgumentParser):
     helpText = 'Read a problem in the browser or on the command line.'
     parser = parsers.add_parser('read', description=helpText, help=helpText)
-    parser.add_argument('problem', help='The problem to read.', nargs='+')
+    parser.add_argument('problem', help='The problem to read.', nargs='+', type=problemList)
     parser.add_argument('-c', '--console', action='store_true', help='Opt to print the description in the console.')
 
 readFlags = [

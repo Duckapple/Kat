@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 import subprocess
 
 import requests
-
+from helpers.types import problem, problemList
 from helpers.programSelector import formatCommand, selectProgramFile
 from helpers.config import getConfig
 from commands.web import webCommand
@@ -55,7 +55,7 @@ def get(problemName: str, data: dict):
 def getParser(parsers: ArgumentParser):
     helpText = 'Get a problem and its tests from the Kattis instance.'
     parser = parsers.add_parser('get', help=helpText, description=helpText)
-    parser.add_argument('problem', help='Name of problem to get', nargs='+')
+    parser.add_argument('problem', help='Name of problem to get', nargs='+', type=problemList)
     getFlags(parser)
 
 def getFlags(parser):
