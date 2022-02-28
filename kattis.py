@@ -17,6 +17,9 @@ from commands.unarchive import unarchiveCommand
 from commands.config import configCommand
 from helpers.parser import parse
 
+
+
+
 execCommand = {
     "archive":   archiveCommand,
     "config":    configCommand,
@@ -39,6 +42,9 @@ def main():
         command = data.get("command")
         if command in execCommand:
             execCommand[command](data)
+        else:
+            print('Welcome to the Kat CLI for Kattis. To use, write "kattis [COMMAND] with one of the following commands:')
+            print(", ".join(execCommand))
     except (Exception) as error:
         print()
         print(*traceback.format_exception(None, error, error.__traceback__))
