@@ -17,9 +17,6 @@ from commands.unarchive import unarchiveCommand
 from commands.config import configCommand
 from helpers.parser import parse
 
-
-
-
 execCommand = {
     "archive":   archiveCommand,
     "config":    configCommand,
