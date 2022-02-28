@@ -21,6 +21,21 @@ def problemList(lst: list[str] | str):
     return [problem(x) for x in lst]
 
 
+standardFolders = {
+    'a': '.archive/',
+    's': '.solved/',
+    't': '.temp/'
+}
+def folder(folder: str):
+    if folder in standardFolders:
+        folder = standardFolders[folder]
+    if not folder.startswith("."):
+        folder = "." + folder
+    if not folder.endswith("/"):
+        folder += "/"
+    return folder
+
+
 def definedContest(contest_id):
     if re.search('https://.+/(contests|sessions)/\w+', contest_id):
         return contest_id
