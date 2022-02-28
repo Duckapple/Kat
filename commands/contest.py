@@ -29,7 +29,8 @@ def contestCommand(data):
             return
         print("Waiting for contest to start...")
         while contestData.get('timeState') == TimeState.NotStarted:
-            timeToInSeconds = contestData.get('timeTo').total_seconds()
+            timeTo = contestData.get('timeTo')
+            timeToInSeconds = timeTo.total_seconds() if timeTo is not None else -1 # the -1 denotes that we don't know how long it is to contest start, and will result in the code checking every second
             if timeToInSeconds > 10:
                 time.sleep(timeToInSeconds - 10)
             else:
@@ -47,6 +48,7 @@ def contestCommand(data):
         **data,
         'command': 'get',
         'problem': contestData.get('problems'),
+        'language': None,
     })
     #update config with new problems
     config = getConfig()
@@ -84,14 +86,20 @@ def readContest(contest, session):
 
     #check when the contest is/was
     timeState = TimeState.Ended
-    timeTo = toTimeDelta(soup.select_one(".notstarted .countdown").text)
+    timeToText = soup.select_one(".notstarted .countdown").text
+    while len(timeToText.split(":")) < 3:
+        timeToText = "00:" + timeToText
+    timeTo = toTimeDelta(timeToText)
     remaining = toTimeDelta(soup.select_one(".count_remaining").text)
+    sessionHasNotStarted = soup.select_one(".count_elapsed").text == "0:00:00"
+    sessionHasEnded = soup.select_one(".count_remaining").text == "0:00:00"
 
-    if timeTo is not None:
+    if (timeTo is not None and timeTo > toTimeDelta("0:00:00")) or sessionHasNotStarted:
         timeState = TimeState.NotStarted
-    elif remaining is not None and remaining != toTimeDelta('0:00:00'):
+    elif (remaining is not None and remaining != toTimeDelta('0:00:00')) or not sessionHasNotStarted:
         timeState = TimeState.InProgress
-
+    if sessionHasEnded:
+        timeState = TimeState.Ended
 
     # God dammit I hate XML crawling
     endTime = soup.select_one(".contest-progress .text-right").text.strip().split('\n')[1].strip()
