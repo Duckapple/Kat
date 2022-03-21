@@ -96,7 +96,7 @@ def confirm(problemName, programFile):
     print("File: " + programFile["relativePath"])
     print("Language: " + guessLanguage(programFile))
 
-    return yes()
+    return yes(defaultToYes= True)
 
 
 def postSubmission(session, problemName, programFile):
