@@ -64,7 +64,7 @@ def submitCommand(data):
     id = postSubmission(session, problemName, programFile)
 
     print(
-        "📬 Submission Successful (url " + getConfigUrl("submissionsurl", "submissions") + "/" + id + ")"
+        f"📬 Submission Successful (url {getConfigUrl('submissionsurl', 'submissions')}/{id})"
     )
 
     if id == None:

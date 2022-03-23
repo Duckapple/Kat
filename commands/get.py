@@ -1,9 +1,10 @@
 from argparse import ArgumentParser
 import subprocess
 
+from helpers.cli import yes
 from helpers.types import problem, problemList
 from helpers.programSelector import formatCommand, selectProgramFile
-from helpers.config import getConfig
+from helpers.config import getConfig, saveConfig
 from commands.web import webCommand
 from commands.unarchive import unarchive
 from helpers.exceptions import InvalidProblemException
@@ -24,7 +25,25 @@ def getCommand(data):
             print("")
     return solved
 
+
+def checkCorrectDomain(problemName):
+    if "." in problemName:
+        hostPrefix = problemName.split(".")[0]
+        hostname = hostPrefix + ".kattis.com"
+        cfg = getConfig()
+        actualHostname = cfg["kattis"]["hostname"]
+        if hostname != actualHostname:
+            print(f'Warning: The problem you are trying to get looks like it is part of the subdomain "{hostname}", '
+                  f'while your instance of Kat tool currently uses "{actualHostname}". Would you like to switch '
+                  f'before getting the problem?')
+            if yes():
+                cfg["kattis"]["hostname"] = hostname
+                saveConfig()
+
+
+
 def get(problemName: str, data: dict):
+    checkCorrectDomain(problemName)
     message = ""
     folder = findProblemLocation(problemName)
     if folder is None:
