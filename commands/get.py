@@ -9,7 +9,7 @@ from commands.web import webCommand
 from commands.unarchive import unarchive
 from helpers.exceptions import InvalidProblemException
 from helpers.fileutils import findProblemLocation
-from helpers.webutils import fetchProblem
+from helpers.webutils import fetchProblem, checkCorrectDomain
 
 
 def getCommand(data):
@@ -26,24 +26,8 @@ def getCommand(data):
     return solved
 
 
-def checkCorrectDomain(problemName):
-    if "." in problemName:
-        hostPrefix = problemName.split(".")[0]
-        hostname = hostPrefix + ".kattis.com"
-        cfg = getConfig()
-        actualHostname = cfg["kattis"]["hostname"]
-        if hostname != actualHostname:
-            print(f'Warning: The problem you are trying to get looks like it is part of the subdomain "{hostname}", '
-                  f'while your instance of Kat tool currently uses "{actualHostname}". Would you like to switch '
-                  f'before getting the problem?')
-            if yes():
-                cfg["kattis"]["hostname"] = hostname
-                saveConfig()
-
-
-
 def get(problemName: str, data: dict):
-    checkCorrectDomain(problemName)
+    checkCorrectDomain(problemName, "get")
     message = ""
     folder = findProblemLocation(problemName)
     if folder is None:
