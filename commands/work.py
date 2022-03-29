@@ -1,11 +1,12 @@
 from argparse import ArgumentParser
 from commands.archive import archive
 from commands.debug import debugCommand, choices as debugChoices
-from commands.get import getCommand, getFlags
+from commands.get import getCommand, getFlags, get
 from commands.list import collectProblems, listFlags
 from commands.read import readCommand
 from commands.submit import submitCommand, Response, submitFlags
 from commands.test import testCommand
+from helpers.exceptions import InvalidProblemException
 
 allowedSubmitOptions = ["archive", "force", "sound"]
 allowedGetOptions = ["open"]
@@ -28,7 +29,13 @@ def workCommand(data):
     problems = [x[0] for x in collectProblems(data)]
     currentIndex = 0
     previousProblem = None
-    currentProblem = getProblem(currentIndex, data, problems)
+    try:
+        currentProblem = getProblem(currentIndex, data, problems)
+    except InvalidProblemException:
+        print("")
+        print(f"Error: Problem '{currentProblem}' does not exist")
+        print("")
+        return
     while True:
         if previousProblem != currentProblem:
             print('Problem:', currentProblem)
@@ -73,7 +80,8 @@ def workCommand(data):
 def getProblem(currentIndex, data, problems):
     currentProblem = problems[currentIndex]
 
-    getCommand({**data, 'problem': [currentProblem]})
+    data = {**data, 'problem': [currentProblem]}
+    get(currentProblem, data)
 
     return currentProblem
 
