@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 import subprocess
 
+import requests
 from helpers.types import problem, problemList
 from helpers.programSelector import formatCommand, selectProgramFile
 from helpers.config import getConfig
@@ -22,6 +23,8 @@ def getCommand(data):
             print("")
             print(f"Error: Problem '{problem}' does not exist")
             print("")
+        except requests.exceptions.ConnectionError:
+            print("Connection error: Please check your connection")
     return solved
 
 def get(problemName: str, data: dict):
