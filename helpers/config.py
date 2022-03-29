@@ -166,8 +166,7 @@ def preconfigure(cfg, location = None):
         "Default options": {
             "archive": "archive",
             "config": "config",
-            # We cannot support contest yet as it has subcommands
-            # "contest": "",
+            "contest": "",
             "get": "get",
             "list": "list",
             "read": "read",
