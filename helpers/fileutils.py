@@ -53,7 +53,12 @@ def createBoilerplate(problemName, overrideLanguage = None):
         )
     else:
         fileType = [file for (file, k) in cfg["File associations"].items() if k.lower() == lang.lower()]
-        open(problemName + "/" + fileName + fileType[0], "a").close()
+        if fileType:
+            open(problemName + "/" + fileName + fileType[0], "a").close()
+        else:
+            print(f"Error, unable to resolve {lang} to a language that could be run. Please check if your spelling matches the one used by kat tool.")
+            print(f"These are the supported languages:")
+            print()
 
 
 def findProblemLocation(problemName):

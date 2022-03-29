@@ -2,8 +2,7 @@ import glob, os, random
 from playsound import playsound
 
 pathToHere = os.path.dirname(os.path.realpath(__file__))
-indexOfTrim = pathToHere.index("helpers")
-prefix = os.path.join(pathToHere[:indexOfTrim], 'resources')
+prefix = os.path.join(os.path.split(pathToHere)[0], 'resources')
 
 
 def winsound():
