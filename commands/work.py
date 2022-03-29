@@ -38,7 +38,7 @@ def workCommand(data):
         currentProblem = getProblem(currentIndex, data, problems)
     except InvalidProblemException:
         print("")
-        print(f"Error: Problem '{currentProblem}' does not exist")
+        print(f"Error: Specified problem does not exist")
         print("")
         return
     while True:
