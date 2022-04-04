@@ -16,6 +16,8 @@ def archiveCommand(data):
         if not yes():
             return
         data["problem"] = [x for x in os.listdir() if not x.startswith(".")]
+    if data["problem"] == []:
+        print("Warning: No problems will be removed as a result of this command")
     for problem in data['problem']:
         archive(problem, folder)
 
