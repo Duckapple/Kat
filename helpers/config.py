@@ -175,7 +175,7 @@ def preconfigure(cfg, location = None):
             "test": "test",
             "unarchive": "unarchive",
             "watch": "watch",
-            "work": "work easiest unsolved unarchived -o",
+            "work": "work easiest unsolved unarchived --open",
         },
         "contest": {}
     }

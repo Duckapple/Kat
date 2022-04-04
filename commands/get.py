@@ -1,15 +1,16 @@
 from argparse import ArgumentParser
 import subprocess
 
+from helpers.cli import yes
 import requests
 from helpers.types import problem, problemList
 from helpers.programSelector import formatCommand, selectProgramFile
-from helpers.config import getConfig
+from helpers.config import getConfig, saveConfig
 from commands.web import webCommand
 from commands.unarchive import unarchive
 from helpers.exceptions import InvalidProblemException
 from helpers.fileutils import findProblemLocation
-from helpers.webutils import fetchProblem
+from helpers.webutils import fetchProblem, checkCorrectDomain
 
 
 def getCommand(data):
@@ -27,7 +28,9 @@ def getCommand(data):
             print("Connection error: Please check your connection")
     return solved
 
+
 def get(problemName: str, data: dict):
+    checkCorrectDomain(problemName, "get")
     message = ""
     folder = findProblemLocation(problemName)
     if folder is None:

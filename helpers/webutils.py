@@ -43,3 +43,18 @@ def downloadSampleFiles(problemName, problemUrl):
 def submitError(e: Exception):
     body = parse.quote_plus('\n\n```\n' + ''.join(traceback.format_exception(None, e, e.__traceback__)) + '\n```')
     webbrowser.open(f"https://github.com/Duckapple/Kat/issues/new?body={body}&title=Exception%3A%20%22{str(e)}%22")
+
+
+def checkCorrectDomain(problemName, commandName):
+    if "." in problemName:
+        hostPrefix = problemName.split(".")[0]
+        hostname = hostPrefix + ".kattis.com"
+        cfg = getConfig()
+        actualHostname = cfg["kattis"]["hostname"]
+        if hostname != actualHostname:
+            print(f'Warning: The problem you are trying to {commandName} looks like it is part of the subdomain "{hostname}", '
+                  f'while your instance of Kat tool currently uses "{actualHostname}". Would you like to switch '
+                  f'beforehand?')
+            if yes():
+                cfg["kattis"]["hostname"] = hostname
+                saveConfig()

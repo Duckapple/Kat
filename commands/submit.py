@@ -4,9 +4,8 @@ from enum import Enum, auto
 
 from bs4 import BeautifulSoup
 from helpers.cli import yes
-from commands.web import openSubmission
 from helpers.types import problem
-from helpers.webutils import HEADERS, promptToFetch
+from helpers.webutils import HEADERS, promptToFetch, checkCorrectDomain
 from helpers.programSelector import (
     formatProgramFile,
     selectProgramFile,
@@ -40,6 +39,7 @@ _ERROR_MESSAGES = {
 
 def submitCommand(data):
     problemName: str = data["problem"]
+    checkCorrectDomain(problemName, "submit")
 
     if not os.path.exists(problemName):
         promptToFetch(problemName)
@@ -64,7 +64,7 @@ def submitCommand(data):
         id = postSubmission(session, problemName, programFile)
 
         print(
-            "📬 Submission Successful (url " + getConfigUrl("submissionsurl", "submissions") + "/" + id + ")"
+            f"📬 Submission Successful (url {getConfigUrl('submissionsurl', 'submissions')}/{id})"
         )
 
         if id == None:
