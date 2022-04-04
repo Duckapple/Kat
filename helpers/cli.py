@@ -1,9 +1,8 @@
 def yes(defaultToYes = False):
-    answer = input("(y/N): ").lower()
-    if defaultToYes:
-        return answer == "n" or answer == "no"
-    else:
-        return answer == "y" or answer == "yes"
+    answer = input(f"{'(Y/n)' if defaultToYes else '(y/N)'}: ").lower()
+    if answer not in ["n", "y", "no", "yes"]:
+        return defaultToYes
+    return answer == "y" or answer == "yes"
 
 def getch():
     """
