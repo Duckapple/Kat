@@ -1,5 +1,9 @@
 from argparse import ArgumentParser
-import os, requests, sys, re, time
+import os
+import requests
+import sys
+import re
+import time
 from enum import Enum, auto
 
 from bs4 import BeautifulSoup
@@ -26,6 +30,7 @@ class Response(Enum):
     Error = auto()
     Aborted = auto()
 
+
 _ERROR_MESSAGES = {
     "Wrong Answer": "💔 Wrong Answer on @test of @total",
     "Run Time Error": "💥 Run Time Error on @test of @total",
@@ -47,7 +52,8 @@ def submitCommand(data):
 
     # if programFile is not given, we will attempt to guess it
     programFile = (
-        formatProgramFile(data.get("file")) if data.get("file") else selectProgramFile(problemName)
+        formatProgramFile(data.get("file")) if data.get(
+            "file") else selectProgramFile(problemName)
     )
 
     if programFile == None:
@@ -55,7 +61,8 @@ def submitCommand(data):
 
     if "force" not in data or not data.get('force'):
         response = confirm(problemName, programFile)
-        if not response: return Response.Aborted
+        if not response:
+            return Response.Aborted
     try:
         session = requests.Session()
 
@@ -96,7 +103,7 @@ def confirm(problemName, programFile):
     print("File: " + programFile["relativePath"])
     print("Language: " + guessLanguage(programFile))
 
-    return yes(defaultToYes= True)
+    return yes()
 
 
 def postSubmission(session, problemName, programFile):
@@ -127,7 +134,8 @@ def postSubmission(session, problemName, programFile):
         sub_files.append(
             (
                 "sub_file[]",
-                (programFile["name"], sub_file.read(), "application/octet-stream"),
+                (programFile["name"], sub_file.read(),
+                 "application/octet-stream"),
             )
         )
 
@@ -146,8 +154,10 @@ def postSubmission(session, problemName, programFile):
 
     return match.group(1).strip()
 
+
 def printFinalStatus(status, icon, runtime):
     print(f"\r{icon} {status} ({runtime})")
+
 
 def printUntilDone(id, problemName, session):
     lastCount = 0
@@ -168,16 +178,20 @@ def printUntilDone(id, problemName, session):
             sys.stdout.flush()
 
             if status == "Accepted" or status == "Accepted (100)":
-                runtime = data.get("runtime") or getRuntime(id, problemName, session)
+                runtime = data.get("runtime") or getRuntime(
+                    id, problemName, session)
                 printFinalStatus("💚", status, runtime)
                 break
             if status.startswith("Accepted"):
-                runtime = data.get("runtime") or getRuntime(id, problemName, session)
+                runtime = data.get("runtime") or getRuntime(
+                    id, problemName, session)
                 printFinalStatus("🟨", status, runtime)
                 break
             if status in _ERROR_MESSAGES.keys():
-                runtime = data.get("runtime") or getRuntime(id, problemName, session)
-                print(f"{_ERROR_MESSAGES[status].replace(' on @test of @total', '')} ({runtime})")
+                runtime = data.get("runtime") or getRuntime(
+                    id, problemName, session)
+                print(
+                    f"{_ERROR_MESSAGES[status].replace(' on @test of @total', '')} ({runtime})")
                 return Response.Error
         else:
             for _ in range(0, abs(lastCount - data["testCount"])):
@@ -203,19 +217,20 @@ def printUntilDone(id, problemName, session):
     )
     return Response.Success
 
+
 def fetchNewSubmissionStatus(id, session):
     response = session.get(
         getConfigUrl("submissionsurl", "submissions") + "/" + id, headers=HEADERS
     )
 
     body = response.content.decode("utf-8")
-    soup = BeautifulSoup(body, "html.parser")
-    data = soup.select("#judge_table tbody tr")
-    info = data[0]
-    testcases = data[1] if len(data) > 1 else None
 
-    status = info.select_one("td.status").text
-    runtime = info.select("td.runtime")
+    soup = BeautifulSoup(body, "html.parser")
+    data = soup.select("#judge_table tbody tr")[0]
+
+    status = data.select_one('td[data-type="status"]').text
+    testcases = data.select(".status.testcase-popup i")
+    runtime = data.select('td[data-type="cpu"]')
     runtime = runtime[0].text if len(runtime) >= 1 else None
 
     if status == "Compile Error":
@@ -228,14 +243,15 @@ def fetchNewSubmissionStatus(id, session):
     successCount = 0
     testTotal = 0
 
-    for testcase in testcases.select(".testcases > span"):
+    for testcase in testcases:
         testResult = testcase.get("title")
         match = re.search(r"Test case (\d+)\/(\d+): (.+)", testResult)
         if match is None:
             print(
                 "⚠️ Error while parsing test cases. Please report this on our github so we can fix it in future versions."
             )
-            raise Exception("⚠️ Error while parsing test cases. Please report this on our github so we can fix it in future versions.")
+            raise Exception(
+                "⚠️ Error while parsing test cases. Please report this on our github so we can fix it in future versions.")
         testNumber = match.group(1)
         testTotal = match.group(2)
         testStatus = match.group(3).strip()
@@ -262,6 +278,7 @@ def fetchNewSubmissionStatus(id, session):
 
     return Response.Success, {"testCount": successCount, "testTotal": int(testTotal), "runtime": runtime}
 
+
 def getRuntime(id, problemName, session):
     user = getConfig().get("user", {})
     username = user.get("username")
@@ -271,9 +288,11 @@ def getRuntime(id, problemName, session):
     )
     body = response.content.decode("utf-8")
     soup = BeautifulSoup(body, "html.parser")
-    data = soup.select(f'table.table-kattis tbody tr[data-submission-id="{id}"] td.runtime')
+    data = soup.select(
+        f'table.table-kattis tbody tr[data-submission-id="{id}"] td.runtime')
     if len(data) > 0:
         return data[0].text
+
 
 def formatLanguage(language):
     if language == "python":
@@ -291,14 +310,21 @@ def formatPythonLanguage():
 
     return "Python " + python_version
 
+
 def submitParser(parsers: ArgumentParser):
     helptext = 'Submit a problem for evaluation.'
     parser = parsers.add_parser('submit', description=helptext, help=helptext)
-    parser.add_argument('problem', help='Name of problem to submit', type=problem)
-    parser.add_argument('file', nargs='?', help='Name of the specific file to submit')
+    parser.add_argument(
+        'problem', help='Name of problem to submit', type=problem)
+    parser.add_argument('file', nargs='?',
+                        help='Name of the specific file to submit')
     submitFlags(parser)
 
+
 def submitFlags(parser):
-    parser.add_argument('-a', '--archive', action='store_true', help='Archive the problem on a successful submittion.')
-    parser.add_argument('-f', '--force', action='store_true', help='Force a submit of the first detected program file.')
-    parser.add_argument('-s', '--sound', action='store_true', help='Play a sound on successful submittion.')
+    parser.add_argument('-a', '--archive', action='store_true',
+                        help='Archive the problem on a successful submittion.')
+    parser.add_argument('-f', '--force', action='store_true',
+                        help='Force a submit of the first detected program file.')
+    parser.add_argument('-s', '--sound', action='store_true',
+                        help='Play a sound on successful submittion.')
