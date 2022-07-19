@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-import traceback, sys
+import traceback
+import sys
 from commands.contest import contestCommand
 from commands.debug import debugCommand
 from helpers.webutils import submitError
@@ -33,6 +34,7 @@ execCommand = {
     "work":      workCommand,
 }
 
+
 def main():
     try:
         data = parse(sys.argv[1:])
@@ -40,8 +42,11 @@ def main():
         if command in execCommand:
             execCommand[command](data)
         else:
-            print('Welcome to the Kat CLI for Kattis. To use, write "kattis [COMMAND] with one of the following commands:')
+            print(
+                'Welcome to the Kat CLI for Kattis. To use, write "kattis [COMMAND]" with one of the following commands:')
             print(", ".join(execCommand))
+    except (KeyboardInterrupt):
+        print("\nInterrupted.")
     except (Exception) as error:
         print()
         print(*traceback.format_exception(None, error, error.__traceback__))
@@ -49,6 +54,7 @@ def main():
         print("The program ran into a problem while running, do you want to create an issue on github?")
         if yes():
             submitError(error)
+
 
 if __name__ == '__main__':
     main()
