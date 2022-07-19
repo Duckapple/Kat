@@ -36,10 +36,9 @@ def buildParameters(data):
     args = data['args']
 
     if "easiest" in args:
-        parameters["order"] = "problem_difficulty"
+        parameters["order"] = "+difficulty_category"
     elif "hardest" in args:
-        parameters["order"] = "problem_difficulty"
-        parameters["dir"] = "desc"
+        parameters["order"] = "-difficulty_category"
 
     # Status
     status = intersect(
