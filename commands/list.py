@@ -1,5 +1,8 @@
 from argparse import ArgumentParser
-import requests, sys, os
+import re
+import requests
+import sys
+import os
 from helpers.auth import login
 from helpers.config import getConfigUrl
 from bs4 import BeautifulSoup
@@ -39,7 +42,8 @@ def buildParameters(data):
         parameters["dir"] = "desc"
 
     # Status
-    status = intersect(args, {"solved", "tried", "untried", "unsolved"}) or None
+    status = intersect(
+        args, {"solved", "tried", "untried", "unsolved"}) or None
 
     if status is not None:
         parameters["show_solved"] = "off"
@@ -67,26 +71,34 @@ def fetchProblems(url, parameters, data, session):
     body = response.content.decode("utf-8")
     soup = BeautifulSoup(body, "html.parser")
 
-    rows = soup.select(".problem_list tbody tr")
+    rows = soup.select("tbody tr")
     problems = []
 
     for row in rows:
-        link = row.select_one(".name_column a")
+        link = row.select_one("a")
         pName = link.get("href").replace("/problems/", "")
         if 'unarchived' in args and isArchived(pName):
             continue
+
+        difficultyCell = row.select_one("td:nth-of-type(7)")
+        difficultySpan = difficultyCell.select_one("span").text
+        if re.match(r"^\d+\.\d+$", difficultySpan):
+            difficultySpan = round(float(difficultySpan), 1)
+
         problems.append(
             [
                 pName,
                 link.text,
-                row.select_one("td:nth-of-type(9)").text,
+                difficultySpan,
             ]
         )
 
     return problems
 
+
 def isArchived(problemName, folder=".archive/"):
     return os.path.exists(folder + problemName)
+
 
 def selectOne(needles, haystack, default=None):
     intersection = intersect(needles, haystack)
@@ -104,17 +116,23 @@ def selectOne(needles, haystack, default=None):
 def intersect(list1, list2):
     return set(list1).intersection(set(list2))
 
+
 choices = [
     'easiest', 'hardest', 'unarchived', 'unsolved', 'solved', 'untried', 'tried', 'None'
 ]
 
+
 def listParser(parsers: ArgumentParser):
     helpText = 'Get a list of problems from the Kattis instance.'
     parser = parsers.add_parser('list', description=helpText, help=helpText)
-    parser.add_argument('-p', '--page', type=int, help='Choose which page of results to show')
-    parser.add_argument('-l', '--limit', type=int, help='Choose the length of the list/page to show')
-    parser.add_argument('-c', '--compact', action='store_true',  help='Print only a space-seperated list of problems')
+    parser.add_argument('-p', '--page', type=int,
+                        help='Choose which page of results to show')
+    parser.add_argument('-l', '--limit', type=int,
+                        help='Choose the length of the list/page to show')
+    parser.add_argument('-c', '--compact', action='store_true',
+                        help='Print only a space-seperated list of problems')
     listFlags(parser)
+
 
 def listFlags(parser):
     parser.add_argument('args', metavar='sorting/filter', help='Define which sorting direction and filters to use. Choices for sorting are "easiest" or "hardest", and choices for filters are "unarchived", "unsolved", "solved", "untried" or "tried"', choices=choices, nargs='*', default='None')
