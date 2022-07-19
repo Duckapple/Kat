@@ -6,9 +6,11 @@ from helpers.config import getConfigUrl
 from helpers.types import problemList
 from helpers.webutils import checkProblemExistence
 
+
 def readCommand(data):
     for problem in data['problem']:
         read(problem, data)
+
 
 def read(problemName, data):
     session = requests.Session()
@@ -38,7 +40,7 @@ def fetchProblemText(url, session):
 
     body = response.content.decode("utf-8")
     soup = BeautifulSoup(body, "html.parser")
-    headline = soup.select_one(".headline-wrapper h1")
+    headline = soup.select_one("h1.book-page-heading")
     problem = soup.select_one(".problembody")
 
     textLines = [headline.text, problem.text]
@@ -47,11 +49,15 @@ def fetchProblemText(url, session):
 
     return textLines
 
+
 def readParser(parsers: ArgumentParser):
     helpText = 'Read a problem in the browser or on the command line.'
     parser = parsers.add_parser('read', description=helpText, help=helpText)
-    parser.add_argument('problem', help='The problem to read.', nargs='+', type=problemList)
-    parser.add_argument('-c', '--console', action='store_true', help='Opt to print the description in the console.')
+    parser.add_argument('problem', help='The problem to read.',
+                        nargs='+', type=problemList)
+    parser.add_argument('-c', '--console', action='store_true',
+                        help='Opt to print the description in the console.')
+
 
 readFlags = [
     ("console", False),
