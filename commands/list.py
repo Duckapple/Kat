@@ -79,7 +79,8 @@ def fetchProblems(url, parameters, data, session):
         if 'unarchived' in args and isArchived(pName):
             continue
 
-        difficultyCell = row.select_one("td:nth-of-type(7)")
+        # Yes, they do not have an identifier, class, anything. 8th row it is.
+        difficultyCell = row.select_one("td:nth-of-type(8)")
         difficultySpan = difficultyCell.select_one("span").text
         if re.match(r"^\d+\.\d+$", difficultySpan):
             difficultySpan = round(float(difficultySpan), 1)
