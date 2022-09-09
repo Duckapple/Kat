@@ -47,10 +47,14 @@ def createBoilerplate(problemName, overrideLanguage = None):
     if lang.lower() in boilerplates:
         boilerplate = boilerplates[lang]
         fileType = "." + boilerplates[lang].split(".")[-1]
-        shutil.copy2(
-            directory + "/" + boilerplate,
-            problemName + "/" + fileName + fileType,
-        )
+        shutil.copy2(os.path.join(directory, boilerplate), os.path.join(problemName, fileName + fileType))
+        with open(os.path.join(problemName, fileName + fileType)) as newfile:
+            oldlines = newfile.readlines()
+        with open(os.path.join(problemName, fileName + fileType), "w+") as newfile:
+            lines = [line.replace("{{ProblemName}}", fileName) for line in oldlines]
+            newfile.writelines(lines)
+
+
     else:
         fileType = [file for (file, k) in cfg["File associations"].items() if k.lower() == lang.lower()]
         if fileType:
