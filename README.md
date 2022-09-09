@@ -12,7 +12,7 @@ You need to ensure Python 3 is installed on your system before installing.
 
 At the end of the install, you are prompted to download a credentials/config file from Kattis.
 You can get this file ahead of time at <https://open.kattis.com/download/kattisrc>.
-You need to save it either in your home directory (`C:\Users\<user>\.kattisrc` on Windows, `/home/<user>/.kattisrc` on Mac/Linux), or in the directory you keep all of your exercises.
+You need to save it either in your home directory (`C:\Users\<user>\.kattisrc` on Windows, `/home/<user>/.kattisrc` on Mac/Linux), or in the directory you keep all of your problems.
 
 ### Mac & Linux
 
