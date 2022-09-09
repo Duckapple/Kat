@@ -8,6 +8,12 @@ Logo provided by [@CptF1nn](https://github.com/CptF1nn)
 
 ## Installing
 
+You need to ensure Python 3 is installed on your system before installing.
+
+At the end of the install, you are prompted to download a credentials/config file from Kattis.
+You can get this file ahead of time at <https://open.kattis.com/download/kattisrc>.
+You need to save it either in your home directory (`C:\Users\<user>\.kattisrc` on Windows, `/home/<user>/.kattisrc` on Mac/Linux), or in the directory you keep all of your exercises.
+
 ### Mac & Linux
 
 To easily download and link the program, use the following command:
@@ -17,6 +23,11 @@ curl -sSLf https://raw.githubusercontent.com/Duckapple/Kat/master/install.sh | s
 ```
 
 (or alternatively, open the file and execute the individual statements inside)
+
+### Windows
+
+[Download and run our install script here](https://github.com/Duckapple/Kat/releases/download/1.9.0/install_windows.bat), or from the latest release in the release tab.
+You don't need to run as admin or anything, as it is installed for the current user only. You don't even need `git`.
 
 ## Usage
 
