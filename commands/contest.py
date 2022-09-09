@@ -76,10 +76,11 @@ class TimeState(Enum):
 
 def readContest(contest, session):
     problems = []
-    response = session.get(contest)
+    response = session.get(contest + "/standings")
     body = response.content.decode("utf-8")
     soup = BeautifulSoup(body, "html.parser")
-    info = soup.select("#standings thead tr")
+    info = soup.select(".standings-table thead tr")
+    print()
     if len(info) != 1:
         print(contest)
         raise Exception("This contest somehow doesn't have a table with a header")
@@ -102,10 +103,10 @@ def readContest(contest, session):
         timeState = TimeState.Ended
 
     # God dammit I hate XML crawling
-    endTime = soup.select_one(".contest-progress .text-right").text.strip().split('\n')[1].strip()
-    startTime = soup.select_one(".contest-progress .text-left").text.strip().split('\n')[1].strip()
+    endTime = soup.select_one(".contest-end").text.strip().split()[0].strip() # I suspect this will not work if the contest ends on another day.
+    startTime = soup.select_one(".contest-start").text.strip().split()[1].strip()
 
-    problemTags = info[0].select(".problemcolheader-standings a")
+    problemTags = info[0].select(".table2-header a")
     if len(problemTags) > 0:
         problems = []
         for problemTag in problemTags:
