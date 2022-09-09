@@ -14,6 +14,9 @@ if [[ "$PATH" != *"$HOME/.local/bin"* ]]; then
     echo "export PATH=$PATH:$HOME/.local/bin" >> $HOME/.zshrc
   elif [ -f "$HOME/.bashrc"] then
     echo "export PATH=$PATH:$HOME/.local/bin" >> $HOME/.bashrc
+  else
+    echo "Could not detect shell config file."
+    echo "Add 'export PATH=$PATH:$HOME/.local/bin' to your shell config"
   fi
 fi
 
