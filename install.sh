@@ -1,8 +1,21 @@
 #!/usr/bin/env bash
 
-git clone git@github.com:Duckapple/Kat.git $HOME/.local/share/kat
+echo "Fetching code..."
+mkdir $HOME/.local/share/
+git clone https://github.com/Duckapple/Kat.git $HOME/.local/share/kat
+
+echo "Ensuring binaries are in path..."
+mkdir $HOME/.local/bin/
 ln -s $HOME/.local/share/kat/kattis.py $HOME/.local/bin/kat
 ln -s $HOME/.local/share/kat/kattis.py $HOME/.local/bin/kattis
+
+if [[ "$PATH" != *"$HOME/.local/bin"* ]]; then
+  if [ -f "$HOME/.zshrc" ] then
+    echo "export PATH=$PATH:$HOME/.local/bin" >> $HOME/.zshrc
+  elif [ -f "$HOME/.bashrc"] then
+    echo "export PATH=$PATH:$HOME/.local/bin" >> $HOME/.bashrc
+  fi
+fi
 
 echo "Installing dependencies..."
 

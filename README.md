@@ -22,7 +22,9 @@ To easily download and link the program, use the following command:
 curl -sSLf https://raw.githubusercontent.com/Duckapple/Kat/master/install.sh | sh
 ```
 
-(or alternatively, open the file and execute the individual statements inside)
+This assumes you have `git` and `curl` installed.
+
+Alternatively, open the file and execute the individual statements inside, if you don't want to run it directly from the internet.
 
 ### Windows
 
