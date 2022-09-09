@@ -55,12 +55,17 @@ def get(problemName: str, data: dict):
         subprocess.run(formatCommand(fileOpener, file).split())
     return folder
 
+
 def getParser(parsers: ArgumentParser):
     helpText = 'Get a problem and its tests from the Kattis instance.'
     parser = parsers.add_parser('get', help=helpText, description=helpText)
-    parser.add_argument('problem', help='Name of problem to get', nargs='+', type=problemList)
+    parser.add_argument(
+        'problem', help='Name of problem to get', nargs='+', type=problemList)
     getFlags(parser)
 
+
 def getFlags(parser):
-    parser.add_argument('-o', '--open', action='store_true', help='Open the problem in your web-browser.')
-    parser.add_argument('-l', '--language', type=str, help='Choose the language to initialize the problem in')
+    parser.add_argument('-o', '--open', action='store_true',
+                        help='Open the problem in your web-browser.')
+    parser.add_argument('-l', '--language', type=str,
+                        help='Choose the language to initialize the problem in')

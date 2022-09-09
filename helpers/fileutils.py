@@ -4,19 +4,22 @@ import subprocess
 
 from helpers.config import getConfig
 
+
 def getBytesFromFile(file):
     inFile = open(file, "rb")
     result = inFile.read()
     inFile.close()
     return result
 
+
 # It is worth mentioning that this is merely
 # for language compliance, and not a real conversion
 namingSchemeConverters = {
-    "Pascal": lambda string : string[0].upper() + string[1:],
+    "Pascal": lambda string: string[0].upper() + string[1:],
 }
 
-def createBoilerplate(problemName, overrideLanguage = None):
+
+def createBoilerplate(problemName, overrideLanguage=None):
     from helpers.programSelector import guessLanguage, formatProgramFile
     cfg = getConfig()
     if overrideLanguage:
@@ -28,14 +31,15 @@ def createBoilerplate(problemName, overrideLanguage = None):
         subprocess.run([p for p in cmd], cwd=problemName)
         if lang.lower() == 'rust':
             f = open(os.path.join(problemName, 'rust-toolchain'), 'w')
-            f.write('1.26.0')
+            f.write('1.59.0')
             f.close()
         return
-    directory = os.path.dirname(os.path.realpath(__file__)) + "/../boilerplate" #todo please make this better
+    directory = os.path.dirname(os.path.realpath(
+        __file__)) + "/../boilerplate"  # todo please make this better
     boilerplates = {
         guessLanguage(formatProgramFile(f)): f for f in
-            os.listdir(directory) if os.path.isfile(os.path.join(directory, f)
-        )
+        os.listdir(directory) if os.path.isfile(os.path.join(directory, f)
+                                                )
     }
 
     fileName = problemName
@@ -56,16 +60,17 @@ def createBoilerplate(problemName, overrideLanguage = None):
 
 
     else:
-        fileType = [file for (file, k) in cfg["File associations"].items() if k.lower() == lang.lower()]
+        fileType = [file for (file, k) in cfg["File associations"].items(
+        ) if k.lower() == lang.lower()]
         if fileType:
             open(problemName + "/" + fileName + fileType[0], "a").close()
         else:
-            #Language does not exist, delete the folder
+            # Language does not exist, delete the folder
 
-            print(f"Error, unable to resolve {lang} to a language that could be run. Please check if your spelling matches the one used by kat tool.")
+            print(
+                f"Error, unable to resolve {lang} to a language that could be run. Please check if your spelling matches the one used by kat tool.")
             print(f"These are the supported languages:")
             print(", ".join(cfg["File associations"].values()))
-
 
 
 def findProblemLocation(problemName):

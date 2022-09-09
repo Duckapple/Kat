@@ -1,4 +1,6 @@
-import os, re, subprocess
+import os
+import re
+import subprocess
 from helpers.fileutils import getBytesFromFile
 from helpers.config import getConfig, toCommandArray
 
@@ -76,7 +78,7 @@ def detectClassName(file):
     match = re.search("class (\\w+)", content)
     if match is None:
         print("Could not detect class in file '" + file["name"] + "'")
-        return None
+        return ""
 
     return match.group(1).strip()
 
@@ -86,7 +88,8 @@ def getRunCommand(programFile):
         print("Unsupported programming language")
         return None
 
-    cmd = toCommandArray(_LANGUAGE_RUN_COMMANDS.get(guessLanguage(programFile)))
+    cmd = toCommandArray(_LANGUAGE_RUN_COMMANDS.get(
+        guessLanguage(programFile)))
 
     formattedCommand = [formatCommand(p, programFile) for p in cmd]
     if None in formattedCommand:

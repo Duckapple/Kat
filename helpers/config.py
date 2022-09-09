@@ -149,7 +149,7 @@ def preconfigure(cfg, location = None):
             "Java": "java @c",
             "C#": "dotnet run",
             "F#": "dotnet run",
-            "C++": "@p",
+            "C++": "./@p.elf",
             "Rust": "cargo run",
             "Haskell": "./@p",
             "Go": "go run @f",
@@ -157,7 +157,7 @@ def preconfigure(cfg, location = None):
         },
         "Compile commands": {
             "Java": "javac @f",
-            "C++" : "g++ @f -o @p",
+            "C++" : "g++ @f -o @p.elf",
             "Haskell": "ghc -ferror-spans -threaded -rtsopts @f -o @p",
         },
         "Naming": {
