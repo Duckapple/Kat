@@ -8,11 +8,15 @@ Logo provided by [@CptF1nn](https://github.com/CptF1nn)
 
 ## Installing
 
-1. First of all, download this repository (either by .zip or via git) and make sure to extract it to a known location.
-2. Install dependencies by running `python -m pip install -r requirements.txt` inside the directory.
-3. Add the directory to your `%PATH`-variable on Windows or `ln -s /path/to/kat/kattis.py /usr/bin/kat` on Unix systems (Linux/Mac)
-4. To use most functionalities, add your personal configuration to this repository. Go to open.kattis.com > `Help` > `How to submit` > `Download your personal configuration file` and download the resulting file to this folder as `.kattisrc`.
-5. Run `kattis startup` to run an install-guide where Kat-internal configurations are copied into the `.kattisrc` and settings such as language are set up.
+### Mac & Linux
+
+To easily download and link the program, use the following command:
+
+```sh
+curl -sSLf https://raw.githubusercontent.com/Duckapple/Kat/master/install.sh | sh
+```
+
+(or alternatively, open the file and execute the individual statements inside)
 
 ## Usage
 
