@@ -8,20 +8,22 @@ from helpers.config import getConfigUrl
 HEADERS = {"User-Agent": "Kat"}
 
 def checkProblemExistence(problemName):
-    problemUrl = getConfigUrl("problemsurl", "problems") + "/" + problemName
+    problemUrl = getProblemUrl(problemName)
     existenceTest = requests.get(problemUrl)
     if existenceTest.status_code != 200:
         raise InvalidProblemException("⚠️ Problem '" + problemName + "' does not exist!")
 
 
 def fetchProblem(problemName, overrideLanguage = None):
-    problemUrl = getConfigUrl("problemsurl", "problems") + "/" + problemName
+    problemUrl = getProblemUrl(problemName)
     checkProblemExistence(problemName)
     print("🧰  Initializing problem " + problemName)
     os.makedirs(problemName)
     downloadSampleFiles(problemName, problemUrl)
     createBoilerplate(problemName, overrideLanguage)
 
+def getProblemUrl(problemName):
+    return getConfigUrl("problemsurl", "problems") + "/" + problemName
 
 def promptToFetch(problemName):
     print("This problem is not present...")
