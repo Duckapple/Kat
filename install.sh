@@ -10,9 +10,9 @@ ln -s $HOME/.local/share/kat/kattis.py $HOME/.local/bin/kat
 ln -s $HOME/.local/share/kat/kattis.py $HOME/.local/bin/kattis
 
 if [[ "$PATH" != *"$HOME/.local/bin"* ]]; then
-  if [ -f "$HOME/.zshrc" ] then
+  if [ -f "$HOME/.zshrc" ]; then
     echo "export PATH=$PATH:$HOME/.local/bin" >> $HOME/.zshrc
-  elif [ -f "$HOME/.bashrc"] then
+  elif [ -f "$HOME/.bashrc"]; then
     echo "export PATH=$PATH:$HOME/.local/bin" >> $HOME/.bashrc
   else
     echo "Could not detect shell config file."
