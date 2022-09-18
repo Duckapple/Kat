@@ -1,6 +1,7 @@
 import time
 from argparse import ArgumentParser
 from helpers.timeutils import toDatetime, toTimeDelta
+from helpers.webutils import getProblemUrl
 from commands.submit import submitCommand
 from helpers.cli import yes
 
@@ -20,6 +21,14 @@ def contestCommand(data):
     session = requests.Session()
     contest = data.get('contest-id')
     contestData = readContest(contest, session)
+
+    if data.get('dump') and not contestData.get('timeState') == TimeState.NotStarted:
+        print("Dumping problem links in markdown")
+        problems = contestData.get('problems')
+        for p in problems:
+            print(f"[{p}]({getProblemUrl(p)})")
+        return
+
     if contestData.get('timeState') == TimeState.NotStarted:
         timeTo = contestData.get('timeTo')
         print('Contest has not started yet.')
@@ -133,3 +142,4 @@ def contestParser(parsers):
     parser: ArgumentParser = parsers.add_parser('contest', description=description, help=helpText)
     parser.add_argument('contest-id', help='Override the contest to operate on.', type=definedContest)
     parser.add_argument('-s', '--submit', action='store_true', help='Automatically submit pre-solved problems.')
+    parser.add_argument('-d', '--dump', action='store_true', help='Dump info about the problems in markdown')
