@@ -34,6 +34,13 @@ README.md for more details.""")
                     if not yes():
                         return
                 cfgSection[option] = value
+                if (section, option) == ("kattis", "hostname"):
+                    print("You have changed your hostname. Would you like to change your loginurl, submissionurl and submissionsurl similarly? This is required for submitting.")
+                    if yes():
+                        prefix = "https://" + value + "/"
+                        cfgSection["loginurl"] = prefix + "login"
+                        cfgSection["submissionurl"] = prefix + "submit"
+                        cfgSection["submissionsurl"] = prefix + "submissions"
                 saveConfig()
                 print("The setting", option, "from section [" + section + "]", "was set to", value)
         else:
