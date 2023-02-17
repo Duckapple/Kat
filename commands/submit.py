@@ -34,6 +34,7 @@ class Response(Enum):
 _ERROR_MESSAGES = {
     "Wrong Answer": "💔 Wrong Answer on @test of @total",
     "Run Time Error": "💥 Run Time Error on @test of @total",
+    "Run-Time Error": "💥 Run Time Error on @test of @total",
     "Time Limit Exceeded": "⌛ Time Limit Exceeded on @test of @total",
     "Memory Limit Exceeded": "🙀 Memory Limit Exceeded on @test of @total",
     "Output Limit Exceeded": "🙀 Output Limit Exceeded on @test of @total",
