@@ -39,13 +39,13 @@ def contestCommand(data):
         print("Waiting for contest to start...")
         while contestData.get('timeState') == TimeState.NotStarted:
             timeTo = contestData.get('timeTo')
-            timeToInSeconds = timeTo.total_seconds() if timeTo is not None else -1 # the -1 denotes that we don't know how long it is to contest start, and will result in the code checking every second
+            # the -1 denotes that we don't know how long it is to contest start, and will result in the code checking every second
+            timeToInSeconds = timeTo.total_seconds() if timeTo is not None else -1
             if timeToInSeconds > 10:
                 time.sleep(timeToInSeconds - 10)
             else:
                 time.sleep(1)
             contestData = readContest(contest, session)
-
 
     elif contestData.get('timeState') == TimeState.Ended:
         print('The contest seems to be over.')
@@ -59,11 +59,13 @@ def contestCommand(data):
         'problem': contestData.get('problems'),
         'language': None,
     })
-    #update config with new problems
+    # update config with new problems
     config = getConfig()
-    config['contest'] = contestData['problemMap']
+    config['contest'] = {
+        **contestData['problemMap'],
+        "contest": contest
+    }
     saveConfig()
-
 
     if solved:
         if not data.get('submit'):
@@ -74,7 +76,6 @@ def contestCommand(data):
                 return
         for problem in solved:
             submitCommand({"problem": problem, "force": True, "archive": True})
-
 
 
 class TimeState(Enum):
@@ -92,9 +93,10 @@ def readContest(contest, session):
     print()
     if len(info) != 1:
         print(contest)
-        raise Exception("This contest somehow doesn't have a table with a header")
+        raise Exception(
+            "This contest somehow doesn't have a table with a header")
 
-    #check when the contest is/was
+    # check when the contest is/was
     timeState = TimeState.Ended
     timeToText = soup.select_one(".notstarted .countdown").text
     while len(timeToText.split(":")) < 3:
@@ -112,8 +114,10 @@ def readContest(contest, session):
         timeState = TimeState.Ended
 
     # God dammit I hate XML crawling
-    endTime = soup.select_one(".contest-end").text.strip().split()[0].strip() # I suspect this will not work if the contest ends on another day.
-    startTime = soup.select_one(".contest-start").text.strip().split()[1].strip()
+    # I suspect this will not work if the contest ends on another day.
+    endTime = soup.select_one(".contest-end").text.strip().split()[0].strip()
+    startTime = soup.select_one(
+        ".contest-start").text.strip().split()[1].strip()
 
     problemTags = info[0].select(".table2-header a")
     if len(problemTags) > 0:
@@ -139,7 +143,11 @@ def contestParser(parsers):
     description = f"""{helpText} Download all problems from kattis contest, optionally submit any that you have already
                       solved, and allow submitting by using the contest letters as IDs. If contest has not started yet
                       wait until it starts."""
-    parser: ArgumentParser = parsers.add_parser('contest', description=description, help=helpText)
-    parser.add_argument('contest-id', help='Override the contest to operate on.', type=definedContest)
-    parser.add_argument('-s', '--submit', action='store_true', help='Automatically submit pre-solved problems.')
-    parser.add_argument('-d', '--dump', action='store_true', help='Dump info about the problems in markdown')
+    parser: ArgumentParser = parsers.add_parser(
+        'contest', description=description, help=helpText)
+    parser.add_argument(
+        'contest-id', help='Override the contest to operate on.', type=definedContest)
+    parser.add_argument('-s', '--submit', action='store_true',
+                        help='Automatically submit pre-solved problems.')
+    parser.add_argument('-d', '--dump', action='store_true',
+                        help='Dump info about the problems in markdown')

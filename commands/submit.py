@@ -18,7 +18,7 @@ from helpers.programSelector import (
     detectClassName,
 )
 from helpers.auth import login
-from helpers.config import getConfig, getConfigUrl
+from helpers.config import getConfig, getConfigUrl, saveConfig
 from commands.archive import archive
 from helpers.sound import losesound, winsound
 from helpers.fileutils import undoBOM
@@ -129,6 +129,10 @@ def postSubmission(session, problemName, programFile):
     if requiresClass(programFile):
         data["mainclass"] = detectClassName(programFile)
 
+    contestResult = trySubmitContest(session, problemName, programFile, data)
+    if contestResult != None:
+        return contestResult
+
     sub_files = []
     undoBOM(programFile["relativePath"])
     with open(programFile["relativePath"]) as sub_file:
@@ -142,6 +146,10 @@ def postSubmission(session, problemName, programFile):
 
     response = session.post(url, data=data, files=sub_files, headers=HEADERS)
 
+    return idOfResponse(response)
+
+
+def idOfResponse(response):
     body = response.content.decode("utf-8").replace("<br />", "\n")
     match = re.search(r"Submission ID: ([0-9]+)", body)
 
@@ -154,6 +162,39 @@ def postSubmission(session, problemName, programFile):
         return None
 
     return match.group(1).strip()
+
+
+def trySubmitContest(session, problemName, programFile, data):
+    config = getConfig()
+    contestConfig = config.get("contest", None)
+    if contestConfig:
+        contestUrl = contestConfig.get("contest")
+        problems = set(contestConfig.values()) - {contestUrl}
+        if contestUrl and problemName not in problems:
+            print("You are submitting a problem not part of a previous contest.")
+            print("Do you want to leave the contest?")
+            if yes():
+                config['contest'] = {}
+                saveConfig()
+        elif contestUrl:  # problemName in problems
+            code = ""
+            undoBOM(programFile["relativePath"])
+            with open(programFile["relativePath"], "r") as f:
+                code = "\n".join(f.readlines())
+            data = {
+                "files": [{
+                    "filename": programFile["name"],
+                    "code": code,
+                    "id": 0,
+                    "session": None
+                }],
+                "language": data["language"],
+                "mainclass": programFile["name"],
+                "problem": data["problem"]
+            }
+            response = session.post(
+                contestUrl + f"/problems/{problemName}" + "/submit", json=data, headers=HEADERS)
+            return idOfResponse(response)
 
 
 def printFinalStatus(status, icon, runtime):
