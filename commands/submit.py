@@ -174,7 +174,7 @@ def trySubmitContest(session, problemName, programFile, data):
             print("You are submitting a problem not part of a previous contest.")
             print("Do you want to leave the contest?")
             if yes():
-                config['contest'] = {}
+                config['contest'] = {"contest": ""}
                 saveConfig()
         elif contestUrl:  # problemName in problems
             code = ""
